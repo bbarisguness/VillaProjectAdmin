@@ -11,7 +11,7 @@ import { openSnackbar } from 'api/snackbar';
 import { Trash } from 'iconsax-react';
 import { PriceTableRemove } from 'services/priceTableServices';
 
-export default function PriceTableModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem }) {
+export default function PriceTableModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem, villa = false }) {
   const deletehandler = async () => {
 
     await PriceTableRemove(id).then((res) => {
@@ -64,7 +64,10 @@ export default function PriceTableModalDelete({ id, title, open, handleClose, se
             </Typography>
             <Typography align="center">
               <Typography variant="subtitle1" component="span">
-                "{selectedItem?.name}" {""}
+                {
+                  villa ?
+                    `${selectedItem?.title} ` : `${selectedItem?.length !== 0 && selectedItem?.priceTableDetails[0]?.title} `
+                }
               </Typography>
               adlı fiyat tablosunu silmek istediğinize emin misiniz?
             </Typography>

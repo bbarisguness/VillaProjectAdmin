@@ -15,6 +15,7 @@ import { useFormik, Form, FormikProvider } from 'formik';
 import { useParams } from 'react-router';
 import { PriceTableAdd } from 'services/priceTableServices';
 import { openSnackbar } from 'api/snackbar';
+import useUser from 'hooks/useUser';
 
 
 const getInitialValues = () => {
@@ -30,6 +31,7 @@ const getInitialValues = () => {
 };
 
 export default function FormPriceTableAdd({ closeModal, setIsEdit, apart = false }) {
+    const user = useUser()
     const params = useParams();
 
     const validationSchema = Yup.object({
@@ -66,9 +68,21 @@ export default function FormPriceTableAdd({ closeModal, setIsEdit, apart = false
                     }
                 }
 
-                PriceTableAdd({ data }).then((res) => {
+                const fd = new FormData()
+                if (apart) {
+                    fd.append('HotelId', params.id)
+                } else {
+                    fd.append('VillaId', params.id)
+                }
+                fd.append('Icon', values.icon)
+                fd.append('Price', values.price)
+                fd.append('LanguageCode', user?.config?.companyDefaultLanguage || 'tr')
+                fd.append('Title', values.name)
+                fd.append('Description', values.description)
+
+                await PriceTableAdd(fd).then((res) => {
                     setIsEdit(true);
-                    if (!res?.error) {
+                    if (res?.statusCode === 200) {
                         openSnackbar({
                             open: true,
                             message: 'Fiyat Eklendi',
@@ -114,6 +128,22 @@ export default function FormPriceTableAdd({ closeModal, setIsEdit, apart = false
                         <DialogContent sx={{ p: 2.5 }}>
                             <Grid item xs={12} md={12}>
                                 <Grid container spacing={3}>
+                                    <Grid item xs={12}>
+                                        <Stack spacing={1}>
+                                            <InputLabel htmlFor="languageCode">Dil</InputLabel>
+                                            <FormControl>
+                                                <RadioGroup row aria-label="languageCode" value={user?.config?.companyDefaultLanguage || 'tr'} name="languageCode" id="languageCode">
+                                                    <FormControlLabel disabled value="tr" control={<Radio />} label="TR" />
+                                                    <FormControlLabel disabled value="en" control={<Radio />} label="EN" />
+                                                </RadioGroup>
+                                            </FormControl>
+                                            {formik.errors.languageCode && (
+                                                <FormHelperText error id="standard-weight-helper-text-email-login">
+                                                    {formik.errors.languageCode}
+                                                </FormHelperText>
+                                            )}
+                                        </Stack>
+                                    </Grid>
                                     <Grid item xs={12}>
                                         <Stack spacing={1}>
                                             <InputLabel htmlFor="name">Başlık *</InputLabel>

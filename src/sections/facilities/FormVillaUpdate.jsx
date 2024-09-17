@@ -20,42 +20,45 @@ import { useNavigate, useParams } from 'react-router';
 import { CloseCircle } from 'iconsax-react';
 import { Categories } from 'services/categoryServices';
 import 'react-quill/dist/quill.snow.css';
-import { GetVillaDetail, VillaAdd, VillaUpdate } from 'services/villaServices';
+import { GetVillaDetail, VillaAdd, VillaCategoryAsign, VillaUpdate } from 'services/villaServices';
+import { getTowns } from 'services/townServices';
 
 // CONSTANT
 const getInitialValues = (villa) => {
   const [defaultCategoriesId, setDefaultCategoriesId] = useState([])
 
   useEffect(() => {
-    villa?.attributes?.categories?.data?.map((item) => {
+    villa?.categories?.map((item) => {
       setDefaultCategoriesId(prevValues => [...prevValues, item?.id]);
     })
   }, [villa])
 
-  const newVilla = {
-    slug: villa?.attributes?.slug || '',
-    name: villa?.attributes?.name || '',
-    room: villa?.attributes?.room || 0,
-    bath: villa?.attributes?.bath || 0,
-    person: villa?.attributes?.person || 0,
-    featureTextRed: villa?.attributes?.featureTextRed || '',
-    featureTextBlue: villa?.attributes?.featureTextBlue || '',
-    featureTextWhite: villa?.attributes?.featureTextWhite || '',
-    wifiPassword: villa?.attributes?.wifiPassword || '',
-    waterMaterNumber: villa?.attributes?.waterMaterNumber || '',
-    electricityMeterNumber: villa?.attributes?.electricityMeterNumber || '',
-    internetMeterNumber: villa?.attributes?.internetMeterNumber || '',
-    googleMap: villa?.attributes?.googleMap || '',
-    region: villa?.attributes?.region || '',
-    descriptionShort: villa?.attributes?.descriptionShort || '',
-    descriptionLong: villa?.attributes?.descriptionLong || '',
-    onlineReservation: villa?.attributes?.onlineReservation || false,
-    categories: defaultCategoriesId || [],
-    metaTitle: villa?.attributes?.metaTitle || '',
-    metaDescription: villa?.attributes?.metaDescription || '',
-    video: villa?.attributes?.video || ''
-  };
-  return newVilla;
+  if (villa.length !== 0) {
+    const newVilla = {
+      slug: villa?.slug || '',
+      // name: villa?.villaDetails[0]?.name || '',
+      room: villa?.room || 0,
+      bath: villa?.bath || 0,
+      person: villa?.person || 0,
+      // featureTextRed: villa?.villaDetails[0]?.featureTextRed || '',
+      // featureTextBlue: villa?.villaDetails[0]?.featureTextBlue || '',
+      // featureTextWhite: villa?.villaDetails[0]?.featureTextWhite || '',
+      wifiPassword: villa?.wifiPassword || '',
+      waterMaterNumber: villa?.waterMaterNumber || '',
+      electricityMeterNumber: villa?.electricityMeterNumber || '',
+      internetMeterNumber: villa?.internetMeterNumber || '',
+      googleMap: villa?.googleMap || '',
+      region: villa?.townId || '',
+      // descriptionShort: villa?.villaDetails[0]?.descriptionShort || '',
+      // descriptionLong: villa?.villaDetails[0]?.descriptionLong || '',
+      onlineReservation: villa?.onlineReservation || false,
+      categories: defaultCategoriesId || [],
+      metaTitle: villa?.metaTitle || '',
+      metaDescription: villa?.metaDescription || '',
+      video: villa?.video || ''
+    };
+    return newVilla;
+  }
 };
 
 export default function FormVillaUpdate() {
@@ -65,28 +68,34 @@ export default function FormVillaUpdate() {
   const [defaultCategories, setDefaultCategories] = useState([])
   const [villa, setVilla] = useState([])
   const params = useParams()
+  const [towns, setTowns] = useState([])
+
 
   useEffect(() => {
-
-    GetVillaDetail(params.id).then((res) => {
-      setVilla(res?.data)
-      Categories().then((ress) => {
-        setCategories(ress)
-        res?.data?.attributes?.categories?.data?.map((item, i) => {
-          setDefaultCategories(prevValues => [...prevValues, item?.attributes?.name]);
-          if (res?.data?.attributes?.categories?.data.length === (i + 1)) {
-            setLoading(false);
-          }
-        })
-      });
-
-    })
+    async function fetchData() {
+      await GetVillaDetail(params.id).then(async (res) => {
+        setVilla(res?.data)
+        await Categories().then((ress) => {
+          setCategories(ress)
+          res?.data?.categories?.map((item, i) => {
+            setDefaultCategories(prevValues => [...prevValues, item?.categoryDetails[0]?.name]);
+            if (res?.data?.categories?.length === (i + 1)) {
+            }
+          })
+        });
+      })
+      await getTowns().then((res) => {
+        setTowns(res?.data)
+      })
+      setLoading(false)
+    }
+    fetchData()
 
   }, []);
 
 
   const VillaSchema = Yup.object().shape({
-    name: Yup.string().max(255).required('Lütfen villa adı yazınız..'),
+    // name: Yup.string().max(255).required('Lütfen villa adı yazınız..'),
     room: Yup.number().moreThan(0, "Oda sayısı 0'dan büyük olmalıdır").required('Oda Sayısı zorunludur'),
     bath: Yup.number().moreThan(0, "Banyo sayısı 0'dan büyük olmalıdır").required('Banyo Sayısı zorunludur'),
     categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
@@ -107,29 +116,52 @@ export default function FormVillaUpdate() {
           }
         }
 
-        await VillaUpdate(params.id, data).then((res) => {
-          if (res?.error) {
-            openSnackbar({
-              open: true,
-              message: res?.error?.message,
-              variant: 'alert',
+        const fd = new FormData()
+        fd.append('Id', params.id)
+        // fd.append('Name', values.name)
+        // fd.append('DescriptionShort', values.descriptionShort)
+        // fd.append('DescriptionLong', values.descriptionLong)
+        fd.append('Room', values.room)
+        fd.append('Bath', values.bath)
+        fd.append('Person', values.person)
+        fd.append('OnlineReservation', values.onlineReservation)
+        fd.append('GoogleMap', values.googleMap)
+        fd.append('MetaTitle', values.metaTitle)
+        fd.append('TownId', values.region)
+        fd.append('MetaDescription', values.metaDescription)
+        fd.append('Slug', values.slug)
+        fd.append('Video', values.video)
 
-              alert: {
-                color: 'errorr'
-              }
-            });
-          } else {
-            openSnackbar({
-              open: true,
-              message: 'Villa Güncellendi.',
-              variant: 'alert',
+        await VillaUpdate(fd).then(async (res) => {
+          const fdd = new FormData()
+          fdd.append('VillaId', res?.data?.id)
+          formik.values.categories.map((itm, i) => {
+            fdd.append(`CategoryIds[${i}]`, itm)
+          })
+          await VillaCategoryAsign(fdd).then(() => {
+            if (res?.error) {
+              openSnackbar({
+                open: true,
+                message: res?.error?.message,
+                variant: 'alert',
 
-              alert: {
-                color: 'success'
-              }
-            });
-            navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
-          }
+                alert: {
+                  color: 'errorr'
+                }
+              });
+            } else {
+              openSnackbar({
+                open: true,
+                message: 'Villa Güncellendi.',
+                variant: 'alert',
+
+                alert: {
+                  color: 'success'
+                }
+              });
+              navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
+            }
+          })
         })
         setSubmitting(false)
       } catch (error) {
@@ -151,7 +183,9 @@ export default function FormVillaUpdate() {
 
 
   const handleChangeEditor = (value) => {
-    setFieldValue('descriptionLong', value)
+    if (formik?.values?.descriptionLong) {
+      setFieldValue('descriptionLong', value)
+    }
   };
 
   return (
@@ -162,7 +196,7 @@ export default function FormVillaUpdate() {
             <DialogContent sx={{ p: 2.5 }}>
               <Grid item xs={12} md={12}>
                 <Grid container spacing={3}>
-                  <Grid item xs={6}>
+                  {/* <Grid item xs={6}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="villa-name">Villa Adı</InputLabel>
                       <TextField
@@ -174,19 +208,20 @@ export default function FormVillaUpdate() {
                         helperText={touched.name && errors.name}
                       />
                     </Stack>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Stack spacing={1}>
-                      <InputLabel htmlFor="villa-region">Bölge</InputLabel>
-                      <TextField
-                        fullWidth
-                        id="villa-region"
-                        placeholder="Bölge"
-                        {...getFieldProps('region')}
-                        error={Boolean(touched.region && errors.region)}
-                        helperText={touched.region && errors.region}
-                      />
-                    </Stack>
+                  </Grid> */}
+                  <Grid item xs={12}>
+                    <InputLabel sx={{ marginBottom: 1.5 }}>Bölge</InputLabel>
+                    <Autocomplete
+                      fullWidth
+                      id="basic-autocomplete-label"
+                      disableClearable
+                      options={towns}
+                      getOptionLabel={(option) => `${option?.name}` || ''}
+                      isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                      onChange={(e, value) => setFieldValue('region', value?.id)}
+                      value={towns.find((item) => item.id === formik?.values?.region) || null}
+                      renderInput={(params) => <TextField {...params} helperText={errors.region} error={Boolean(errors.region)} label="Bölge" />}
+                    />
                   </Grid>
 
                   <Grid item xs={12}>
@@ -203,12 +238,12 @@ export default function FormVillaUpdate() {
                           freeSolo
                           disableCloseOnSelect
                           defaultValue={defaultCategories}
-                          options={categories?.data?.map((item) => item?.attributes?.name) || []}
+                          options={categories?.data?.map((item) => item?.categoryDetails[0]?.name) || []}
                           getOptionLabel={(option) => option}
                           onChange={(event, newValue) => {
                             var x = [];
                             categories?.data?.map(function (item) {
-                              if (newValue.includes(item.attributes.name)) {
+                              if (newValue.includes(item.categoryDetails[0].name)) {
                                 x.push(item.id);
                               }
                             });
@@ -280,7 +315,7 @@ export default function FormVillaUpdate() {
                     />
                   </Grid>
 
-                  <Grid item xs={4}>
+                  {/* <Grid item xs={4}>
                     <InputLabel htmlFor="villa-featureTextRed">Kırmızı Etiket</InputLabel>
                     <TextField
                       fullWidth
@@ -312,7 +347,7 @@ export default function FormVillaUpdate() {
                       error={Boolean(touched.featureTextWhite && errors.featureTextWhite)}
                       helperText={touched.featureTextWhite && errors.featureTextWhite}
                     />
-                  </Grid>
+                  </Grid> */}
 
                   <Grid item xs={6}>
                     <InputLabel htmlFor="villa-wifiPassword">Wifi Şifresi</InputLabel>
@@ -359,7 +394,7 @@ export default function FormVillaUpdate() {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <InputLabel htmlFor="descriptionShort">Kısa Açıklama</InputLabel>
                     <TextField
                       fullWidth
@@ -375,8 +410,8 @@ export default function FormVillaUpdate() {
 
                   <Grid item xs={12}>
                     <InputLabel htmlFor="longDescription">Genel Açıklama</InputLabel>
-                    <ReactQuill style={{ height: '400px', marginBottom: '40px' }} defaultValue={formik.values.descriptionLong} onChange={handleChangeEditor} />
-                  </Grid>
+                    <ReactQuill style={{ height: '400px', marginBottom: '40px' }} value={formik?.values?.descriptionLong} onChange={handleChangeEditor} />
+                  </Grid> */}
 
 
 
@@ -430,7 +465,7 @@ export default function FormVillaUpdate() {
                     <Typography variant="caption" color="text.secondary">
                       Tesisinize Online (Anlık) Rezervasyon Kabul Ediyormusunuz?
                     </Typography>
-                    <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" checked={formik.values.onlineReservation} labelPlacement="start" onChange={() => { setFieldValue('onlineReservation', !getFieldProps('onlineReservation').value) }} />
+                    <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" checked={formik?.values?.onlineReservation} labelPlacement="start" onChange={() => { setFieldValue('onlineReservation', !getFieldProps('onlineReservation').value) }} />
                   </Grid>
                 </Grid>
               </Grid>

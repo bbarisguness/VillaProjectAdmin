@@ -10,17 +10,23 @@ import { useEffect, useState } from 'react';
 import { GetVilla, GetVillaFull } from 'services/villaServices';
 import { useParams } from 'react-router';
 import Loader from 'components/Loader';
-import { Add, Trash } from 'iconsax-react';
+import { Add, Edit, Trash } from 'iconsax-react';
 import DistanceRulerModal from 'sections/distanceRulerSections/DistanceRulerModal';
 import DistanceRulerModalDelete from 'sections/distanceRulerSections/DistanceRulerModalDelete';
 import PriceTableModalDelete from 'sections/priceTableSections/PriceTableModalDelete';
 import PriceTableModal from 'sections/priceTableSections/PriceTableModal';
+import { GetDistanceRuler } from 'services/distanceRulerServices';
+import { GetPriceTable } from 'services/priceTableServices';
+import PriceTableUpdateModal from 'sections/priceTableSections/PriceTableUpdateModal';
+import DistanceRulerUpdateModal from 'sections/distanceRulerSections/DistanceRulerUpdateModal';
 
 export default function VillaContentSection() {
     const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
     const params = useParams();
     const [villa, setVilla] = useState();
+    const [priceTable, setPriceTable] = useState();
+    const [distanceRuler, setDistanceRuler] = useState([])
     const [loading, setLoading] = useState(true);
 
     const [distanceRulerModal, setDistanceRulerModal] = useState(false)
@@ -31,18 +37,30 @@ export default function VillaContentSection() {
     const [priceTableModalDelete, setPriceTableModalDelete] = useState(false);
     const [selectedPriceDeleteItem, setSelectedPriceDeleteItem] = useState([])
 
+    const [updatePriceTableModal, setUpdatePriceTableModal] = useState(false)
+    const [selectedPriceTableItem, setSelectedPriceTableItem] = useState([])
+
+    const [updateDistanceRulerModal, setUpdateDistanceRulerModal] = useState(false)
+    const [selectedDistanceRulerItem, setSelectedDistanceRulerItem] = useState('')
+
     const [isEdit, setIsEdit] = useState(true);
     const [distanceRulerDeleteId, setDistanceRulerDeleteId] = useState('');
     const [priceTableDeleteId, setPriceTableDeleteId] = useState('');
 
     useEffect(() => {
+        async function fetchData() {
+            await GetDistanceRuler(params.id).then((res) => {
+                setDistanceRuler(res.data)
+            })
+            await GetPriceTable(params.id).then((res) => {
+                setPriceTable(res.data)
+            })
+            setLoading(false);
+            setIsEdit(false);
+        }
         if (isEdit) {
             setLoading(true);
-            GetVillaFull(params.id).then((res) => {
-                setVilla(res.data);
-                setLoading(false);
-                setIsEdit(false);
-            })
+            fetchData()
         }
     }, [isEdit])
 
@@ -57,10 +75,10 @@ export default function VillaContentSection() {
 
     return (
         <Grid container spacing={3}>
-            <Grid item xs={12} sm={7} md={8} xl={12}>
+            <Grid item xs={12}>
                 <Grid container spacing={3}>
 
-                    {villa && (
+                    {(priceTable && distanceRuler) && (
                         <>
                             {/* <Grid item xs={12}>
                                 <MainCard title="Genel İçerikler">
@@ -163,34 +181,51 @@ export default function VillaContentSection() {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {villa && villa.attributes.distance_rulers.data.map((row) => (
-                                                    <TableRow hover key={row.id}>
-                                                        <TableCell align="left">{row.attributes.name}</TableCell>
-                                                        <TableCell align="left">{row.attributes.value}</TableCell>
-                                                        <TableCell sx={{ pr: 3 }} align="right">
-                                                            <Stack direction="row" spacing={0}>
-                                                                <Tooltip title="Delete">
-                                                                    <IconButton
-                                                                        color="error"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            handleClose();
-                                                                            setDistanceRulerDeleteId(Number(row.id));
-                                                                            setSelectedDistanceDeleteItem(row.attributes)
-                                                                        }}
-                                                                    >
-                                                                        <Trash />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Stack>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
+                                                {
+                                                    distanceRuler && distanceRuler.map((row) => {
+                                                        return (
+                                                            <TableRow hover key={row.id}>
+                                                                <TableCell align="left">{row?.distanceRulerDetails[0]?.name}</TableCell>
+                                                                <TableCell align="left">{row?.distanceRulerDetails[0]?.value}</TableCell>
+                                                                <TableCell sx={{ pr: 3 }} align="right">
+                                                                    <Stack direction="row" spacing={0}>
+                                                                        <Tooltip title="Delete">
+                                                                            <IconButton
+                                                                                color="error"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleClose();
+                                                                                    setDistanceRulerDeleteId(row.id);
+                                                                                    setSelectedDistanceDeleteItem(row?.distanceRulerDetails[0])
+                                                                                }}
+                                                                            >
+                                                                                <Trash />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                        <Tooltip title="Edit">
+                                                                            <IconButton
+                                                                                color="primary"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setUpdateDistanceRulerModal(true)
+                                                                                    setSelectedDistanceRulerItem(row)
+                                                                                }}
+                                                                            >
+                                                                                <Edit />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                    </Stack>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )
+                                                    })
+                                                }
                                             </TableBody>
                                         </Table>
                                     </TableContainer>
                                     <DistanceRulerModal open={distanceRulerModal} modalToggler={setDistanceRulerModal} villaId={params.id} setIsEdit={setIsEdit} />
-                                    <DistanceRulerModalDelete selectedItem={selectedDistanceDeleteItem} setIsEdit={setIsEdit} id={Number(distanceRulerDeleteId)} title={distanceRulerDeleteId} open={distanceRulerModalDelete} handleClose={handleClose} />
+                                    <DistanceRulerModalDelete villa={true} selectedItem={selectedDistanceDeleteItem} setIsEdit={setIsEdit} id={distanceRulerDeleteId} title={distanceRulerDeleteId} open={distanceRulerModalDelete} handleClose={handleClose} />
+                                    <DistanceRulerUpdateModal open={updateDistanceRulerModal} modalToggler={setUpdateDistanceRulerModal} selectedItem={selectedDistanceRulerItem} setIsEdit={setIsEdit} />
                                 </MainCard>
                             </Grid>
                             <Grid item xs={12}>
@@ -210,35 +245,52 @@ export default function VillaContentSection() {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {villa && villa.attributes.price_tables.data.map((row) => (
-                                                    <TableRow hover key={row.id}>
-                                                        <TableCell align="left">{row.attributes.name}</TableCell>
-                                                        <TableCell align="left">{row.attributes.description}</TableCell>
-                                                        <TableCell align="left">{row.attributes.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</TableCell>
-                                                        <TableCell sx={{ pr: 3 }} align="right">
-                                                            <Stack direction="row" spacing={0}>
-                                                                <Tooltip title="Delete">
-                                                                    <IconButton
-                                                                        color="error"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            handleClosePriceTable();
-                                                                            setPriceTableDeleteId(Number(row.id));
-                                                                            setSelectedPriceDeleteItem(row.attributes)
-                                                                        }}
-                                                                    >
-                                                                        <Trash />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Stack>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
+                                                {
+                                                    priceTable && priceTable.map((row) => {
+                                                        return (
+                                                            <TableRow hover key={row.id}>
+                                                                <TableCell align="left">{row?.priceTableDetails[0]?.title}</TableCell>
+                                                                <TableCell align="left">{row?.priceTableDetails[0].description}</TableCell>
+                                                                <TableCell align="left">{row?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</TableCell>
+                                                                <TableCell sx={{ pr: 3 }} align="right">
+                                                                    <Stack direction="row" spacing={0}>
+                                                                        <Tooltip title="Delete">
+                                                                            <IconButton
+                                                                                color="error"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleClosePriceTable();
+                                                                                    setPriceTableDeleteId(row.id);
+                                                                                    setSelectedPriceDeleteItem(row.priceTableDetails[0])
+                                                                                }}
+                                                                            >
+                                                                                <Trash />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                        <Tooltip title="Edit">
+                                                                            <IconButton
+                                                                                color="primary"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setUpdatePriceTableModal(true)
+                                                                                    setSelectedPriceTableItem(row)
+                                                                                }}
+                                                                            >
+                                                                                <Edit />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                    </Stack>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )
+                                                    })
+                                                }
                                             </TableBody>
                                         </Table>
                                     </TableContainer>
                                     <PriceTableModal open={priceTableModal} modalToggler={setPriceTableModal} villaId={params.id} setIsEdit={setIsEdit} />
-                                    <PriceTableModalDelete selectedItem={selectedPriceDeleteItem} setIsEdit={setIsEdit} id={Number(priceTableDeleteId)} title={priceTableDeleteId} open={priceTableModalDelete} handleClose={handleClosePriceTable} />
+                                    <PriceTableUpdateModal open={updatePriceTableModal} modalToggler={setUpdatePriceTableModal} selectedItem={selectedPriceTableItem} setIsEdit={setIsEdit} />
+                                    <PriceTableModalDelete villa={true} selectedItem={selectedPriceDeleteItem} setIsEdit={setIsEdit} id={priceTableDeleteId} title={priceTableDeleteId} open={priceTableModalDelete} handleClose={handleClosePriceTable} />
                                 </MainCard>
                             </Grid>
                         </>

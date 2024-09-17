@@ -11,7 +11,7 @@ import { openSnackbar } from 'api/snackbar';
 import { Trash } from 'iconsax-react';
 import { PhotoRemove, PhotoRemoveHard } from 'services/photoService';
 
-export default function PhotoModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem }) {
+export default function PhotoModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem, apart, room }) {
   const deletehandler = async () => {
 
     await PhotoRemove(id).then((res) => {
@@ -62,8 +62,8 @@ export default function PhotoModalDelete({ id, title, open, handleClose, setIsEd
             <Typography variant="h4" align="center">
               Resimi silmek istiyormusunuz?
             </Typography>
-            <div style={{ display: 'flex', justifyContent: 'center',marginTop: '40px',marginBottom: '40px' }}>
-              <img src={selectedItem} width={180} height={160} style={{ border: '3px solid #999696' }} />
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px', marginBottom: '40px' }}>
+              <img src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/${apart ? 'HotelPhotos' : room ? 'RoomPhotos' : 'VillaPhotos'}/k_${selectedItem}`} width={180} height={160} style={{ border: '3px solid #999696' }} />
             </div>
           </Stack>
 

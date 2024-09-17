@@ -2,78 +2,28 @@
 import { get, post, remove, put } from './request'
 import * as qs from 'qs'
 
-const Upload = (payload) => post(`/api/upload`, payload, true, true)
+const Upload = (payload) => post(`/Photos/CreateMultiPhoto`, payload, true, true)
+const UploadSingle = (payload) => post(`/Photos/Create`, payload, true, true)
 
 const GetPhotos = (villaId) => {
-    const query = qs.stringify({
-        sort: ['line:asc'],
-        fields: ['line'],
-        populate: ['photo'],
-        filters: {
-            villa: {
-                id: {
-                    $eq: villaId
-                }
-            }
-        },
-        pagination: {
-            pageSize: 100,
-            page: 1,
-        },
-        publicationState: 'live',
-    });
-    return get(`/api/photos?${query}`);
+    return get(`/Photos/GetAll?villaId=${villaId}`, true);
 }
 
 const GetPhotosApart = (apartId) => {
-    const query = qs.stringify({
-        sort: ['line:asc'],
-        fields: ['line'],
-        populate: ['photo'],
-        filters: {
-            apart: {
-                id: {
-                    $eq: apartId
-                }
-            }
-        },
-        pagination: {
-            pageSize: 100,
-            page: 1,
-        },
-        publicationState: 'live',
-    });
-    return get(`/api/photos?${query}`);
+    return get(`/Photos/GetAll?hotelId=${apartId}`, true);
 }
 
 const GetPhotosRoom = (roomId) => {
-    const query = qs.stringify({
-        sort: ['line:asc'],
-        fields: ['line'],
-        populate: ['photo'],
-        filters: {
-            room: {
-                id: {
-                    $eq: roomId
-                }
-            }
-        },
-        pagination: {
-            pageSize: 100,
-            page: 1,
-        },
-        publicationState: 'live',
-    });
-    return get(`/api/photos?${query}`);
+    return get(`/Photos/GetAll?roomId=${roomId}`, true);
 }
 
-const PhotoPut = (id, payload) => put(`/api/photos/${id}`, payload, true);
+const PhotoPut = (payload) => post(`/Photos/UpdateLine`, payload, true, true);
 const PhotoPost = (payload) => post(`/api/photos`, payload, true);
 
-const PhotoRemove = (id) => remove('/api/photos/' + id)
+const PhotoRemove = (id) => get('/Photos/DeleteHard/' + id, true)
 const PhotoRemoveHard = (id) => remove('/api/upload/files/' + id)
 
 //--- /api/upload/files/:id	
 
 
-export { GetPhotos, PhotoPut, PhotoPost, Upload, PhotoRemove, PhotoRemoveHard, GetPhotosApart, GetPhotosRoom }
+export { GetPhotos, PhotoPut, PhotoPost, Upload, PhotoRemove, PhotoRemoveHard, GetPhotosApart, GetPhotosRoom, UploadSingle }

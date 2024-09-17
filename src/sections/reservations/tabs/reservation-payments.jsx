@@ -22,6 +22,7 @@ import { GetAllPaymentsByReservation } from 'services/paymentServices';
 import ReservationPaymentAddForm from './reservation-payments-add-form';
 import PaymentModalDelete from './reservation-payments-delete-modal';
 import ReservationPaymentsUpdateModal from './reservation-payments-update-modal';
+import { GetReservation } from 'services/reservationServices';
 
 export const header = [
     { label: 'Başlangıç Tarihi', key: 'name' },
@@ -49,6 +50,7 @@ export default function ReservationPaymentSection() {
     useEffect(() => {
         if (isEdit) {
             setLoading(true);
+            
             GetAllPaymentsByReservation(params.id).then((res) => { setData(res.data); setIsEdit(false); setLoading(false); })
         }
     }, [isEdit])
@@ -93,12 +95,12 @@ export default function ReservationPaymentSection() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {data && data.attributes.payments.data.map((row) => (
+                        {data && data.map((row) => (
                             <TableRow style={{ cursor: 'pointer' }} onClick={() => { setSelectedId(row?.id); setPaymentUpdateModal(true) }} hover key={row.id}>
-                                <TableCell align="left">{row.attributes.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
-                                <TableCell align="left">{row.attributes.payment_type?.data?.attributes?.title}</TableCell>
-                                <TableCell align="left">{row.attributes.description}</TableCell>
-                                <TableCell align="left">{row.attributes.createdAt.toString().split('T')[0]}</TableCell>
+                                <TableCell align="left">{row?.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                                <TableCell align="left">{row?.paymentType?.title}</TableCell>
+                                <TableCell align="left">{row?.description}</TableCell>
+                                <TableCell align="left">{row?.createdAt.toString().split('T')[0]}</TableCell>
                                 <TableCell sx={{ pr: 3 }} align="right">
                                     <Stack direction="row" spacing={0}>
                                         <Tooltip title="Delete">
@@ -122,7 +124,7 @@ export default function ReservationPaymentSection() {
                 </Table>
             </TableContainer>
             <PaymentModalDelete selectedItem={selectedPaymentDeleteItem} setIsEdit={setIsEdit} id={Number(paymentDeleteId)} title={paymentDeleteId} open={paymentModalDelete} handleClose={handleClose} />
-            <ReservationPaymentsModal open={paymentModal} modalToggler={setPaymentModal} setIsEdit={setIsEdit} facilityId={data.attributes.villa.data !== null ? data.attributes.villa.data.id : data.attributes.room.data.id} facilityType={data.attributes.villa.data !== null ? 1 : 2 } apartId={data.attributes.room?.data?.attributes.apart.data.id} />
+            <ReservationPaymentsModal open={paymentModal} modalToggler={setPaymentModal} setIsEdit={setIsEdit} facilityId={data?.attributes?.villa.data !== null ? data?.attributes?.villa?.data.id : data?.attributes?.room.data.id} facilityType={data?.attributes?.villa.data !== null ? 1 : 2 } apartId={data?.attributes?.room?.data?.attributes.apart.data.id} />
             <ReservationPaymentsUpdateModal open={paymentUpdateModal} modalToggler={setPaymentUpdateModal} setIsEdit={setIsEdit} id={selectedId} />
         </MainCard>
     );

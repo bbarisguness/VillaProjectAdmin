@@ -104,102 +104,29 @@ export default function FormReservationApartAdd({ roomId, closeModal, setIsAdded
                 formik.values.checkIn = moment(date1).format('YYYY-MM-DD').toString();
                 formik.values.checkOut = moment(date2).format('YYYY-MM-DD').toString();
 
-                formik.values.room = { connect: [params.id] };
-                formik.values.reservationStatus = '120';
-                formik.values.customerPaymentType = '120';
-                formik.values.total = formik.values.amount - formik.values.discount;
-                formik.values.homeOwner = false,
+                const fd = new FormData()
+                fd.append('RoomId', params.id)
+                fd.append('CheckIn', formik.values.checkIn)
+                fd.append('CheckOut', formik.values.checkOut)
+                fd.append('Discount', formik.values.discount)
+                fd.append('ReservationChannalType', 1)
+                fd.append('ReservationStatusType', 1)
+                fd.append('IsDepositPrice', false)
+                fd.append('IsCleaningPrice', false)
+                fd.append('HomeOwner', false)
+                fd.append('PriceType', 1)
+                fd.append('IdNo', formik.values.idNo)
+                fd.append('Name', formik.values.name)
+                fd.append('Surname', formik.values.surname)
+                fd.append('Phone', formik.values.phone)
+                fd.append('Email', formik.values.email)
 
-                    // formik.values.reservation_infos.name = formik.values.name
-                    // formik.values.reservation_infos.surname = formik.values.surname
-                    // formik.values.reservation_infos.idNo = formik.values.idNo
-                    // formik.values.reservation_infos.phone = formik.values.phone
-                    // formik.values.reservation_infos.email = formik.values.email
-                    // formik.values.reservation_infos.owner = true
-                    // formik.values.reservation_infos.peopleType = "Adult"
-
-                    formik.values.reservation_infos = {
-                        name: formik.values.name,
-                        surname: formik.values.surname,
-                        idNo: formik.values.idNo,
-                        phone: formik.values.phone,
-                        email: formik.values.email,
-                        owner: true,
-                        peopleType: "Adult"
-                    }
-
-                //console.log(values);
-
-
-
-                AddReservationInfo({
-                    data: {
-                        name: formik.values.name,
-                        surname: formik.values.surname,
-                        idNo: formik.values.idNo,
-                        phone: formik.values.phone,
-                        email: formik.values.email,
-                        owner: true,
-                        peopleType: "Adult"
-                    }
-                }).then((res) => {
-
-                    formik.values.reservation_infos = { connect: [res.data.id] };
-
-                    const data = {
-                        ...values
-                    }
-                    AddReservation({ data }).then((res) => {
-                        reservationItem.map((item, i) => {
-                            const data = {
-                                data: {
-                                    day: item.day,
-                                    price: item.price,
-                                    reservation: {
-                                        connect: [res.data.id]
-                                    }
-                                }
-                            }
-                            AddReservationItem(data).then(() => { })
-                            if ((i + 1) === reservationItem.length) {
-                                setLoading(false);
-                                setSubmitting(false);
-                                closeModal();
-                                navigate(`/reservations/show/summary/${res.data.id}`);
-                            }
-                        })
-                    })
+                await AddReservation(fd).then((res) => {
+                    setLoading(false);
+                    setSubmitting(false);
+                    closeModal();
+                    navigate(`/reservations/show/summary/${res.data.id}`);
                 })
-
-                // if (customer) {
-                //   updateCustomer(newCustomer.id, newCustomer).then(() => {
-                //     openSnackbar({
-                //       open: true,
-                //       message: 'Customer update successfully.',
-                //       variant: 'alert',
-
-                //       alert: {
-                //         color: 'success'
-                //       }
-                //     });
-                //     setSubmitting(false);
-                //     closeModal();
-                //   });
-                // } else {
-                //   await insertCustomer(newCustomer).then(() => {
-                //     openSnackbar({
-                //       open: true,
-                //       message: 'Customer added successfully.',
-                //       variant: 'alert',
-
-                //       alert: {
-                //         color: 'success'
-                //       }
-                //     });
-                //     setSubmitting(false);
-                //     closeModal();
-                //   });
-                // }
             } catch (error) {
                 // console.error(error);
             }
@@ -228,59 +155,56 @@ export default function FormReservationApartAdd({ roomId, closeModal, setIsAdded
                 setLoading(false)
                 return;
             }
-            RoomIsAvailible(params.id, dateToString(date1), dateToString(date2)).then((res) => {
-                if (res.data.length > 0) {
+            RoomGetPriceForReservation(params.id, dateToString(date1), dateToString(date2)).then((res) => {
+                if (res.statusCode === 400) {
                     openSnackbar({
                         open: true,
-                        message: 'Seçtiğiniz Tarihlerde Tesis Müsait Değil.',
+                        message: res.message,
                         variant: 'alert',
                         alert: {
                             color: 'error'
                         }
                     });
                     setLoading(false);
-                    return;
                 }
-                RoomGetPriceForReservation(params.id, dateToString(date1), dateToString(date2)).then((res) => {
-                    var fakeDate = new Date(moment(date1).format('YYYY-MM-DD'));
-                    var days = [];
-                    res.data.map((priceDate) => {
-                        while (fakeDate >= new Date(priceDate.attributes.checkIn) && fakeDate <= new Date(priceDate.attributes.checkOut)) {
-                            if (fakeDate >= new Date(moment(date2).format('YYYY-MM-DD'))) break;
-                            days.push({ date: moment(fakeDate).format('YYYY-MM-DD'), price: priceDate.attributes.price });
-                            fakeDate.setDate(fakeDate.getDate() + 1);
+                var fakeDate = new Date(moment(date1).format('YYYY-MM-DD'));
+                var days = [];
+                res.data.days.map((priceDate) => {
+                    while (fakeDate >= new Date(res.data.checkIn) && fakeDate <= new Date(res.data.checkOut)) {
+                        if (fakeDate >= new Date(moment(date2).format('YYYY-MM-DD'))) break;
+                        days.push({ date: moment(fakeDate).format('YYYY-MM-DD'), price: priceDate.price });
+                        fakeDate.setDate(fakeDate.getDate() + 1);
+                    }
+                });
+                var toplam = 0;
+                var rezItem = [];
+                for (var i = 0; i < days.length; i++) {
+                    toplam = toplam + Number(days[i].price);
+                    rezItem.push({ day: days[i].date, price: days[i].price });
+                }
+                setReservationItem(rezItem);
+
+                let time1 = date1.getTime();
+                let time2 = date2.getTime();
+
+                let timeDifference = Math.abs(time2 - time1);
+                let dayDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+                if (toplam > 0 && (rezItem.length === parseInt(dayDifference))) {
+                    setFieldValue('amount', toplam);
+                    setIsAvailable(true);
+                    setLoading(false);
+                } else {
+                    openSnackbar({
+                        open: true,
+                        message: 'Seçtiğiniz tarihlerde fiyat bilgisi bulunamadı.',
+                        variant: 'alert',
+                        alert: {
+                            color: 'error'
                         }
                     });
-                    var toplam = 0;
-                    var rezItem = [];
-                    for (var i = 0; i < days.length; i++) {
-                        toplam = toplam + Number(days[i].price);
-                        rezItem.push({ day: days[i].date, price: days[i].price });
-                    }
-                    setReservationItem(rezItem);
-
-                    let time1 = date1.getTime();
-                    let time2 = date2.getTime();
-
-                    let timeDifference = Math.abs(time2 - time1);
-                    let dayDifference = timeDifference / (1000 * 60 * 60 * 24);
-
-                    if (toplam > 0 && (rezItem.length === parseInt(dayDifference))) {
-                        setFieldValue('amount', toplam);
-                        setIsAvailable(true);
-                        setLoading(false);
-                    } else {
-                        openSnackbar({
-                            open: true,
-                            message: 'Seçtiğiniz tarihlerde fiyat bilgisi bulunamadı.',
-                            variant: 'alert',
-                            alert: {
-                                color: 'error'
-                            }
-                        });
-                        setLoading(false);
-                    }
-                })
+                    setLoading(false);
+                }
             })
         }
         else {
@@ -311,43 +235,17 @@ export default function FormReservationApartAdd({ roomId, closeModal, setIsAdded
                 setLoading(false)
                 return;
             } else {
-                RoomIsAvailible(params.id, dateToString(date1), dateToString(date2)).then((res) => {
-                    if (res.data.length > 0) {
-                        openSnackbar({
-                            open: true,
-                            message: 'Seçtiğiniz Tarihlerde Tesis Müsait Değil.',
-                            variant: 'alert',
-                            alert: {
-                                color: 'error'
-                            }
-                        });
-                        setLoading(false);
-                        return;
-                    } else {
-                        console.log("date1", date1);
-                        console.log("date2", date2);
+                const fd = new FormData()
+                fd.append('RoomId', params.id)
+                fd.append('CheckIn', moment(date1).format('YYYY-MM-DD').toString())
+                fd.append('CheckOut', moment(date2).format('YYYY-MM-DD').toString())
+                fd.append('HomeOwner', true)
 
-
-                        const data = {
-                            data: {
-                                checkIn: moment(date1).format('YYYY-MM-DD').toString(),
-                                checkOut: moment(date2).format('YYYY-MM-DD').toString(),
-                                room: { connect: [params.id] },
-                                reservationStatus: '120',
-                                amount: 0,
-                                total: 0,
-                                customerPaymentType: '0',
-                                homeOwner: true,
-                            }
-                        }
-
-                        AddReservation(data).then(() => {
-                            setLoading(false);
-                            setIsAdded(true)
-                            closeModal();
-                        });
-                    }
-                })
+                AddReservation(fd).then((res) => {
+                    setLoading(false);
+                    setIsAdded(true)
+                    closeModal();
+                });
             }
         }
         else {

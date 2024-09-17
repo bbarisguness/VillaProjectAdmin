@@ -24,6 +24,7 @@ import Loader from 'components/Loader';
 import { useParams } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import ReservationModal from 'sections/reservations/ReservationModal';
+import { stringToDate } from 'utils/custom/dateHelpers';
 
 const fallbackData = [];
 function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
@@ -177,7 +178,7 @@ export default function VillaReservationSection() {
 
     useEffect(() => {
         setLoading(true)
-        ReservationServices.GetReservations(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter, params.id, showAllReservation).then((res) => { setData(res); setLoading(false); });
+        ReservationServices.GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation]);
 
 
@@ -191,7 +192,7 @@ export default function VillaReservationSection() {
             setIsAdded(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            ReservationServices.GetReservations(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter, params.id, showAllReservation).then((res) => { setLoading(false); setData(res) })
+            ReservationServices.GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted, isAdded])
 
@@ -199,7 +200,7 @@ export default function VillaReservationSection() {
         () => [
             {
                 header: '#',
-                cell: ({ row }) => { return row.original.id }
+                cell: ({ row }) => { return row.index + 1 }
             },
             {
                 header: 'Misafir',
@@ -219,20 +220,18 @@ export default function VillaReservationSection() {
                 }
             },
             {
-                header: 'reservationStatus',
-                accessorKey: 'attributes.reservationStatus',
+                header: 'Rez. Durumu',
+                accessorKey: 'reservationStatusType',
                 cell: (cell) => {
                     switch (cell.getValue()) {
-                        case "100":
-                            return <Chip color="warning" label="Onay Bekliyor" size="small" variant="light" />;
-                        case "110":
-                            return <Chip color="error" label="İptal Edildi" size="small" variant="light" />;
-                        case "120":
-                            return <Chip color="success" label="Onaylandı" size="small" variant="light" />;
-                        case "130":
-                            return <Chip color="info" label="Konaklama Başladı" size="small" variant="light" />;
-                        case "140":
-                            return <Chip color="primary" label="Konaklama Bitti" size="small" variant="light" />;
+                        case 1:
+                            return <Chip color="success" label="Rezerve" size="small" variant="light" />;
+                        case 2:
+                            return <Chip color="info" label="Opsiyonlanmış" size="small" variant="light" />;
+                        case 3:
+                            return <Chip color="error" label="İptal Edilmiş" size="small" variant="light" />;
+                        case 4:
+                            return <Chip color="primary" label="Konaklama Bitmiş" size="small" variant="light" />;
                         default:
                             return <Chip color="info" label="Pending" size="small" variant="light" />;
                     }
@@ -241,15 +240,15 @@ export default function VillaReservationSection() {
 
             {
                 header: 'Giriş Tarihi',
-                cell: ({ row }) => { return row.original.attributes.checkIn }
+                cell: ({ row }) => { return stringToDate(row.original.checkIn) }
             },
             {
                 header: 'Çıkış Tarihi',
-                cell: ({ row }) => { return row.original.attributes.checkOut }
+                cell: ({ row }) => { return stringToDate(row.original.checkOut) }
             },
             {
                 header: 'Tutar',
-                cell: ({ row }) => { return (row.original.attributes.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " TL") }
+                cell: ({ row }) => { return (row?.original.total?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " TL") }
             }
         ], // eslint-disable-next-line
         [theme]

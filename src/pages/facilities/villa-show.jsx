@@ -14,9 +14,11 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import { APP_DEFAULT_PATH } from 'config';
 
 // assets
-import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick } from 'iconsax-react';
+import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick, MoneySend } from 'iconsax-react';
 import { GetVilla, GetVillaName } from 'services/villaServices';
 import { Button, Grid } from '@mui/material';
+import VillaSelectModal from 'sections/facilities/VillaSelectModal';
+import VillaDetailUpdateModal from 'sections/facilities/VillaDetailUpdateModal';
 
 // ==============================|| PROFILE - ACCOUNT ||============================== //
 
@@ -46,6 +48,9 @@ export default function VillaShow() {
     }
     else if (pathname.indexOf('file') != -1) {
         selectedTab = 6;
+    }
+    else if (pathname.indexOf('accounting') != -1) {
+        selectedTab = 7;
     }
     // switch (pathname) {
     //     case '/apps/profiles/account/personal':
@@ -83,6 +88,10 @@ export default function VillaShow() {
     const [value, setValue] = useState(selectedTab);
     const [villa, setVilla] = useState();
 
+    const [villaSelectModal, setVillaSelectModal] = useState(false)
+    const [villaUpdateModal, setVillaUpdateModal] = useState(false)
+    const [isDeleted, setIsDeleted] = useState(false)
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -91,25 +100,28 @@ export default function VillaShow() {
         { title: 'Villa Yönetimi', to: '/facilities/villas-list' }
     ];
     if (selectedTab === 0) {
-        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.attributes.name, to: `/facilities/villas-show/summary/${params.id}` }, { title: 'Özet Bilgiler' }];
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/summary/${params.id}` }, { title: 'Özet Bilgiler' }];
     }
     else if (selectedTab === 1) {
-        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.attributes.name, to: `/facilities/villas-show/reservation/${params.id}` }, { title: 'Rezervasyonlar' }];
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/reservation/${params.id}` }, { title: 'Rezervasyonlar' }];
     }
     else if (selectedTab === 2) {
-        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.attributes.name, to: `/facilities/villas-show/available-date/${params.id}` }, { title: 'Müsait Tarihler' }];
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/available-date/${params.id}` }, { title: 'Müsait Tarihler' }];
     }
     else if (selectedTab === 3) {
-        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.attributes.name, to: `/facilities/villas-show/price/${params.id}` }, { title: 'Fiyatlar' }];
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/price/${params.id}` }, { title: 'Fiyatlar' }];
     }
     else if (selectedTab === 4) {
-        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.attributes.name, to: `/facilities/villas-show/content/${params.id}` }, { title: 'İçerik Yönetimi' }];
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/content/${params.id}` }, { title: 'İçerik Yönetimi' }];
     }
     else if (selectedTab === 5) {
-        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.attributes.name, to: `/facilities/villas-show/gallery/${params.id}` }, { title: 'Galeri' }];
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/gallery/${params.id}` }, { title: 'Galeri' }];
     }
     else if (selectedTab === 6) {
-        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.attributes.name, to: `/facilities/villas-show/file/${params.id}` }, { title: 'Dosyalar' }];
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/file/${params.id}` }, { title: 'Dosyalar' }];
+    }
+    else if (selectedTab === 7) {
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/accounting/${params.id}` }, { title: 'Gelir Gider' }];
     }
 
     useEffect(() => {
@@ -121,17 +133,27 @@ export default function VillaShow() {
 
 
     useEffect(() => {
-        if (params.id > 1)
+        if (params.id)
             GetVillaName(params.id).then((res) => setVilla(res.data))
     }, [])
 
+    useEffect(() => {
+        if (isDeleted) {
+            if (params.id) {
+                GetVillaName(params.id).then((res) => setVilla(res.data))
+            }
+            setIsDeleted(false)
+        }
+    }, [isDeleted])
 
 
     return (
         <>
+            <VillaSelectModal villaDetailModal={setVillaUpdateModal} navigate={navigate} title={villa} open={villaSelectModal} handleClose={() => setVillaSelectModal(false)} id={params.id} />
+            <VillaDetailUpdateModal selectedUpdateItem={villa} setIsAdded={setIsDeleted} open={villaUpdateModal} modalToggler={setVillaUpdateModal} />
             <Breadcrumbs custom links={breadcrumbLinks} />
             <Grid style={{ marginBottom: '10px' }} container justifyContent="flex-end" alignItems="normal">
-                <Button onClick={() => navigate(`/facilities/villas-update/${params.id}`)} size='small' type="button" variant="contained">GÜNCELLE</Button>
+                <Button onClick={() => setVillaSelectModal(true)} size='small' type="button" variant="contained">GÜNCELLE</Button>
             </Grid>
             <MainCard border={false}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
@@ -167,6 +189,7 @@ export default function VillaShow() {
                         />
                         <Tab label="Galeri" component={Link} to={`/facilities/villas-show/gallery/${params.id}`} icon={<Image />} iconPosition="start" />
                         <Tab label="Dosyalar" component={Link} to={`/facilities/villas-show/file/${params.id}`} icon={<Folder />} iconPosition="start" />
+                        <Tab label="Gelir Gider" component={Link} to={`/facilities/villas-show/accounting/${params.id}`} icon={<MoneySend />} iconPosition="start" />
                     </Tabs>
                 </Box>
                 <Box sx={{ mt: 2.5 }}>

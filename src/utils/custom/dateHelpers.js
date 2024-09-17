@@ -4,18 +4,26 @@ const days = (checkIn, checkOut) => {
   return gunFark;
 };
 
+// const dateToString = (date) => {
+//   var dateString =
+//     date.getFullYear() +
+//     '-' +
+//     (date.getMonth().toString().length === 1 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()) +
+//     '-' +
+//     (date.getDate().toString().length === 1 ? '0' + date.getDate().toString() : date.getDate().toString());
+//   return dateString;
+// };
+
 const dateToString = (date) => {
-  var dateString =
-    date.getFullYear() +
-    '-' +
-    (date.getMonth().toString().length === 1 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()) +
-    '-' +
-    (date.getDate().toString().length === 1 ? '0' + date.getDate().toString() : date.getDate().toString());
-  return dateString;
+  const stringDate = `${date.getFullYear()}-${(date.getMonth() + 1) < 10 ? '0' : ''}${date.getMonth() + 1}-${date.getDate() < 10 ? '0' : ''}${date.getDate()}`
+  return stringDate
 };
 
+
+
+
 const stringToDate = (date) => {
-  const dateDate = 'bu henüz fonksiyon yapılmadı';
+  const dateDate = date.split('T')[0];
   return dateDate;
 };
 

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 
 // material ui
-import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel } from '@mui/material';
+import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel, FormControl, RadioGroup, Radio } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
@@ -20,7 +20,9 @@ import { useNavigate } from 'react-router';
 import { CloseCircle } from 'iconsax-react';
 import { Categories } from 'services/categoryServices';
 import 'react-quill/dist/quill.snow.css';
-import { VillaAdd } from 'services/villaServices';
+import { VillaAdd, VillaCategoryAsign } from 'services/villaServices';
+import { getTowns } from 'services/townServices';
+import useConfig from 'hooks/useConfig';
 
 // CONSTANT
 const getInitialValues = () => {
@@ -51,13 +53,18 @@ const getInitialValues = () => {
 };
 
 export default function FormVillaAdd() {
+  const user = useConfig()
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [towns, setTowns] = useState([])
 
   useEffect(() => {
-    setLoading(false);
     Categories().then((res) => setCategories(res));
+    getTowns().then((res) => {
+      setTowns(res?.data)
+    })
+    setLoading(false);
   }, []);
 
   const VillaSchema = Yup.object().shape({
@@ -66,7 +73,7 @@ export default function FormVillaAdd() {
     bath: Yup.number().moreThan(0, "Banyo sayısı 0'dan büyük olmalıdır").required('Banyo Sayısı zorunludur'),
     categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
     person: Yup.number().moreThan(0, "Kişi sayısı 0'dan büyük olmalıdır").required('Kişi Sayısı zorunludur'),
-    region: Yup.string().max(255).required('Lütfen bölge yazınız..'),
+    region: Yup.string().max(255).required('Lütfen bölge seçiniz..'),
     onlineReservation: Yup.boolean().required('Rezervasyon seçeneği zorunludur')
   });
 
@@ -87,26 +94,51 @@ export default function FormVillaAdd() {
           .replace(/[^\w-]+/g, '')
           .replace(/--+/g, '-');
 
-        const data = {
-          data: {
-            ...values
-          }
-        }
+        const fd = new FormData()
 
-        values.categories
+        fd.append('Name', values.name)
+        fd.append('LanguageCode', user?.config?.companyDefaultLanguage || 'tr')
+        fd.append('DescriptionShort', values.descriptionShort)
+        fd.append('DescriptionLong', values.descriptionLong)
+        fd.append('Room', values.room)
+        fd.append('Bath', values.bath)
+        fd.append('Person', values.person)
+        fd.append('OnlineReservation', values.onlineReservation)
+        fd.append('GoogleMap', values.googleMap)
+        fd.append('MetaTitle', values.metaTitle)
+        fd.append('MetaDescription', values.metaDescription)
+        fd.append('Slug', values.slug)
+        fd.append('TownId', values.region)
+        fd.append('FeatureTextBlue', values.featureTextBlue)
+        fd.append('FeatureTextRed', values.featureTextRed)
+        fd.append('FeatureTextWhite', values.featureTextWhite)
+        fd.append('WifiPassword', values.wifiPassword)
+        fd.append('InternetMeterNumber', values.internetMeterNumber)
+        fd.append('ElectricityMeterNumber', values.electricityMeterNumber)
+        fd.append('WaterMaterNumber', values.waterMaterNumber)
+        fd.append('Video', values.video)
 
-        await VillaAdd(data).then((res) => {
-          openSnackbar({
-            open: true,
-            message: 'Yeni Villa Eklendi.',
-            variant: 'alert',
+        await VillaAdd(fd).then(async (res) => {
+          const fdd = new FormData()
+          fdd.append('VillaId', res?.data?.id)
+          formik.values.categories.map((itm, i) => {
+            fdd.append(`CategoryIds[${i}]`, itm)
+          })
 
-            alert: {
-              color: 'success'
-            }
-          });
-          setSubmitting(false);
-          navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
+
+          await VillaCategoryAsign(fdd).then(() => {
+            openSnackbar({
+              open: true,
+              message: 'Yeni Villa Eklendi.',
+              variant: 'alert',
+
+              alert: {
+                color: 'success'
+              }
+            });
+            setSubmitting(false);
+            navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
+          })
         });
       } catch (error) {
         // console.error(error);
@@ -138,6 +170,22 @@ export default function FormVillaAdd() {
             <DialogContent sx={{ p: 2.5 }}>
               <Grid item xs={12} md={12}>
                 <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="languageCode">Dil</InputLabel>
+                      <FormControl>
+                        <RadioGroup row aria-label="languageCode" value={user?.config?.companyDefaultLanguage || 'tr'} name="languageCode" id="languageCode">
+                          <FormControlLabel disabled value="tr" control={<Radio />} label="TR" />
+                          <FormControlLabel disabled value="en" control={<Radio />} label="EN" />
+                        </RadioGroup>
+                      </FormControl>
+                      {formik.errors.languageCode && (
+                        <FormHelperText error id="standard-weight-helper-text-email-login">
+                          {formik.errors.languageCode}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
                   <Grid item xs={6}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="villa-name">Villa Adı</InputLabel>
@@ -151,7 +199,7 @@ export default function FormVillaAdd() {
                       />
                     </Stack>
                   </Grid>
-                  <Grid item xs={6}>
+                  {/* <Grid item xs={6}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="villa-region">Bölge</InputLabel>
                       <TextField
@@ -163,6 +211,19 @@ export default function FormVillaAdd() {
                         helperText={touched.region && errors.region}
                       />
                     </Stack>
+                  </Grid> */}
+                  <Grid item xs={6}>
+                    <InputLabel sx={{ marginBottom: 1.5 }}>Bölge</InputLabel>
+                    <Autocomplete
+                      fullWidth
+                      id="basic-autocomplete-label"
+                      disableClearable
+                      options={towns}
+                      getOptionLabel={(option) => `${option?.name}`}
+                      isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                      onChange={(e, value) => setFieldValue('region', value?.id)}
+                      renderInput={(params) => <TextField {...params} helperText={errors.region} error={Boolean(errors.region)} label="Bölge" />}
+                    />
                   </Grid>
 
                   <Grid item xs={12}>
@@ -176,12 +237,12 @@ export default function FormVillaAdd() {
                         autoHighlight
                         freeSolo
                         disableCloseOnSelect
-                        options={categories?.data?.map((item) => item?.attributes?.name) || []}
+                        options={categories?.data?.map((item) => item?.categoryDetails[0]?.name) || []}
                         getOptionLabel={(option) => option}
                         onChange={(event, newValue) => {
                           var x = [];
                           categories?.data?.map(function (item) {
-                            if (newValue.includes(item.attributes.name)) {
+                            if (newValue.includes(item?.categoryDetails[0]?.name)) {
                               x.push(item.id);
                             }
                           });

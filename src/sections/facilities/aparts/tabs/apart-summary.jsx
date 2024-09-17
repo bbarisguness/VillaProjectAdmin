@@ -11,8 +11,8 @@ import Avatar from 'components/@extended/Avatar';
 import LinearWithLabel from 'components/@extended/progress/LinearWithLabel';
 
 import { Add, CallCalling, Eye, Gps, Pointer, Sms, Trash, Wifi } from 'iconsax-react';
-import { GetApart,  ApartChangeState } from 'services/apartServices';
-import {GetRoomList } from 'services/roomServices';
+import { GetApart, ApartChangeState } from 'services/apartServices';
+import { GetRoomList } from 'services/roomServices';
 import { useState, useEffect } from 'react';
 
 import { openSnackbar } from 'api/snackbar';
@@ -31,7 +31,7 @@ export default function ApartSummarySection() {
 
   useEffect(() => {
 
-    if (params.id > 0 && loading) {
+    if (params.id && loading) {
       GetApart(params.id).then((res) => {
         setVilla(res.data);
         GetRoomList(params.id).then((res) => {
@@ -146,10 +146,10 @@ export default function ApartSummarySection() {
                         </div>
                       </Stack>
                       <Stack spacing={2.5} alignItems="center">
-                        <Avatar alt={villa.attributes.name} size="xxl" src={villa?.attributes?.photos?.data[0]?.attributes?.photo?.data?.attributes?.url} />
+                        <Avatar alt={villa.hotelDetails[0].name} size="xxl" src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/HotelPhotos/k_${villa?.photos[0]?.image}`} />
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.name}</Typography>
-                          <Typography color="secondary">{villa.attributes.region}</Typography>
+                          <Typography variant="h5">{villa.hotelDetails[0].name}</Typography>
+                          <Typography color="secondary">{villa?.attributes?.region}</Typography>
                         </Stack>
                       </Stack>
                     </Grid>
@@ -159,17 +159,17 @@ export default function ApartSummarySection() {
                     <Grid item xs={12}>
                       <Stack direction="row" justifyContent="space-around" alignItems="center">
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.room}</Typography>
+                          <Typography variant="h5">{villa.room}</Typography>
                           <Typography color="secondary">Oda</Typography>
                         </Stack>
                         <Divider orientation="vertical" flexItem />
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.bath}</Typography>
+                          <Typography variant="h5">{villa.bath}</Typography>
                           <Typography color="secondary">Banyo</Typography>
                         </Stack>
                         <Divider orientation="vertical" flexItem />
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.person}</Typography>
+                          <Typography variant="h5">{villa.person}</Typography>
                           <Typography color="secondary">Kapasite</Typography>
                         </Stack>
                       </Stack>
@@ -208,7 +208,7 @@ export default function ApartSummarySection() {
                             <Wifi size={18} />
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.wifiPassword || '-'}</Typography>
+                            <Typography align="right">{villa?.wifiPassword || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                         <ListItem>
@@ -216,7 +216,7 @@ export default function ApartSummarySection() {
                             <span>Su No</span>
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.waterMaterNumber || '-'}</Typography>
+                            <Typography align="right">{villa?.waterMaterNumber || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                         <ListItem>
@@ -224,7 +224,7 @@ export default function ApartSummarySection() {
                             <span>Elektrik No</span>
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.electricityMeterNumber || '-'}</Typography>
+                            <Typography align="right">{villa?.electricityMeterNumber || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                         <ListItem>
@@ -232,7 +232,7 @@ export default function ApartSummarySection() {
                             <span>İnternet No</span>
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.internetMeterNumber || '-'}</Typography>
+                            <Typography align="right">{villa?.internetMeterNumber || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                       </List>
@@ -263,13 +263,13 @@ export default function ApartSummarySection() {
                       {
                         rooms?.map((row, i) => {
                           return (
-                            <TableRow hover key={row.id} sx={{cursor:'Pointer'}} onClick={() => { navigate(`/facilities/aparts/room-show/summary/${row.id}`) }}>
+                            <TableRow hover key={row.id} sx={{ cursor: 'Pointer' }} onClick={() => { navigate(`/facilities/aparts/room-show/summary/${row.id}`) }}>
                               <TableCell sx={{ pl: 3 }} component="th" scope="row">
-                                {row.attributes.name}
+                                {row.roomDetails[0].name}
                               </TableCell>
-                              <TableCell align="left">{row.attributes.person}</TableCell>
-                              <TableCell align="left">{row.attributes.room}</TableCell>
-                              <TableCell align="left">{row.attributes.bath}</TableCell>
+                              <TableCell align="left">{row?.person}</TableCell>
+                              <TableCell align="left">{row?.room}</TableCell>
+                              <TableCell align="left">{row?.bath}</TableCell>
                               <TableCell align="left">
                                 <Tooltip title="View">
                                   <IconButton color="secondary" >

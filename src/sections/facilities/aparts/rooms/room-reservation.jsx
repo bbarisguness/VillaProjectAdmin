@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import ReservationModal from 'sections/reservations/ReservationModal';
 import { GetReservations } from 'services/roomServices';
 import ReservationApartModal from 'sections/reservations/ReservationApartModal';
+import { stringToDate } from 'utils/custom/dateHelpers';
 
 const fallbackData = [];
 function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
@@ -121,7 +122,6 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                                     <TableRow
                                         key={row.id}
                                         onClick={() => {
-                                            console.log("Kayıt Id => ", row.original.id);
                                             navigate(`/reservations/show/summary/${row.original.id}`)
                                         }}
                                         style={{ cursor: 'pointer' }}
@@ -179,7 +179,7 @@ export default function RoomReservationSection() {
 
     useEffect(() => {
         setLoading(true)
-        GetReservations(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter, params.id, showAllReservation).then((res) => { setData(res); setLoading(false); });
+        GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setLoading(false); setData(res) })
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation]);
 
 
@@ -193,7 +193,7 @@ export default function RoomReservationSection() {
             setIsAdded(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            GetReservations(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter, params.id, showAllReservation).then((res) => { setLoading(false); setData(res) })
+            GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setLoading(false); setData(res) })
         }
     }, [isDeleted, isAdded])
 
@@ -201,7 +201,7 @@ export default function RoomReservationSection() {
         () => [
             {
                 header: '#',
-                cell: ({ row }) => { return row.original.id }
+                cell: ({ row }) => { return row.index + 1 }
             },
             {
                 header: 'Misafir',
@@ -214,7 +214,7 @@ export default function RoomReservationSection() {
                                 src={getImageUrl(`avatar-${!row.original.avatar ? 1 : row.original.avatar}.png`, ImagePath.USERS)}
                             />
                             <Stack spacing={0}>
-                                <Typography variant="subtitle1">{`${row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.name ? row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.name : 'Ev Sahibi'} ${row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.surname ? row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.surname : ''}`}</Typography>
+                                <Typography variant="subtitle1">{`${row?.original?.reservationInfos[0]?.name ? row?.original?.reservationInfos[0]?.name : 'Ev Sahibi'} ${row?.original?.reservationInfos[0]?.surname ? row?.original?.reservationInfos[0]?.surname : ''}`}</Typography>
                             </Stack>
                         </Stack>
                     )
@@ -222,19 +222,17 @@ export default function RoomReservationSection() {
             },
             {
                 header: 'reservationStatus',
-                accessorKey: 'attributes.reservationStatus',
+                accessorKey: 'reservationStatusType',
                 cell: (cell) => {
                     switch (cell.getValue()) {
-                        case "100":
-                            return <Chip color="warning" label="Onay Bekliyor" size="small" variant="light" />;
-                        case "110":
-                            return <Chip color="error" label="İptal Edildi" size="small" variant="light" />;
-                        case "120":
-                            return <Chip color="success" label="Onaylandı" size="small" variant="light" />;
-                        case "130":
-                            return <Chip color="info" label="Konaklama Başladı" size="small" variant="light" />;
-                        case "140":
-                            return <Chip color="primary" label="Konaklama Bitti" size="small" variant="light" />;
+                        case 1:
+                            return <Chip color="success" label="Rezerve" size="small" variant="light" />;
+                        case 2:
+                            return <Chip color="info" label="Opsiyonlanmış" size="small" variant="light" />;
+                        case 3:
+                            return <Chip color="error" label="İptal Edilmiş" size="small" variant="light" />;
+                        case 4:
+                            return <Chip color="primary" label="Konaklama Bitmiş" size="small" variant="light" />;
                         default:
                             return <Chip color="info" label="Pending" size="small" variant="light" />;
                     }
@@ -243,22 +241,21 @@ export default function RoomReservationSection() {
 
             {
                 header: 'Giriş Tarihi',
-                cell: ({ row }) => { return row.original.attributes.checkIn }
+                cell: ({ row }) => { return stringToDate(row.original.checkIn) }
             },
             {
                 header: 'Çıkış Tarihi',
-                cell: ({ row }) => { return row.original.attributes.checkOut }
+                cell: ({ row }) => { return stringToDate(row.original.checkOut) }
             },
             {
                 header: 'Tutar',
-                cell: ({ row }) => { return (row.original.attributes.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " TL") }
+                cell: ({ row }) => { return (row.original.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " TL") }
             }
         ], // eslint-disable-next-line
         [theme]
     );
 
     if (loading) return (<Loader open={loading} />)
-    console.log('reservations = ', data);
     return (
         <>
             <ReactTable

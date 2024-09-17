@@ -21,11 +21,12 @@ import Loader from 'components/Loader';
 
 const getInitialValues = (customer) => {
     const newPriceDate = {
-        name: customer?.attributes?.name || '',
-        surname: customer?.attributes?.surname || '',
-        idNo: customer?.attributes?.idNo || '',
-        phone: customer?.attributes?.phone || '',
-        peopleType: customer?.attributes?.peopleType || '',
+        name: customer?.name || '',
+        surname: customer?.surname || '',
+        idNo: customer?.idNo || '',
+        phone: customer?.phone || '',
+        peopleType: customer?.peopleType || '',
+        email: customer?.email || '',
         reservation: {}
     };
     return newPriceDate;
@@ -59,24 +60,18 @@ export default function ReservationCustomerUpdateForm({ closeModal, setIsEdit, v
         enableReinitialize: true,
         onSubmit: async (values, { setSubmitting }) => {
             try {
-                const data = {
-                    data: {
-                        ...values
-                    }
-                }
 
-                UpdateReservationInfo({ id: id, data: data }).then((res) => {
-                    if (res?.error) {
-                        openSnackbar({
-                            open: true,
-                            message: res?.error?.message,
-                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-                            variant: 'alert',
-                            alert: {
-                                color: 'error'
-                            }
-                        });
-                    } else {
+                const fd = new FormData()
+                fd.append('Id', id)
+                fd.append('IdNo', values.idNo)
+                fd.append('Name', values.name)
+                fd.append('Surname', values.surname)
+                fd.append('Phone', values.phone)
+                fd.append('PeopleType', values.peopleType)
+                fd.append('Email', values.email)
+
+                await UpdateReservationInfo({ data: fd }).then((res) => {
+                    if (res?.statusCode === 200) {
                         openSnackbar({
                             open: true,
                             message: 'Misafir Düzenlendi.',
@@ -84,6 +79,16 @@ export default function ReservationCustomerUpdateForm({ closeModal, setIsEdit, v
                             variant: 'alert',
                             alert: {
                                 color: 'success'
+                            }
+                        });
+                    } else {
+                        openSnackbar({
+                            open: true,
+                            message: 'Hata',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'error'
                             }
                         });
                     }
@@ -186,7 +191,25 @@ export default function ReservationCustomerUpdateForm({ closeModal, setIsEdit, v
                                             helperText={formik.touched.phone && formik.errors.phone}
                                         />
                                     </Stack>
-
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <Stack spacing={1}>
+                                        <InputLabel htmlFor="email">Email </InputLabel>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={10}>
+                                    <Stack spacing={1}>
+                                        <TextField
+                                            fullWidth
+                                            id="email"
+                                            name="email"
+                                            placeholder="İsteğe bağlı Email adresi.."
+                                            value={formik.values.email}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.email && Boolean(formik.errors.email)}
+                                            helperText={formik.touched.email && formik.errors.email}
+                                        />
+                                    </Stack>
                                 </Grid>
                                 <Grid item xs={2}>
                                     <Stack spacing={1}>
@@ -205,9 +228,9 @@ export default function ReservationCustomerUpdateForm({ closeModal, setIsEdit, v
                                                 name="peopleType"
                                                 id="peopleType"
                                             >
-                                                <FormControlLabel value="Adult" control={<Radio />} label="Yetişkin" />
-                                                <FormControlLabel value="Child" control={<Radio />} label="Çocuk" />
-                                                <FormControlLabel value="Baby" control={<Radio />} label="Bebek" />
+                                                <FormControlLabel value="1" control={<Radio />} label="Yetişkin" />
+                                                <FormControlLabel value="2" control={<Radio />} label="Çocuk" />
+                                                <FormControlLabel value="3" control={<Radio />} label="Bebek" />
                                             </RadioGroup>
                                         </FormControl>
                                         {formik.errors.peopleType && (

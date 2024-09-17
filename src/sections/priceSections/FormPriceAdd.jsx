@@ -41,125 +41,20 @@ export default function FormPriceAdd({ closeModal, setIsEdit }) {
         enableReinitialize: true,
         onSubmit: async (values, { setSubmitting }) => {
             try {
-
-
-
                 formik.values.checkIn = moment(date1).format('YYYY-MM-DD').toString();
                 formik.values.checkOut = moment(date2).format('YYYY-MM-DD').toString();
-                formik.values.villa = { connect: [params.id] };
 
-                GetPriceForAddForm(params.id, values.checkIn, values.checkOut).then((res) => {
-                    if (res.data.length > 0) {
-                        const priceData = res.data;
-                        var firstPrice = priceData[0];
-                        var lastPrice = priceData[priceData.length - 1];
-                        var endDate = firstPrice.attributes.checkOut;
+                const fd = new FormData()
+                fd.append('StartDate', formik.values.checkIn)
+                fd.append('EndDate', formik.values.checkOut)
+                fd.append('Price', formik.values.price)
+                fd.append('VillaId', params.id)
 
-                        if (firstPrice.attributes.checkIn === values.checkIn && firstPrice.attributes.checkOut === values.checkOut) {
-                            //apiRequest('DELETE', `/price-dates/${firstPrice.id}`);
-                            PriceRemove(firstPrice.id)
-                        } else if (values.checkIn === firstPrice.attributes.checkIn && values.checkOut < firstPrice.attributes.checkOut) {
-                            PricePut(firstPrice.id, { data: { checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString() } })
-
-                            // apiRequest('PUT', `price-dates/${firstPrice.id}`, {
-                            //     data: { checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString() }
-                            // });
-
-                        } else if (values.checkIn > firstPrice.attributes.checkIn && values.checkOut === firstPrice.attributes.checkOut) {
-                            // apiRequest('PUT', `price-dates/${firstPrice.id}`, {
-                            //     data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() }
-                            // });
-
-                            PricePut(firstPrice.id, { data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() } })
-
-                        } else if (values.checkIn > firstPrice.attributes.checkIn && values.checkOut < firstPrice.attributes.checkOut) {
-
-                            PricePut(firstPrice.id, { data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() } })
-                            PriceAdd({
-                                data: {
-                                    checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString(),
-                                    checkOut: endDate,
-                                    price: firstPrice.attributes.price,
-                                    villa: { connect: [params.id] }
-                                }
-                            })
-
-                            // apiRequest('PUT', `price-dates/${firstPrice.id}`, {
-                            //     data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() }
-                            // });
-                            // apiRequest('POST', '/price-dates', {
-                            //     data: {
-                            //         checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString(),
-                            //         checkOut: endDate,
-                            //         price: firstPrice.attributes.price,
-                            //         villa: { connect: [params.id] }
-                            //     }
-                            // });
-                        } else if (
-                            values.checkIn < firstPrice.attributes.checkOut &&
-                            values.checkIn > firstPrice.attributes.checkIn &&
-                            values.checkOut < lastPrice.attributes.checkOut &&
-                            values.checkOut > lastPrice.attributes.checkIn
-                        ) {
-                            PricePut(firstPrice.id, { data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() } })
-                            PricePut(lastPrice.id, { data: { checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString() } })
-
-                            // apiRequest('PUT', `price-dates/${firstPrice.id}`, {
-                            //     data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() }
-                            // });
-                            // apiRequest('PUT', `price-dates/${lastPrice.id}`, {
-                            //     data: { checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString() }
-                            // });
-                        } else if (values.checkIn < firstPrice.attributes.checkOut && values.checkOut > firstPrice.attributes.checkOut) {
-
-                            PricePut(firstPrice.id, { data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() } })
-
-                            // apiRequest('PUT', `price-dates/${firstPrice.id}`, {
-                            //     data: { checkOut: moment(values.checkIn).add(-1, 'days').format('YYYY-MM-DD').toString() }
-                            // });
-                            // dispatch(
-                            //     openSnackbar({
-                            //         open: true,
-                            //         message: 'Fiyat başarıyla eklendi6',
-                            //         variant: 'alert',
-                            //         alert: {
-                            //             color: 'success'
-                            //         },
-                            //         close: false
-                            //     })
-                            // );
-                        } else if (
-                            values.checkIn < firstPrice.attributes.checkIn &&
-                            values.checkOut >= firstPrice.attributes.checkIn &&
-                            values.checkOut < firstPrice.attributes.checkOut
-                        ) {
-                            PricePut(firstPrice.id, { data: { checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString() } })
-
-                            // apiRequest('PUT', `price-dates/${firstPrice.id}`, {
-                            //     data: { checkIn: moment(values.checkOut).add(1, 'days').format('YYYY-MM-DD').toString() }
-                            // });
-                        } else if (values.checkIn === firstPrice.attributes.checkOut) {
-                            PricePut(firstPrice.id, { data: { checkOut: moment(firstPrice.attributes.checkOut).add(-1, 'days').format('YYYY-MM-DD').toString() } })
-                            // apiRequest('PUT', `/price-dates/${firstPrice.id}`, {
-                            //     data: { checkOut: moment(firstPrice.attributes.checkOut).add(-1, 'days').format('YYYY-MM-DD').toString() }
-                            // });                            
-                        }
-                    }
-                })
-
-                PriceAdd({
-                    data: {
-                        checkIn: values.checkIn,
-                        checkOut: values.checkOut,
-                        price: values.price,
-                        villa: { connect: [params.id] }
-                    }
-                }).then((res) => {
+                await PriceAdd(fd).then((res) => {
                     setIsEdit(true);
                     setSubmitting(false);
                     closeModal();
                 })
-
 
             } catch (error) {
                 // console.error(error);

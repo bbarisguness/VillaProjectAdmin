@@ -11,10 +11,11 @@ import { useParams } from 'react-router';
 import { GetPhotosApart, PhotoPut } from 'services/photoService';
 import { ReactSortable } from 'react-sortablejs';
 import Loader from 'components/Loader';
-import { Add, ArrangeHorizontal, CloudChange, Trash } from 'iconsax-react';
+import { Add, ArrangeHorizontal, CloudChange, PlayCircle, Trash } from 'iconsax-react';
 import { openSnackbar } from 'api/snackbar';
 import PhotoModal from 'sections/photoSections/PhotoModal';
 import PhotoModalDelete from 'sections/photoSections/PhotoModalDelete';
+import VideoModal from 'sections/photoSections/VideoModal';
 const CustomComponent = forwardRef < HTMLDivElement > ((props, ref) => {
   return <div ref={ref}>{props.children}</div>;
 });
@@ -32,29 +33,36 @@ export default function ApartGallerySection() {
   const [photoModalDelete, setPhotoModalDelete] = useState(false);
   const [selectedPhotoDeleteItem, setSelectedPhotoDeleteItem] = useState("")
 
+  const [videoModal, setVideoModal] = useState(false)
+
 
   useEffect(() => {
-    if ((params.id > 0 && loading) || lineChangeLoading || isEdit)
-      GetPhotosApart(params.id).then((res) => { setPhoto(res.data); setPhotoList(res.data); setLoading(false); setLineChangeLoading(false); setIsEdit(false) })
+    if ((params.id && loading) || lineChangeLoading || isEdit)
+      GetPhotosApart(params.id).then((res) => {
+        setPhoto([])
+        res?.data.map((itm) => {
+          if (itm?.videoLink === null) {
+            setPhoto((prevValues) => [...prevValues, itm])
+          }
+        })
+        // setPhoto(res.data);
+        setPhotoList(res.data);
+        setLoading(false);
+        setLineChangeLoading(false);
+        setIsEdit(false)
+      })
   }, [loading, lineChangeLoading, isEdit])
 
   const handeLineSave = () => {
     setLoading(true)
+    const fd = new FormData()
 
     photo.forEach((item, index) => {
-      // console.log('click => ', item.id + ' - ' + index);
+      fd.append(`[${index}].Id`, item.id)
+      fd.append(`[${index}].Line`, index)
+      if (photo.length === index + 1) {
+        PhotoPut(fd).then((res) => {
 
-      const values = {
-        id: item.id,
-        line: index
-      }
-
-      const data = {
-        ...values
-      }
-
-      PhotoPut(item.id, { data }).then((res) => {
-        if ((index + 1) === photo.length) {
           setLineChangeLoading(true);
           openSnackbar({
             open: true,
@@ -64,10 +72,11 @@ export default function ApartGallerySection() {
               color: 'success'
             }
           });
-        }
-      });
 
+        });
+      }
     });
+
 
   };
 
@@ -91,6 +100,13 @@ export default function ApartGallerySection() {
                     Resim Ekle
                   </Button>
                   {
+                    photoList.some(photo => photo.videoLink !== null) ? ''
+                      :
+                      <Button variant="contained" startIcon={<Add />} size="large" onClick={() => { setVideoModal(true) }}>
+                        Video Ekle
+                      </Button>
+                  }
+                  {
                     photo?.length > 0 &&
                     <Button variant="contained" color='warning' startIcon={<ArrangeHorizontal />} onClick={handeLineSave} size="large">
                       SIRALAMAYI KAYDET
@@ -100,40 +116,65 @@ export default function ApartGallerySection() {
               </Stack>
               <Grid container spacing={1.25}>
                 {!loading && (
-                  <ReactSortable tag={CustomComponent} list={photo} setList={setPhoto}>
-                    {photo.map((item, index) => (
-                      <div style={{ width: '160px', height: '170px', float: 'left', margin: '10px' }} key={item.attributes.line} data-index={index}>
-                        <img src={item.attributes.photo.data.attributes.url} width={160} height={140} style={{ border: '3px solid #999696' }} />
-                        <Stack direction="row" spacing={0}>
-                          <Tooltip title="Delete">
-                            <IconButton
-                              color="error"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleClose();
-                                setPhotoDeleteId(Number(item.id));
-                                setSelectedPhotoDeleteItem(item?.attributes?.photo?.data?.attributes?.url)
-                                // console.log("photoId => ", Number(item.id));
-                              }}
-                            >
-                              <Trash />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
+                  <>
+                    {
+                      photoList.some(photo => photo.videoLink !== null) ?
+                        <div style={{ width: '160px', height: '170px', float: 'left', margin: '10px', position: 'relative' }}>
+                          <img width={160} height={140} style={{ border: '3px solid #999696' }} src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/HotelPhotos/k_${photoList.find((pht) => pht.videoLink !== null)?.image}`} alt="" />
+                          <PlayCircle size={50} color='white' style={{ position: 'absolute', left: '35%', top: '25%' }} />
+                          <Stack direction="row" spacing={0}>
+                            <Tooltip title="Delete">
+                              <IconButton
+                                color="error"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleClose();
+                                  setPhotoDeleteId(photoList.find((pht) => pht.videoLink !== null).id);
+                                  setSelectedPhotoDeleteItem(photoList.find((pht) => pht.videoLink !== null).image)
+                                }}
+                              >
+                                <Trash />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </div> : ''
+                    }
+                    <ReactSortable tag={CustomComponent} list={photo} setList={setPhoto}>
+                      {photo.map((item, index) => (
+                        <div style={{ width: '160px', height: '170px', float: 'left', margin: '10px' }} key={index} data-index={index}>
+                          <img src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/HotelPhotos/k_${item.image}`} width={160} height={140} style={{ border: '3px solid #999696' }} />
+                          <Stack direction="row" spacing={0}>
+                            <Tooltip title="Delete">
+                              <IconButton
+                                color="error"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleClose();
+                                  setPhotoDeleteId(item.id);
+                                  setSelectedPhotoDeleteItem(item?.image)
+                                  // console.log("photoId => ", Number(item.id));
+                                }}
+                              >
+                                <Trash />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
 
-                        {/* <span style={{ float: 'left', lineHeight: '16px' }}>[id: {item.id}] - </span>
+                          {/* <span style={{ float: 'left', lineHeight: '16px' }}>[id: {item.id}] - </span>
                         <span style={{ float: 'left', lineHeight: '16px' }}>[index: {index}] - </span>
                         <span style={{ float: 'left', lineHeight: '16px' }}>[line: {item.attributes.line}]</span> */}
 
-                      </div>
-                    ))}
-                  </ReactSortable>
+                        </div>
+                      ))}
+                    </ReactSortable>
+                  </>
                 )}
 
               </Grid>
-              <PhotoModalDelete selectedItem={selectedPhotoDeleteItem} setIsEdit={setIsEdit} id={Number(photoDeleteId)} title={photoDeleteId} open={photoModalDelete} handleClose={handleClose} />
+              <PhotoModalDelete apart={true} selectedItem={selectedPhotoDeleteItem} setIsEdit={setIsEdit} id={photoDeleteId} title={photoDeleteId} open={photoModalDelete} handleClose={handleClose} />
 
-              <PhotoModal apart={true} open={photoModal} modalToggler={setPhotoModal} villaId={params.id} setIsEdit={setIsEdit} lastLine={photo[photoList.length - 1]?.attributes.line} setLoading={setLoading} />
+              <PhotoModal apart={true} open={photoModal} modalToggler={setPhotoModal} villaId={params.id} setIsEdit={setIsEdit} lastLine={photo[photoList.length - 1]?.line} setLoading={setLoading} />
+              <VideoModal apart={true} open={videoModal} modalToggler={setVideoModal} villaId={params.id} setIsEdit={setIsEdit} setLoading={setLoading} />
 
             </MainCard>
           </Grid>

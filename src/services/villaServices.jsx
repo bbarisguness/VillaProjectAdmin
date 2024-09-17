@@ -2,13 +2,18 @@
 import { get, post, put, remove } from './request'
 import * as qs from 'qs'
 
-const Villas = (page, size, sort = true, fieldName = 'id', filter) => get(`/api/villas?sort=${fieldName}:${sort ? 'desc' : 'asc'}&publicationState=preview&filters[name][$containsi]=${filter}&pagination[page]=${page}&pagination[pageSize]=${size}`)
-const GetVillaName = (id) => get(`/api/villas/${id}?fields=name`)
-const GetVilla = (id) => get(`/api/villas/${id}?populate[photos][sort]=line:asc&populate[photos][populate][0]=photo&populate[reservations][populate][reservation_infos][filters][owner][$eq]=true&populate[reservations][sort][0]=createdAt:desc`)
-const GetVillaDetail = (id) => get(`/api/villas/${id}?populate[0]=categories`)
-const VillaAdd = (payload) => post('/api/villas', payload, true)
+// const Villas = (page, size, sort = true, fieldName = 'id', filter) => get(`/api/villas?sort=${fieldName}:${sort ? 'desc' : 'asc'}&publicationState=preview&filters[name][$containsi]=${filter}&pagination[page]=${page}&pagination[pageSize]=${size}`)
+const Villas = (page, size) => get(`/Villas/GetAll?Page=${page}&Size=${size}`, true)
+const GetVillaName = (id) => get(`/Villas/Get/${id}`, true)
+const GetVilla = (id) => get(`/Villas/Get/${id}`, true)
+const GetVillaDetail = (id) => get(`/Villas/Get/${id}`, true)
+const VillaAdd = (payload) => post('/Villas/Create', payload, true, true)
 const VillaRemove = (id) => remove('/api/villas/' + id)
-const VillaUpdate = (id, data) => put(`/api/villas/${id}`, data, true)
+const VillaUpdate = (data) => post(`/Villas/Update`, data, true, true)
+const VillaCategoryAsign = (payload) => post('/Villas/VillaCategoryAsign', payload, true, true)
+const VillaUpdateDetail = (data) => post(`/Villas/UpdateDetail`, data, true, true)
+const VillaCreateDetail = (data) => post(`/Villas/CreateDetail`, data, true, true)
+
 
 
 const VillaIsAvailible = (villaId, date1, date2) => {
@@ -63,49 +68,7 @@ const VillaIsAvailible = (villaId, date1, date2) => {
 }
 
 const VillaGetPriceForReservation = (villaId, date1, date2) => {
-    const query = qs.stringify({
-        sort: ['checkIn:asc'],
-        fields: ['checkIn', 'checkOut', 'price'],
-        populate: {
-            villa: {
-                fields: ['id', 'name']
-            }
-        },
-        filters: {
-            $and: [
-                {
-                    villa: {
-                        id: {
-                            $eq: villaId
-                        }
-                    }
-                },
-                {
-                    $or: [
-                        {
-                            $and: [
-                                { checkIn: { $gt: date1 } },
-                                { checkIn: { $lte: date2 } }
-                            ]
-                        },
-                        {
-                            $and: [
-                                { checkIn: { $lte: date1 } },
-                                { checkOut: { $gte: date1 } }
-                            ]
-                        },
-                        {
-                            $and: [
-                                { checkIn: { $lte: date2 } },
-                                { checkOut: { $gte: date2 } }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    });
-    return get(`/api/price-dates?${query}`);
+    return get(`/Reservations/GetReservationPrice?VillaId=${villaId}&CheckIn=${date1}&CheckOut=${date2}`, true);
 }
 
 const GetVillaFull = (id) => {
@@ -124,4 +87,4 @@ const GetVillaFull = (id) => {
 const VillaChangeState = (id, payload) => put(`/api/villas/${id}`, payload, true);
 
 
-export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, VillaChangeState, GetVillaDetail, VillaUpdate }
+export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, VillaChangeState, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail,VillaCreateDetail }

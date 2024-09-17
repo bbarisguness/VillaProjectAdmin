@@ -25,6 +25,8 @@ import { Add, Edit, Eye, Trash } from 'iconsax-react';
 import { VillaServices } from 'services';
 import Loader from 'components/Loader';
 import { useNavigate } from 'react-router-dom';
+import VillaSelectModal from 'sections/facilities/VillaSelectModal';
+import VillaDetailUpdateModal from 'sections/facilities/VillaDetailUpdateModal';
 
 // ==============================|| REACT TABLE - LIST ||============================== //
 const fallbackData = [];
@@ -166,6 +168,11 @@ export default function VillasList() {
     const [isDeleted, setIsDeleted] = useState(false)
     const [villaModalDelete, setVillaModalDelete] = useState(false);
 
+    const [villaSelectModal, setVillaSelectModal] = useState(false)
+    const [selectedVillaDetail, setSelectedVillaDetail] = useState('')
+
+    const [villaUpdateModal, setVillaUpdateModal] = useState(false)
+
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -177,7 +184,9 @@ export default function VillasList() {
 
     useEffect(() => {
         setLoading(true)
-        VillaServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
+        // VillaServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
+        VillaServices.Villas(pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
+
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
 
     useEffect(() => {
@@ -188,7 +197,8 @@ export default function VillasList() {
         if (isDeleted) {
             setIsDeleted(false)
             setLoading(true)
-            VillaServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
+            // VillaServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
+            VillaServices.Villas(pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted])
 
@@ -200,11 +210,11 @@ export default function VillasList() {
         () => [
             {
                 header: '#',
-                cell: ({ row }) => { return row.original.id }
+                cell: ({ row }) => { return row.index + 1 }
             },
             {
                 header: 'Villa Adı',
-                accessorKey: 'attributes.name',
+                // accessorKey: 'villaDetails[0].name',
                 cell: ({ row, getValue }) => (
                     <Stack direction="row" spacing={1.5} alignItems="center">
                         <Avatar
@@ -213,22 +223,22 @@ export default function VillasList() {
                             src={getImageUrl(`avatar-${!row.original.avatar ? 1 : row.original.avatar}.png`, ImagePath.USERS)}
                         />
                         <Stack spacing={0}>
-                            <Typography variant="subtitle1">{getValue()}</Typography>
+                            <Typography variant="subtitle1">{row.original.villaDetails[0].name}</Typography>
                         </Stack>
                     </Stack>
                 )
             },
             {
                 header: 'Bölge',
-                cell: ({ row }) => { return row.original.attributes.region }
+                cell: ({ row }) => { return `${row?.original?.town?.district?.city?.name} / ${row?.original?.town?.name}` }
             },
             {
                 header: 'Kapasite',
-                cell: ({ row }) => { return row.original.attributes.person }
+                cell: ({ row }) => { return row.original.person }
             },
             {
                 header: 'Online Rez.',
-                accessorKey: 'attributes.onlineReservation',
+                accessorKey: 'onlineReservation',
                 cell: (cell) => {
                     if (cell.getValue()) return <Chip color="success" label="Aktif" size="small" variant="light" />;
                     else return <Chip color="error" label="Pasif" size="small" variant="light" />;
@@ -245,9 +255,9 @@ export default function VillasList() {
             },
             {
                 header: 'Durum',
-                accessorKey: 'attributes.publishedAt',
+                accessorKey: 'generalStatusType',
                 cell: (cell) => {
-                    if (cell.getValue()) return <Chip color="success" label="Aktif" size="small" variant="light" />;
+                    if (cell.getValue() === 1) return <Chip color="success" label="Aktif" size="small" variant="light" />;
                     else return <Chip color="error" label="Pasif" size="small" variant="light" />;
                 }
             },
@@ -276,7 +286,11 @@ export default function VillasList() {
                                     color="primary"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/facilities/villas-update/${row.original.id}`)
+                                        setCustomerDeleteId(row.original.id)
+                                        setSelectedVillaDetail(row.original);
+                                        setVillaSelectModal(true)
+                                        // setCustomerDeleteId(row)
+                                        // navigate(`/facilities/villas-update/${row.original.id}`)
                                     }}
                                 >
                                     <Edit />
@@ -321,6 +335,8 @@ export default function VillasList() {
                 }}
             />
             <VillaModalDelete setIsDeleted={setIsDeleted} setLoading={setLoading} id={Number(customerDeleteId)} title={customerDeleteId} open={villaModalDelete} handleClose={handleClose} />
+            <VillaSelectModal villaDetailModal={setVillaUpdateModal} navigate={navigate} title={selectedVillaDetail} open={villaSelectModal} handleClose={() => setVillaSelectModal(false)} id={customerDeleteId} />
+            <VillaDetailUpdateModal selectedUpdateItem={selectedVillaDetail} setIsAdded={setIsDeleted} open={villaUpdateModal} modalToggler={setVillaUpdateModal} />
         </>
     );
 }

@@ -18,6 +18,7 @@ import { GetPriceForAddForm, PriceAdd, PricePut, PriceRemove } from 'services/pr
 import { GetAllPaymentTypes } from 'services/paymentTypeServices';
 import { AddPayment } from 'services/paymentServices';
 import { openSnackbar } from 'api/snackbar';
+import Loader from 'components/Loader';
 
 
 const getInitialValues = () => {
@@ -36,6 +37,7 @@ const getInitialValues = () => {
 };
 
 export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facilityId, facilityType, apartId }) {
+    const [loading, setLoading] = useState(true)
     const params = useParams();
     const [paymentType, setPaymentType] = useState();
     const validationSchema = Yup.object({
@@ -44,10 +46,10 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
     });
 
     useEffect(() => {
-        GetAllPaymentTypes().then((res) => { setPaymentType(res.data); })
+        GetAllPaymentTypes().then((res) => { setPaymentType(res.data); setLoading(false) })
     }, []);
 
-    
+
 
     const formik = useFormik({
         initialValues: getInitialValues(),
@@ -55,34 +57,35 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
         enableReinitialize: true,
         onSubmit: async (values, { setSubmitting }) => {
             try {
+                const fd = new FormData()
+                fd.append('Amount', values.amount)
+                fd.append('Description', values.description)
+                fd.append('PaymentTypeId', values.paymentType)
+                fd.append('ReservationId', params.id)
+                fd.append('InOrOut', true)
 
-                values.reservation = { connect: [params.id] };
-                values.payment_type = { connect: [values.paymentType.toString()] };
-                if (facilityType === 1) values.villa = { connect: [facilityId] };
-                if (facilityType === 2) {
-                    values.room = { connect: [facilityId] };
-                    values.apart = { connect: [apartId] };
-                }
-
-                //console.log(values);
-
-
-                const data = {
-                    ...values
-                }
-
-                //console.log({ data });
-
-                AddPayment({ data }).then((res) => {
-                    openSnackbar({
-                        open: true,
-                        message: 'Ödeme Eklendi',
-                        anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-                        variant: 'alert',
-                        alert: {
-                            color: 'success'
-                        }
-                    });
+                await AddPayment(fd).then((res) => {
+                    if (res?.statusCode === 200) {
+                        openSnackbar({
+                            open: true,
+                            message: 'Ödeme Eklendi',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'success'
+                            }
+                        });
+                    } else {
+                        openSnackbar({
+                            open: true,
+                            message: 'Hata',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'error'
+                            }
+                        });
+                    }
                     setIsEdit(true);
                     setSubmitting(false);
                     closeModal();
@@ -94,6 +97,8 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
     });
 
     const { handleChange, handleSubmit, isSubmitting } = formik;
+
+    if (loading) return <Loader open={loading} />
 
     return (
         <>
@@ -141,7 +146,7 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
                                             >
                                                 {paymentType &&
                                                     paymentType.map((item, index) => {
-                                                        return (<FormControlLabel key={index} value={item.id} control={<Radio />} label={item.attributes.title} />);
+                                                        return (<FormControlLabel key={index} value={item.id} control={<Radio />} label={item.title} />);
                                                     })}
                                             </RadioGroup>
                                         </FormControl>

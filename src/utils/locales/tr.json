@@ -28,5 +28,8 @@
 
   "reservations-group-title":"Rezervasyon Yönetimi",
   "reservations-list-title":"Rezervasyon Listesi",
-  "reservations-add-title":"Rezervasyon Ekle"
+  "reservations-add-title":"Rezervasyon Ekle",
+  "category-group-title": "Kategori Yönetimi",
+  "category-list-title": "Kategori Listesi"
+  
 }

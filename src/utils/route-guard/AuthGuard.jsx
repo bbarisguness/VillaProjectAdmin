@@ -14,7 +14,7 @@ export default function AuthGuard({ children }) {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      navigate('login', {
+      navigate('/login', {
         state: {
           from: location.pathname
         },
@@ -23,7 +23,9 @@ export default function AuthGuard({ children }) {
     }
   }, [isLoggedIn, navigate, location]);
 
-  return children;
+  if (isLoggedIn) {
+    return children;
+  }
 }
 
 AuthGuard.propTypes = { children: PropTypes.any };

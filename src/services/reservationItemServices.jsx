@@ -4,11 +4,11 @@ import { get, remove } from './request';
 
 const GetAllReservationItems = (reservationId) => {
 
-    return get(`/api/reservation-items?sort=day:asc&pagination[page]=1&pagination[pageSize]=100&filters[reservation][id][$eq]=${reservationId}`);
+    return get(`/Reservations/Get/${reservationId}`, true);
 
 }
 
 const ReservationItemRemove = (id) => remove('/api/reservation-items/' + id)
 
 
-export { GetAllReservationItems,ReservationItemRemove }
+export { GetAllReservationItems, ReservationItemRemove }

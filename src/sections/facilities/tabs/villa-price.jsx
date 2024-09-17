@@ -17,6 +17,7 @@ import { useParams } from 'react-router';
 import PriceModal from 'sections/priceSections/PriceModal';
 import PriceModalDelete from 'sections/priceSections/PriceModalDelete';
 import { GetPrices } from 'services/priceServices';
+import { stringToDate } from 'utils/custom/dateHelpers';
 
 export const header = [
     { label: 'Başlangıç Tarihi', key: 'name' },
@@ -85,9 +86,9 @@ export default function VillaPriceSection() {
                     <TableBody>
                         {data && data.map((row) => (
                             <TableRow hover key={row.id}>
-                                <TableCell align="left">{row.attributes.checkIn}</TableCell>
-                                <TableCell align="left">{row.attributes.checkOut}</TableCell>
-                                <TableCell align="left">{row.attributes.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                                <TableCell align="left">{stringToDate(row.startDate)}</TableCell>
+                                <TableCell align="left">{stringToDate(row.endDate)}</TableCell>
+                                <TableCell align="left">{row.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
                                 <TableCell sx={{ pr: 3 }} align="right">
                                     <Stack direction="row" spacing={0}>
                                         <Tooltip title="Delete">
@@ -96,8 +97,8 @@ export default function VillaPriceSection() {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleClose();
-                                                    setPriceDeleteId(Number(row.id));
-                                                    setSelectedDeleteItem(row.attributes)
+                                                    setPriceDeleteId(row.id);
+                                                    setSelectedDeleteItem(row)
                                                 }}
                                             >
                                                 <Trash />
@@ -110,7 +111,7 @@ export default function VillaPriceSection() {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <PriceModalDelete setIsEdit={setIsEdit} id={Number(priceDeleteId)} title={priceDeleteId} open={priceModalDelete} handleClose={handleClose} selectedItem={selectedDeleteItem}/>
+            <PriceModalDelete setIsEdit={setIsEdit} id={priceDeleteId} title={priceDeleteId} open={priceModalDelete} handleClose={handleClose} selectedItem={selectedDeleteItem}/>
             <PriceModal open={priceModal} modalToggler={setPriceModal} villaId={params.id} setIsEdit={setIsEdit} />
         </MainCard>
     );

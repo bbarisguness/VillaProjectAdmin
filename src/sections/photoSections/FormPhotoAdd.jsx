@@ -47,67 +47,35 @@ export default function FormPhotoAdd({ closeModal, setIsEdit, lastLine, setLoadi
         onSubmit: async (values, { setSubmitting }) => {
             try {
                 let fd = new FormData();
-                formik.values.files.forEach((file) => { fd.append('files', file); });
+                formik.values.files.forEach((file) => { fd.append('FormFiles', file); });
+                if (apart) {
+                    fd.append('HotelId', params.id)
+                } else if (room) {
+                    fd.append('RoomId', params.id)
+                } else {
+                    fd.append('VillaId', params.id)
+                }
                 var indexLenght = 0;
 
                 setUploadLoading(true);
-                Upload(fd).then((res) => {
 
-                    res.map((img, index) => {
-                        let imgJson = {}
-                        if (apart) {
-                            imgJson = {
-                                data: {
-                                    name: img.name,
-                                    line: (lastLine && lastLine + (index + 1)) || (index + 1),
-                                    photo: img.id,
-                                    apart: { connect: [params.id] }
-                                }
-                            };
-                        } else if (room) {
-                            imgJson = {
-                                data: {
-                                    name: img.name,
-                                    line: (lastLine && lastLine + (index + 1)) || (index + 1),
-                                    photo: img.id,
-                                    room: { connect: [params.id] }
-                                }
-                            };
-                        }
-                        else {
-                            imgJson = {
-                                data: {
-                                    name: img.name,
-                                    line: (lastLine && lastLine + (index + 1)) || (index + 1),
-                                    photo: img.id,
-                                    villa: { connect: [params.id] }
-                                }
-                            };
-                        }
-
-
-                        PhotoPost(imgJson).then((ress) => {
-                            indexLenght = index + 1;
-                            if (res.length === indexLenght) {
-                                openSnackbar({
-                                    open: true,
-                                    message: 'Resimler Eklendi',
-                                    anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-                                    variant: 'alert',
-                                    alert: {
-                                        color: 'success'
-                                    }
-                                });
-                                setSubmitting(false);
-                                setIsEdit(true);
-                                setLoading(true);
-                                setUploadLoading(false)
-                                closeModal();
+                await Upload(fd).then((res) => {
+                    if (res?.statusCode === 200) {
+                        openSnackbar({
+                            open: true,
+                            message: 'Resimler Eklendi',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'success'
                             }
                         });
-
-                    });
-
+                        setSubmitting(false);
+                        setIsEdit(true);
+                        setLoading(true);
+                        setUploadLoading(false)
+                        closeModal();
+                    }
                 });
 
 

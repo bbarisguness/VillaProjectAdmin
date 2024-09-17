@@ -30,12 +30,12 @@ export default defineConfig({
     open: true,
     // sunucuda çalışması için host kısmında sunucu ip'si yazması gerekli.(185.59.31.233)
     // host: "185.59.31.233",
-    port: 3060
+    port: 3001
   },
   preview: {
     // this ensures that the browser opens upon preview start
     open: true,
     // this sets a default port to 3000
-    port: 3060
+    port: 3001
   }
 });

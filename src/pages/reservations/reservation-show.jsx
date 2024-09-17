@@ -29,22 +29,15 @@ export default function ReservationShow() {
 
     if (pathname.indexOf('summary') != -1) {
         selectedTab = 0;
-    } else if (pathname.indexOf('reservation') != -1) {
+    } else if (pathname.indexOf('price-details') != -1) {
         selectedTab = 1;
     }
-    else if (pathname.indexOf('available-date') != -1) {
+    else if (pathname.indexOf('payments') != -1) {
         selectedTab = 2;
     }
-     else if (pathname.indexOf('price') != -1) {
+     else if (pathname.indexOf('customers') != -1) {
         selectedTab = 3;
-    } else if (pathname.indexOf('content') != -1) {
-        selectedTab = 4;
-    } else if (pathname.indexOf('gallery') != -1) {
-        selectedTab = 5;
-    }
-    else if (pathname.indexOf('file') != -1) {
-        selectedTab = 6;
-    }
+    } 
     // switch (pathname) {
     //     case '/apps/profiles/account/personal':
     //         breadcrumbTitle = 'Personal';

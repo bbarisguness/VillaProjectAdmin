@@ -25,16 +25,16 @@ export default function VillaSummarySection() {
   const [reservations, setReservations] = useState([])
 
   useEffect(() => {
-    if (params.id > 0 && loading) {
+    if (params.id && loading) {
       GetVilla(params.id).then((res) => {
         setVilla(res.data);
-        GetReservationsTop5(params.id).then((res) => {
-          setReservations(res.data)
-          setLoading(false)
-        })
+        setLoading(false)
+        // GetReservationsTop5(params.id).then((res) => {
+        //   setReservations(res.data)
+        //   setLoading(false)
+        // })
       })
     }
-
   }, [loading])
 
   function changeStateHandle() {
@@ -79,9 +79,6 @@ export default function VillaSummarySection() {
       VillaChangeState(params.id, { data }).then((res) => {
         setLoading(true)
         if (!res?.error) {
-
-
-
           openSnackbar({
             open: true,
             message: 'Villa Yayından Kaldırıldı.',
@@ -123,10 +120,10 @@ export default function VillaSummarySection() {
                       </div>
                     </Stack>
                     <Stack spacing={2.5} alignItems="center">
-                      <Avatar alt={villa.attributes.name} size="xxl" src={villa?.attributes?.photos?.data[0]?.attributes?.photo?.data?.attributes?.url} />
+                      <Avatar alt={villa?.villaDetails[0]?.name} size="xxl" src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/VillaPhotos/k_${villa?.photos[0]?.image}`} />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{villa.attributes.name}</Typography>
-                        <Typography color="secondary">{villa.attributes.region}</Typography>
+                        <Typography variant="h5">{villa?.villaDetails[0]?.name}</Typography>
+                        <Typography color="secondary">{villa?.attributes?.region}</Typography>
                       </Stack>
                     </Stack>
                   </Grid>
@@ -136,17 +133,17 @@ export default function VillaSummarySection() {
                   <Grid item xs={12}>
                     <Stack direction="row" justifyContent="space-around" alignItems="center">
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{villa.attributes.room}</Typography>
+                        <Typography variant="h5">{villa?.room}</Typography>
                         <Typography color="secondary">Oda</Typography>
                       </Stack>
                       <Divider orientation="vertical" flexItem />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{villa.attributes.bath}</Typography>
+                        <Typography variant="h5">{villa?.bath}</Typography>
                         <Typography color="secondary">Banyo</Typography>
                       </Stack>
                       <Divider orientation="vertical" flexItem />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{villa.attributes.person}</Typography>
+                        <Typography variant="h5">{villa?.person}</Typography>
                         <Typography color="secondary">Kapasite</Typography>
                       </Stack>
                     </Stack>
@@ -185,7 +182,7 @@ export default function VillaSummarySection() {
                           <Wifi size={18} />
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">{villa.attributes.wifiPassword || '-'}</Typography>
+                          <Typography align="right">{villa?.wifiPassword || '-'}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
@@ -193,7 +190,7 @@ export default function VillaSummarySection() {
                           <span>Su No</span>
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">{villa.attributes.waterMaterNumber || '-'}</Typography>
+                          <Typography align="right">{villa?.waterMaterNumber || '-'}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
@@ -201,7 +198,7 @@ export default function VillaSummarySection() {
                           <span>Elektrik No</span>
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">{villa.attributes.electricityMeterNumber || '-'}</Typography>
+                          <Typography align="right">{villa?.electricityMeterNumber || '-'}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
@@ -209,7 +206,7 @@ export default function VillaSummarySection() {
                           <span>İnternet No</span>
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">{villa.attributes.internetMeterNumber || '-'}</Typography>
+                          <Typography align="right">{villa?.internetMeterNumber || '-'}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                     </List>
@@ -237,17 +234,17 @@ export default function VillaSummarySection() {
                   <TableBody>
                     {
                       reservations?.map((row, i) => {
-                          return (
-                            <TableRow hover key={row.id}>
-                              <TableCell sx={{ pl: 3 }} component="th" scope="row">
-                                {row.attributes.reservation_infos?.data[0]?.attributes.name}{' '}
-                                {row.attributes.reservation_infos?.data[0]?.attributes.surname}
-                              </TableCell>
-                              <TableCell align="left">{row.attributes.checkIn}</TableCell>
-                              <TableCell align="left">{row.attributes.checkOut}</TableCell>
-                              <TableCell align="left">{row.attributes.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
-                            </TableRow>
-                          )
+                        return (
+                          <TableRow hover key={row.id}>
+                            <TableCell sx={{ pl: 3 }} component="th" scope="row">
+                              {row.attributes.reservation_infos?.data[0]?.attributes.name}{' '}
+                              {row.attributes.reservation_infos?.data[0]?.attributes.surname}
+                            </TableCell>
+                            <TableCell align="left">{row.attributes.checkIn}</TableCell>
+                            <TableCell align="left">{row.attributes.checkOut}</TableCell>
+                            <TableCell align="left">{row.attributes.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                          </TableRow>
+                        )
                       })
                     }
                   </TableBody>

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 // material ui
-import { Grid, Stack, Button, Divider, TextField, InputLabel, DialogTitle, DialogContent, DialogActions, FormControl, RadioGroup, FormControlLabel, Radio, FormHelperText } from '@mui/material';
+import { Grid, Stack, Button, Divider, TextField, InputLabel, DialogTitle, DialogContent, DialogActions, FormControl, RadioGroup, FormControlLabel, Radio, FormHelperText, Typography, Switch } from '@mui/material';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -16,13 +16,14 @@ import { useParams } from 'react-router';
 import { PriceTableAdd } from 'services/priceTableServices';
 import { openSnackbar } from 'api/snackbar';
 import { AddRoom } from 'services/roomServices';
+import ReactQuill from 'react-quill';
+import useConfig from 'hooks/useConfig';
 
 
 const getInitialValues = () => {
     const newPriceDate = {
         name: '',
         slug: '',
-        video: '',
         waterMaterNumber: '',
         electricityMeterNumber: '',
         internetMeterNumber: '',
@@ -30,12 +31,21 @@ const getInitialValues = () => {
         person: 0,
         bath: 0,
         room: 0,
-        apart: {}
+        apart: {},
+        descriptionShort: '',
+        descriptionLong: '',
+        featureTextRed: '',
+        featureTextBlue: '',
+        featureTextWhite: '',
+        metaTitle: '',
+        metaDescription: '',
+        onlineReservation: false,
     };
     return newPriceDate;
 };
 
 export default function FormRoomAdd({ closeModal, setIsEdit }) {
+    const user = useConfig()
     const params = useParams();
 
     const validationSchema = Yup.object({
@@ -69,7 +79,28 @@ export default function FormRoomAdd({ closeModal, setIsEdit }) {
                     }
                 }
 
-                await AddRoom(data).then((res) => {
+                const fd = new FormData()
+                fd.append('HotelId', params.id)
+                fd.append('Name', values.name)
+                fd.append('LanguageCode', user?.config?.companyDefaultLanguage || 'tr')
+                fd.append('Bath', values.bath)
+                fd.append('Person', values.person)
+                fd.append('Rooms', values.room)
+                fd.append('Slug', values.slug)
+                fd.append('WifiPassword', values.wifiPassword)
+                fd.append('InternetMeterNumber', values.internetMeterNumber)
+                fd.append('ElectricityMeterNumber', values.electricityMeterNumber)
+                fd.append('WaterMaterNumber', values.waterMaterNumber)
+                fd.append('FeatureTextBlue', values.featureTextBlue)
+                fd.append('FeatureTextRed', values.featureTextRed)
+                fd.append('FeatureTextWhite', values.featureTextWhite)
+                fd.append('DescriptionShort', values.descriptionShort)
+                fd.append('DescriptionLong', values.descriptionLong)
+                fd.append('MetaTitle', values.metaTitle)
+                fd.append('MetaDescription', values.metaDescription)
+                fd.append('OnlineReservation', values.onlineReservation)
+
+                await AddRoom(fd).then((res) => {
                     setIsEdit(true);
                     if (!res?.error) {
                         openSnackbar({
@@ -104,8 +135,14 @@ export default function FormRoomAdd({ closeModal, setIsEdit }) {
         }
     });
 
-    const { handleSubmit, isSubmitting } = formik;
 
+
+
+    const { handleSubmit, isSubmitting, setFieldValue, getFieldProps, touched, errors } = formik;
+
+    const handleChangeEditor = (value) => {
+        setFieldValue('descriptionLong', value)
+    };
 
     return (
         <>
@@ -117,7 +154,23 @@ export default function FormRoomAdd({ closeModal, setIsEdit }) {
                         <DialogContent sx={{ p: 2.5 }}>
                             <Grid item xs={12} md={12}>
                                 <Grid container spacing={3}>
-                                    <Grid item xs={12} lg={6}>
+                                    <Grid item xs={12}>
+                                        <Stack spacing={1}>
+                                            <InputLabel htmlFor="languageCode">Dil</InputLabel>
+                                            <FormControl>
+                                                <RadioGroup row aria-label="languageCode" value={user?.config?.companyDefaultLanguage || 'tr'} name="languageCode" id="languageCode">
+                                                    <FormControlLabel disabled value="tr" control={<Radio />} label="TR" />
+                                                    <FormControlLabel disabled value="en" control={<Radio />} label="EN" />
+                                                </RadioGroup>
+                                            </FormControl>
+                                            {formik.errors.languageCode && (
+                                                <FormHelperText error id="standard-weight-helper-text-email-login">
+                                                    {formik.errors.languageCode}
+                                                </FormHelperText>
+                                            )}
+                                        </Stack>
+                                    </Grid>
+                                    <Grid item xs={12}>
                                         <Stack spacing={1}>
                                             <InputLabel htmlFor="name">Oda İsmi</InputLabel>
                                             <TextField
@@ -129,21 +182,6 @@ export default function FormRoomAdd({ closeModal, setIsEdit }) {
                                                 onChange={formik.handleChange}
                                                 error={formik.touched.name && Boolean(formik.errors.name)}
                                                 helperText={formik.touched.name && formik.errors.name}
-                                            />
-                                        </Stack>
-                                    </Grid>
-                                    <Grid item xs={12} lg={6}>
-                                        <Stack spacing={1}>
-                                            <InputLabel htmlFor="video">Video</InputLabel>
-                                            <TextField
-                                                fullWidth
-                                                id="video"
-                                                name="video"
-                                                placeholder="Video"
-                                                value={formik.values.video}
-                                                onChange={formik.handleChange}
-                                                error={formik.touched.video && Boolean(formik.errors.video)}
-                                                helperText={formik.touched.video && formik.errors.video}
                                             />
                                         </Stack>
                                     </Grid>
@@ -251,6 +289,99 @@ export default function FormRoomAdd({ closeModal, setIsEdit }) {
                                                 helperText={formik.touched.internetMeterNumber && formik.errors.internetMeterNumber}
                                             />
                                         </Stack>
+                                    </Grid>
+                                    <Grid item xs={12} lg={4}>
+                                        <Stack spacing={1}>
+                                            <InputLabel htmlFor="featureTextRed">Kırmızı Etiket</InputLabel>
+                                            <TextField
+                                                fullWidth
+                                                id="featureTextRed"
+                                                name="featureTextRed"
+                                                placeholder="Kırmızı Etiket"
+                                                value={formik.values.featureTextRed}
+                                                onChange={formik.handleChange}
+                                                error={formik.touched.featureTextRed && Boolean(formik.errors.featureTextRed)}
+                                                helperText={formik.touched.featureTextRed && formik.errors.featureTextRed}
+                                            />
+                                        </Stack>
+                                    </Grid>
+                                    <Grid item xs={12} lg={4}>
+                                        <Stack spacing={1}>
+                                            <InputLabel htmlFor="featureTextBlue">Mavi Etiket</InputLabel>
+                                            <TextField
+                                                fullWidth
+                                                id="featureTextBlue"
+                                                name="featureTextBlue"
+                                                placeholder="Mavi Etiket"
+                                                value={formik.values.featureTextBlue}
+                                                onChange={formik.handleChange}
+                                                error={formik.touched.featureTextBlue && Boolean(formik.errors.featureTextBlue)}
+                                                helperText={formik.touched.featureTextBlue && formik.errors.featureTextBlue}
+                                            />
+                                        </Stack>
+                                    </Grid>
+                                    <Grid item xs={12} lg={4}>
+                                        <Stack spacing={1}>
+                                            <InputLabel htmlFor="featureTextWhite">Beyaz Etiket</InputLabel>
+                                            <TextField
+                                                fullWidth
+                                                id="featureTextWhite"
+                                                name="featureTextWhite"
+                                                placeholder="Beyaz Etiket"
+                                                value={formik.values.featureTextWhite}
+                                                onChange={formik.handleChange}
+                                                error={formik.touched.featureTextWhite && Boolean(formik.errors.featureTextWhite)}
+                                                helperText={formik.touched.featureTextWhite && formik.errors.featureTextWhite}
+                                            />
+                                        </Stack>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <InputLabel htmlFor="descriptionShort">Kısa Açıklama</InputLabel>
+                                        <TextField
+                                            fullWidth
+                                            id="descriptionShort"
+                                            multiline
+                                            rows={5}
+                                            placeholder="Kısa Açıklama"
+                                            {...getFieldProps('descriptionShort')}
+                                            error={Boolean(touched.descriptionShort && errors.descriptionShort)}
+                                            helperText={touched.descriptionShort && errors.descriptionShort}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12}>
+                                        <InputLabel htmlFor="longDescription">Genel Açıklama</InputLabel>
+                                        <ReactQuill style={{ height: '400px', marginBottom: '40px' }} onChange={handleChangeEditor} />
+                                    </Grid>
+
+                                    <Grid item xs={12} lg={6}>
+                                        <InputLabel htmlFor="villa-metaTitle">Seo Meta Title</InputLabel>
+                                        <TextField
+                                            fullWidth
+                                            id="villa-metaTitle"
+                                            placeholder="Meta Başlık"
+                                            {...getFieldProps('metaTitle')}
+                                            error={Boolean(touched.metaTitle && errors.metaTitle)}
+                                            helperText={touched.metaTitle && errors.metaTitle}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} lg={6}>
+                                        <InputLabel htmlFor="villa-metaDescription">Seo Meta Description</InputLabel>
+                                        <TextField
+                                            fullWidth
+                                            id="villa-metaDescription"
+                                            placeholder="Meta Açıklama"
+                                            {...getFieldProps('metaDescription')}
+                                            error={Boolean(touched.metaDescription && errors.metaDescription)}
+                                            helperText={touched.metaDescription && errors.metaDescription}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle1">Online Reservation Status</Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Tesisinize Online (Anlık) Rezervasyon Kabul Ediyormusunuz?
+                                        </Typography>
+                                        <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" labelPlacement="start" onChange={() => { setFieldValue('onlineReservation', !getFieldProps('onlineReservation').value) }} />
                                     </Grid>
                                 </Grid>
                             </Grid>

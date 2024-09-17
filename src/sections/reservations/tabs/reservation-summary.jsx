@@ -11,7 +11,7 @@ import { useParams } from 'react-router';
 import { openSnackbar } from 'api/snackbar';
 import Loader from 'components/Loader';
 import { GetReservation, UpdateReservation } from 'services/reservationServices';
-import { days } from 'utils/custom/dateHelpers';
+import { days, stringToDate } from 'utils/custom/dateHelpers';
 
 export default function ReservationSummarySection() {
     const params = useParams();
@@ -19,7 +19,7 @@ export default function ReservationSummarySection() {
     const [reservation, setReservation] = useState([])
 
     useEffect(() => {
-        if (params.id > 0 && loading) {
+        if (params.id && loading) {
             GetReservation(params.id).then((res) => {
                 console.log("res => ", res.data);
                 setReservation(res.data);
@@ -32,12 +32,10 @@ export default function ReservationSummarySection() {
 
 
     const handleReservationStatusChange = (e) => {
-
-        UpdateReservation(params.id, {
-            data: {
-                reservationStatus: e.target.value.toString()
-            }
-        }).then(() => {
+        const fd = new FormData()
+        fd.append('Id', params.id)
+        fd.append('ReservationStatusType', e.target.value)
+        UpdateReservation(fd).then((res) => {
             setLoading(true);
             openSnackbar({
                 open: true,
@@ -65,42 +63,52 @@ export default function ReservationSummarySection() {
                                     <FormControl fullWidth>
                                         <Select
                                             id="reservationStatus"
-                                            value={reservation.attributes.reservationStatus}
+                                            value={reservation.reservationStatusType}
                                             onChange={handleReservationStatusChange}
                                         >
-                                            <MenuItem value={100}>Onay Bekliyor</MenuItem>
-                                            <MenuItem value={110}>İptal Edildi</MenuItem>
-                                            <MenuItem value={120}>Onaylandı</MenuItem>
-                                            <MenuItem value={130}>Konaklama Başladı</MenuItem>
-                                            <MenuItem value={140}>Konaklama Bitti</MenuItem>
+                                            {/* <MenuItem value={100}>Onay Bekliyor</MenuItem> */}
+                                            <MenuItem value={3}>İptal Edildi</MenuItem>
+                                            <MenuItem value={2}>Opsiyonlanmış</MenuItem>
+                                            <MenuItem value={1}>Rezerve</MenuItem>
+                                            {/* <MenuItem value={130}>Konaklama Başladı</MenuItem> */}
+                                            <MenuItem value={4}>Konaklama Bitti</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </TableCell>
 
-                                <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5E7D3' }} component="th" scope="row">
-                                    <b> GENEL TOPLAM</b>
-                                </TableCell>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5E7D3' }} component="th" scope="row">
-                                    : <b>{reservation.attributes.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL </b>
-                                </TableCell>
+                                {!(reservation?.homeOwner) && <>
+                                    <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5E7D3' }} component="th" scope="row">
+                                        <b> GENEL TOPLAM</b>
+                                    </TableCell>
+                                    <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5E7D3' }} component="th" scope="row">
+                                        : <b>{reservation.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL </b>
+                                    </TableCell>
+                                </>}
                             </TableRow>
                             <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
                                     <b>Rezervasyon Numarası</b>
                                 </TableCell>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    :<b> {reservation.attributes?.reservationNumber}</b>
+                                    :<b> {reservation.reservationNumber}</b>
                                 </TableCell>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5B82A' }} component="th" scope="row">
-                                    <b> YAPILAN ÖDEME</b>
-                                </TableCell>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5B82A' }} component="th" scope="row">
-                                    :{' '}
-                                    <b>
-                                        {reservation.attributes.payments?.data.reduce((a, v) => (a = a + v?.attributes.amount), 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{' '}
-                                        TL
-                                    </b>
-                                </TableCell>
+                                {
+
+                                    !(reservation?.homeOwner) &&
+                                    <>
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5B82A' }} component="th" scope="row">
+                                            <b> YAPILAN ÖDEME</b>
+                                        </TableCell>
+
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5B82A' }} component="th" scope="row">
+                                            :{' '}
+                                            <b>
+                                                {reservation.payments?.reduce((a, v) => (a = a + v?.amount), 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{' '}
+                                                TL
+                                            </b>
+                                        </TableCell>
+                                    </>
+                                }
                             </TableRow>
 
                             <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
@@ -108,19 +116,24 @@ export default function ReservationSummarySection() {
                                     Tesis Adı
                                 </TableCell>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    :<b> {reservation.attributes.villa.data !== null ? reservation.attributes.villa.data.attributes.name : reservation.attributes.room.data.attributes.name}</b>
+                                    :<b> {reservation?.villa !== null ? reservation?.villa?.villaDetails[0]?.name : reservation?.room?.roomDetails[0]?.name}</b>
                                 </TableCell>
-
-                                <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#83D4A9' }} component="th" scope="row">
-                                    <b> KALAN</b>
-                                </TableCell>
+                                {
+                                    !(reservation?.homeOwner) &&
+                                    <>
+                                    <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#83D4A9' }} component="th" scope="row">
+                                        <b> KALAN</b>
+                                    </TableCell>
+                               
                                 <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#83D4A9' }} component="th" scope="row">
                                     :{' '}
                                     <b style={{}}>
-                                        {(reservation.attributes.total - reservation.attributes.payments?.data.reduce((a, v) => (a = a + v?.attributes.amount),0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{' '}
+                                        {(reservation.total - reservation.payments?.reduce((a, v) => (a = a + v?.amount), 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{' '}
                                         TL
                                     </b>
                                 </TableCell>
+                                </>
+                                 }
                             </TableRow>
                             {/* <TableRow hover>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
@@ -137,21 +150,13 @@ export default function ReservationSummarySection() {
                                     </b>
                                 </TableCell>
                             </TableRow> */}
-                            <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    Bölge
-                                </TableCell>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    : <b>{reservation.attributes.villa.data !== null ? reservation.attributes.villa.data.attributes.region : reservation.attributes.room.data.attributes.apart.data.attributes.region }</b>
-                                </TableCell>
-                            </TableRow>
 
                             <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
                                     Check In
                                 </TableCell>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    :<b> {reservation.attributes.checkIn}</b>
+                                    :<b> {stringToDate(reservation.checkIn)}</b>
                                 </TableCell>
                             </TableRow>
 
@@ -160,7 +165,7 @@ export default function ReservationSummarySection() {
                                     Check Out
                                 </TableCell>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    : <b>{reservation.attributes.checkOut}</b>
+                                    : <b>{stringToDate(reservation.checkOut)}</b>
                                 </TableCell>
                             </TableRow>
 
@@ -169,42 +174,46 @@ export default function ReservationSummarySection() {
                                     Gece Sayısı
                                 </TableCell>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    : <b> {days(reservation.attributes.checkIn, reservation.attributes.checkOut)}</b>
+                                    : <b> {days(reservation.checkIn, reservation.checkOut)}</b>
                                 </TableCell>
                             </TableRow>
+                            {
+                                !(reservation?.homeOwner) &&
+                                <>
+                                    <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
+                                            Toplam
+                                        </TableCell>
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
+                                            : <b>{reservation.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
+                                        </TableCell>
+                                    </TableRow>
 
-                            <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    Toplam
-                                </TableCell>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    : <b>{reservation.attributes.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
-                                </TableCell>
-                            </TableRow>
+                                    <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
+                                            İndirim
+                                        </TableCell>
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
+                                            : <b>{reservation.discount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
+                                        </TableCell>
+                                    </TableRow>
 
-                            <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    İndirim
-                                </TableCell>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    : <b>{reservation.attributes.discount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
-                                </TableCell>
-                            </TableRow>
-
-                            <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    Genel Toplam
-                                </TableCell>
-                                <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    : <b>{reservation.attributes.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
-                                </TableCell>
-                            </TableRow>
+                                    <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
+                                            Genel Toplam
+                                        </TableCell>
+                                        <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
+                                            : <b>{reservation.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
+                                        </TableCell>
+                                    </TableRow>
+                                </>
+                            }
                             <TableRow hover /*onClick={() => navigate('/villa/show/' + row.id + '/summary')}*/>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
                                     Rezervasyon Notları
                                 </TableCell>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    : <b>{reservation.attributes.description} </b>
+                                    : <b>{reservation.note} </b>
                                 </TableCell>
                             </TableRow>
                         </TableBody>

@@ -18,6 +18,7 @@ import PriceApartModal from 'sections/priceSections/PriceApartModal';
 import PriceModal from 'sections/priceSections/PriceModal';
 import PriceModalDelete from 'sections/priceSections/PriceModalDelete';
 import { GetRoomPrices } from 'services/priceServices';
+import { stringToDate } from 'utils/custom/dateHelpers';
 
 export const header = [
     { label: 'Başlangıç Tarihi', key: 'name' },
@@ -86,9 +87,9 @@ export default function RoomPriceSection() {
                     <TableBody>
                         {data && data.map((row) => (
                             <TableRow hover key={row.id}>
-                                <TableCell align="left">{row.attributes.checkIn}</TableCell>
-                                <TableCell align="left">{row.attributes.checkOut}</TableCell>
-                                <TableCell align="left">{row.attributes.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                                <TableCell align="left">{stringToDate(row.startDate)}</TableCell>
+                                <TableCell align="left">{stringToDate(row.endDate)}</TableCell>
+                                <TableCell align="left">{row.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
                                 <TableCell sx={{ pr: 3 }} align="right">
                                     <Stack direction="row" spacing={0}>
                                         <Tooltip title="Delete">
@@ -98,7 +99,7 @@ export default function RoomPriceSection() {
                                                     e.stopPropagation();
                                                     handleClose();
                                                     setPriceDeleteId(Number(row.id));
-                                                    setSelectedDeleteItem(row.attributes)
+                                                    setSelectedDeleteItem(row)
                                                 }}
                                             >
                                                 <Trash />

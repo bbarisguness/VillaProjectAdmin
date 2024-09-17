@@ -42,6 +42,11 @@ import RoomPrice from 'pages/facilities/aparts/rooms/tabs/room-price';
 import RoomAvailableDate from 'pages/facilities/aparts/rooms/tabs/room-available-date';
 import RoomGallery from 'pages/facilities/aparts/rooms/tabs/room-gallery';
 import RoomFile from 'pages/facilities/aparts/rooms/tabs/room-file';
+import CategoryPage from 'pages/category';
+import RoomUpdate from 'pages/facilities/aparts/rooms/room-update';
+import VillaAccounting from 'pages/facilities/tabs/villa-accounting';
+import ApartAccounting from 'pages/facilities/aparts/tabs/apart-accounting';
+import RoomAccounting from 'pages/facilities/aparts/rooms/tabs/room-accounting';
 
 
 const ErrorPage = Loadable(lazy(() => import('pages/error-pages/404')));
@@ -105,6 +110,10 @@ const MainRoutes = {
                 {
                   path: 'available-date/:id',
                   element: <VillaAvailableDate />
+                },
+                {
+                  path: 'accounting/:id',
+                  element: <VillaAccounting />
                 }
               ]
             },
@@ -139,8 +148,16 @@ const MainRoutes = {
                 {
                   path: 'file/:id',
                   element: <ApartFile />
+                },
+                {
+                  path: 'accounting/:id',
+                  element: <ApartAccounting />
                 }
               ]
+            },
+            {
+              path: 'room-update/:id',
+              element: <RoomUpdate />
             },
             {
               path: 'aparts/room-show',
@@ -173,10 +190,19 @@ const MainRoutes = {
                 {
                   path: 'file/:id',
                   element: <RoomFile />
+                },
+                {
+                  path: 'accounting/:id',
+                  element: <RoomAccounting />
                 }
               ]
             }
           ]
+        },
+        {
+          path: '/category',
+          url: '/category',
+          element: <CategoryPage />
         },
         {
           path: '/reservations',

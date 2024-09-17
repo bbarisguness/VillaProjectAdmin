@@ -11,7 +11,7 @@ import { openSnackbar } from 'api/snackbar';
 import { Trash } from 'iconsax-react';
 import { DistanceRulerRemove } from 'services/distanceRulerServices';
 
-export default function DistanceRulerModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem }) {
+export default function DistanceRulerModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem, villa = false }) {
   const deletehandler = async () => {
 
     await DistanceRulerRemove(id).then((res) => {
@@ -64,7 +64,10 @@ export default function DistanceRulerModalDelete({ id, title, open, handleClose,
             </Typography>
             <Typography align="center">
               <Typography variant="subtitle1" component="span">
-                "{selectedItem?.name}" {""}
+                {
+                  villa ?
+                      `${selectedItem?.name} ` : `${selectedItem?.length !== 0 ? selectedItem?.distanceRulerDetails[0]?.name : ''} `
+                }
               </Typography>
               adlı mesafe cetvelini silmek istediğinize emin misiniz?
             </Typography>

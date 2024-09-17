@@ -3,12 +3,14 @@ import { get, post, put, remove } from './request'
 import * as qs from 'qs'
 
 
-const Aparts = (page, size, sort = true, fieldName = 'id', filter) => get(`/api/aparts?sort=${fieldName}:${sort ? 'desc' : 'asc'}&publicationState=preview&filters[name][$containsi]=${filter}&pagination[page]=${page}&pagination[pageSize]=${size}`)
-const GetApart = (id) => get(`/api/aparts/${id}?populate[photos][sort]=line:asc&populate[photos][populate][0]=photo&populate[reservations][populate][reservation_infos][filters][owner][$eq]=true&populate[reservations][sort][0]=createdAt:desc`)
+const Aparts = (page, size) => get(`/Hotels/GetAll?Page=${page}&Size=${size}`, true)
+const GetApart = (id) => get(`/Hotels/Get/${id}`, true)
 
-const ApartChangeState = (id, payload) => put(`/api/aparts/${id}`, payload, true);
+const ApartChangeState = (payload) => post(`/Hotels/Update`, payload, true, true);
 
-const CreateApart = (payload) => post(`/api/aparts`, payload, true);
+const CreateApart = (payload) => post(`/Hotels/Create`, payload, true, true);
+const CreateApartDetail = (payload) => post(`/Hotels/CreateDetail`, payload, true, true);
+const UpdateApartDetail = (payload) => post(`/Hotels/UpdateDetail`, payload, true, true);
 
 const GetApartName = (id) => get(`/api/aparts/${id}?fields=name`)
 
@@ -149,4 +151,4 @@ const GetApartFull = (id) => {
 
 
 // export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, VillaChangeState, GetVillaDetail, VillaUpdate }
-export { Aparts, GetApart, ApartChangeState, GetApartFull, CreateApart,GetApartName }
+export { Aparts, GetApart, ApartChangeState, GetApartFull, CreateApart, GetApartName, CreateApartDetail, UpdateApartDetail }

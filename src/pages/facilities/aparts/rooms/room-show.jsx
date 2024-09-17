@@ -14,10 +14,12 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import { APP_DEFAULT_PATH } from 'config';
 
 // assets
-import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick } from 'iconsax-react';
+import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick, MoneySend } from 'iconsax-react';
 import { Button, Grid } from '@mui/material';
 import { GetRoomName } from 'services/roomServices';
 import RoomUpdateModal from 'sections/facilities/aparts/RoomUpdateModal';
+import RoomSelectModal from 'sections/facilities/aparts/rooms/RoomSelectModal';
+import RoomDetailUpdateModal from 'sections/facilities/aparts/RoomDetailUpdateModal';
 
 
 export default function RoomShow() {
@@ -42,14 +44,17 @@ export default function RoomShow() {
     else if (pathname.indexOf('price') != -1) {
         selectedTab = 3;
     }
-    else if (pathname.indexOf('content') != -1) {
+    else if (pathname.indexOf('gallery') != -1) {
         selectedTab = 4;
-    } else if (pathname.indexOf('gallery') != -1) {
+    } else if (pathname.indexOf('file') != -1) {
         selectedTab = 5;
     }
-    else if (pathname.indexOf('file') != -1) {
+    else if (pathname.indexOf('accounting') != -1) {
         selectedTab = 6;
     }
+    // else if (pathname.indexOf('file') != -1) {
+    //     selectedTab = 6;
+    // }
     // switch (pathname) {
     //     case '/apps/profiles/account/personal':
     //         breadcrumbTitle = 'Personal';
@@ -86,6 +91,9 @@ export default function RoomShow() {
     const [value, setValue] = useState(selectedTab);
     const [villa, setVilla] = useState();
 
+    const [roomSelectModal, setRoomSelectModal] = useState(false)
+    const [isDeleted, setIsDeleted] = useState(false)
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -94,22 +102,25 @@ export default function RoomShow() {
         { title: 'Apart Yönetimi', to: '/facilities/aparts-list' }
     ];
     if (selectedTab === 0) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes?.apart?.data?.attributes?.name, to: `/facilities/aparts/apart-show/summary/${villa?.attributes?.apart?.data?.id}` }, { title: villa?.attributes.name }, { title: 'Özet Bilgiler' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Özet Bilgiler' }];
     }
     else if (selectedTab === 1) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes?.apart?.data?.attributes?.name, to: `/facilities/aparts/apart-show/summary/${villa?.attributes?.apart?.data?.id}` }, { title: villa?.attributes.name }, { title: 'Rezervasyonlar' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Rezervasyonlar' }];
     }
     else if (selectedTab === 2) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes?.apart?.data?.attributes?.name, to: `/facilities/aparts/apart-show/summary/${villa?.attributes?.apart?.data?.id}` }, { title: villa?.attributes.name }, { title: 'Müsait Tarihler' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Müsait Tarihler' }];
     }
     else if (selectedTab === 3) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes?.apart?.data?.attributes?.name, to: `/facilities/aparts/apart-show/summary/${villa?.attributes?.apart?.data?.id}` }, { title: villa?.attributes.name }, { title: 'Fiyatlar' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Fiyatlar' }];
+    }
+    else if (selectedTab === 4) {
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Galeri' }];
     }
     else if (selectedTab === 5) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes?.apart?.data?.attributes?.name, to: `/facilities/aparts/apart-show/summary/${villa?.attributes?.apart?.data?.id}` }, { title: villa?.attributes.name }, { title: 'Galeri' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Dosyalar' }];
     }
     else if (selectedTab === 6) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes?.apart?.data?.attributes?.name, to: `/facilities/aparts/apart-show/summary/${villa?.attributes?.apart?.data?.id}` }, { title: villa?.attributes.name }, { title: 'Dosyalar' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/accounting/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Gelir Gider' }];
     }
 
     useEffect(() => {
@@ -121,11 +132,20 @@ export default function RoomShow() {
 
 
     useEffect(() => {
-        if (params.id > 1)
+        if (params.id)
             GetRoomName(params.id).then((res) => {
                 setVilla(res.data)
             })
     }, [])
+
+    useEffect(() => {
+        if (isDeleted) {
+            setIsDeleted(false)
+            GetRoomName(params.id).then((res) => {
+                setVilla(res.data)
+            })
+        }
+    }, [isDeleted])
 
 
 
@@ -133,10 +153,12 @@ export default function RoomShow() {
 
     return (
         <>
-            <RoomUpdateModal open={roomUpdateModal} modalToggler={setRoomUpdateModal} villaId={params.id} />
+            <RoomDetailUpdateModal selectedUpdateItem={villa} setIsAdded={setIsDeleted} open={roomUpdateModal} modalToggler={setRoomUpdateModal} />
+            <RoomSelectModal villaDetailModal={setRoomUpdateModal} apart={true} title={villa} id={params.id} navigate={navigate} handleClose={() => setRoomSelectModal(false)} open={roomSelectModal} />
+
             <Breadcrumbs custom links={breadcrumbLinks} />
             <Grid style={{ marginBottom: '10px' }} container justifyContent="flex-end" alignItems="normal">
-                <Button onClick={() => setRoomUpdateModal(true)} size='small' type="button" variant="contained">GÜNCELLE</Button>
+                <Button onClick={() => setRoomSelectModal(true)} size='small' type="button" variant="contained">GÜNCELLE</Button>
             </Grid>
             <MainCard border={false}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
@@ -165,6 +187,7 @@ export default function RoomShow() {
                         />
                         <Tab label="Galeri" component={Link} to={`/facilities/aparts/room-show/gallery/${params.id}`} icon={<Image />} iconPosition="start" />
                         <Tab label="Dosyalar" component={Link} to={`/facilities/aparts/room-show/file/${params.id}`} icon={<Folder />} iconPosition="start" />
+                        <Tab label="Gelir Gider" component={Link} to={`/facilities/aparts/room-show/accounting/${params.id}`} icon={<MoneySend />} iconPosition="start" />
                     </Tabs>
                 </Box>
                 <Box sx={{ mt: 2.5 }}>

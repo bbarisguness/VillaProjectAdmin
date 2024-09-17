@@ -4,26 +4,26 @@ import { get, post, remove, put } from './request';
 
 const GetAllReservationInfos = (reservationId) => {
 
-    return get(`/api/reservation-infos?sort=name:asc&pagination[page]=1&pagination[pageSize]=100&filters[reservation][id][$eq]=${reservationId}`);
+    return get(`/ReservationInfos/GetAll?ReservationId=${reservationId}`, true);
 
 }
 
 const GetReservationInfo = (id) => {
 
-    return get(`/api/reservation-infos/${id}`);
+    return get(`/ReservationInfos/Get/${id}`, true);
 
 }
 
-const UpdateReservationInfo = ({ id, data }) => {
-    return put(`/api/reservation-infos/${id}`, data, true)
+const UpdateReservationInfo = ({ data }) => {
+    return post(`/ReservationInfos/Update`, data, true, true)
 }
 
 const AddReservationInfo = (payload) =>
     post(
-        `/api/reservation-infos`, payload, true
+        `/ReservationInfos/Create`, payload, true, true
     );
 
-const ReservationInfoRemove = (id) => remove('/api/reservation-infos/' + id)
+const ReservationInfoRemove = (id) => get(`/ReservationInfos/DeleteHard/${id}`, true)
 
 
 export { GetAllReservationInfos, AddReservationInfo, ReservationInfoRemove, GetReservationInfo, UpdateReservationInfo }

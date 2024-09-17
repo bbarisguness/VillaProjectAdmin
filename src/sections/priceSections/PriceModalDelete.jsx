@@ -63,11 +63,11 @@ export default function PriceModalDelete({ id, title, open, handleClose, setIsEd
             <Typography align="center">
               Başlangıç tarihi {""}
               <Typography variant="subtitle1" component="span">
-                {selectedItem?.checkIn} {""}
+                {selectedItem?.startDate} {""}
               </Typography>
               Bitiş tarihi {""}
               <Typography variant="subtitle1" component="span">
-                {selectedItem?.checkOut} {""}
+                {selectedItem?.endDate} {""}
               </Typography>
               olan fiyatı silmek istediğinize emin misiniz?
             </Typography>

@@ -26,13 +26,14 @@ export default function RoomSummarySection() {
 
   useEffect(() => {
 
-    if (params.id > 0 && loading) {
+    if (params.id  && loading) {
       GetRoom(params.id).then((res) => {
         setVilla(res.data);
-        GetReservationListTop5(params.id).then((res) => {
-          setReservation(res.data)
-          setLoading(false)
-        })
+        setLoading(false)
+        // GetReservationListTop5(params.id).then((res) => {
+        //   setReservation(res.data)
+        //   setLoading(false)
+        // })
       })
     }
 
@@ -126,10 +127,10 @@ export default function RoomSummarySection() {
                         </div>
                       </Stack>
                       <Stack spacing={2.5} alignItems="center">
-                        <Avatar alt={villa.attributes.name} size="xxl" src={villa?.attributes?.photos?.data[0]?.attributes?.photo?.data?.attributes?.url} />
+                        <Avatar alt={villa.roomDetails[0].name} size="xxl" src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/RoomPhotos/k_${villa?.photos[0]?.image}`} />
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.name}</Typography>
-                          <Typography color="secondary">{villa.attributes.region}</Typography>
+                          <Typography variant="h5">{villa.roomDetails[0].name}</Typography>
+                          <Typography color="secondary">{villa.roomDetails[0].region}</Typography>
                         </Stack>
                       </Stack>
                     </Grid>
@@ -139,17 +140,17 @@ export default function RoomSummarySection() {
                     <Grid item xs={12}>
                       <Stack direction="row" justifyContent="space-around" alignItems="center">
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.room}</Typography>
+                          <Typography variant="h5">{villa.rooms}</Typography>
                           <Typography color="secondary">Oda</Typography>
                         </Stack>
                         <Divider orientation="vertical" flexItem />
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.bath}</Typography>
+                          <Typography variant="h5">{villa.bath}</Typography>
                           <Typography color="secondary">Banyo</Typography>
                         </Stack>
                         <Divider orientation="vertical" flexItem />
                         <Stack spacing={0.5} alignItems="center">
-                          <Typography variant="h5">{villa.attributes.person}</Typography>
+                          <Typography variant="h5">{villa.person}</Typography>
                           <Typography color="secondary">Kapasite</Typography>
                         </Stack>
                       </Stack>
@@ -180,7 +181,7 @@ export default function RoomSummarySection() {
                             <Gps size={18} />
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.region}</Typography>
+                            <Typography align="right">{villa?.region}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                         <ListItem>
@@ -188,7 +189,7 @@ export default function RoomSummarySection() {
                             <Wifi size={18} />
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.wifiPassword || '-'}</Typography>
+                            <Typography align="right">{villa?.wifiPassword || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                         <ListItem>
@@ -196,7 +197,7 @@ export default function RoomSummarySection() {
                             <span>Su No</span>
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.waterMaterNumber || '-'}</Typography>
+                            <Typography align="right">{villa?.waterMaterNumber || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                         <ListItem>
@@ -204,7 +205,7 @@ export default function RoomSummarySection() {
                             <span>Elektrik No</span>
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.electricityMeterNumber || '-'}</Typography>
+                            <Typography align="right">{villa?.electricityMeterNumber || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                         <ListItem>
@@ -212,7 +213,7 @@ export default function RoomSummarySection() {
                             <span>İnternet No</span>
                           </ListItemIcon>
                           <ListItemSecondaryAction>
-                            <Typography align="right">{villa.attributes.internetMeterNumber || '-'}</Typography>
+                            <Typography align="right">{villa?.internetMeterNumber || '-'}</Typography>
                           </ListItemSecondaryAction>
                         </ListItem>
                       </List>

@@ -24,6 +24,7 @@ const getInitialValues = () => {
         surname: '',
         idNo: '',
         phone: '',
+        email: '',
         peopleType: '',
         reservation: {}
     };
@@ -55,27 +56,40 @@ export default function ReservationCustomerAddForm({ closeModal, setIsEdit, vill
                     alert('Rezervasyon Id hatali..');
                     return;
                 }
-                values.reservation = { connect: [params.id] };
 
-                //console.log(values);
+                const fd = new FormData()
+                fd.append('ReservationId', params.id)
+                fd.append('IdNo', values.idNo)
+                fd.append('Name', values.name)
+                fd.append('Surname', values.surname)
+                fd.append('Phone', values.phone)
+                fd.append('Email', values.email)
+                fd.append('PeopleType', values.peopleType)
+                fd.append('Owner', false)
 
+                await AddReservationInfo(fd).then((res) => {
+                    if (res?.statusCode === 200) {
+                        openSnackbar({
+                            open: true,
+                            message: 'Misafir Eklendi',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'success'
+                            }
+                        });
+                    } else {
+                        openSnackbar({
+                            open: true,
+                            message: 'Hata',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'error'
+                            }
+                        });
+                    }
 
-                const data = {
-                    ...values
-                }
-
-                //console.log({ data });
-
-                AddReservationInfo({ data }).then((res) => {
-                    openSnackbar({
-                        open: true,
-                        message: 'Misafir Eklendi',
-                        anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-                        variant: 'alert',
-                        alert: {
-                            color: 'success'
-                        }
-                    });
                     setIsEdit(true);
                     setSubmitting(false);
                     closeModal();
@@ -176,6 +190,26 @@ export default function ReservationCustomerAddForm({ closeModal, setIsEdit, vill
                                 </Grid>
                                 <Grid item xs={2}>
                                     <Stack spacing={1}>
+                                        <InputLabel htmlFor="phone">Email </InputLabel>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={10}>
+                                    <Stack spacing={1}>
+                                        <TextField
+                                            fullWidth
+                                            id="email"
+                                            name="email"
+                                            placeholder="İsteğe bağlı Email adresi.."
+                                            value={formik.values.email}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.email && Boolean(formik.errors.email)}
+                                            helperText={formik.touched.email && formik.errors.email}
+                                        />
+                                    </Stack>
+
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <Stack spacing={1}>
                                         {' '}
                                         <InputLabel htmlFor="peopleType">Yaş Grubu * </InputLabel>{' '}
                                     </Stack>
@@ -191,9 +225,9 @@ export default function ReservationCustomerAddForm({ closeModal, setIsEdit, vill
                                                 name="peopleType"
                                                 id="peopleType"
                                             >
-                                                <FormControlLabel value="Adult" control={<Radio />} label="Yetişkin" />
-                                                <FormControlLabel value="Child" control={<Radio />} label="Çocuk" />
-                                                <FormControlLabel value="Baby" control={<Radio />} label="Bebek" />
+                                                <FormControlLabel value="1" control={<Radio />} label="Yetişkin" />
+                                                <FormControlLabel value="2" control={<Radio />} label="Çocuk" />
+                                                <FormControlLabel value="3" control={<Radio />} label="Bebek" />
                                             </RadioGroup>
                                         </FormControl>
                                         {formik.errors.peopleType && (

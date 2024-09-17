@@ -90,15 +90,15 @@ export default function ReservationCustomerSection() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {data && data.map((row) => (
-                            <TableRow style={{ cursor: 'pointer' }} onClick={(e) => { setCustomerUpdateModal(true); setSelectedId(row.id) }} hover key={row.id}>
-                                <TableCell align="left">{row.attributes.name}</TableCell>
-                                <TableCell align="left">{row.attributes.surname}</TableCell>
-                                <TableCell align="left">{row.attributes.phone}</TableCell>
-                                <TableCell align="left">{row.attributes.email}</TableCell>
-                                <TableCell align="left">{row.attributes.idNo}</TableCell>
+                        {data && data.map((row,i) => (
+                            <TableRow style={{ cursor: 'pointer' }} onClick={(e) => { setCustomerUpdateModal(true); setSelectedId(row.id) }} hover key={i}>
+                                <TableCell align="left">{row.name} {row.surname}</TableCell>
+                                <TableCell align="left">{row.peopleType}</TableCell>
+                                <TableCell align="left">{row.phone}</TableCell>
+                                <TableCell align="left">{row.email}</TableCell>
+                                <TableCell align="left">{row.idNo}</TableCell>
                                 <TableCell sx={{ pr: 3 }} align="right">
-                                    {!row.attributes.owner && (
+                                    {!row.owner && (
                                         <Stack direction="row" spacing={0}>
                                             <Tooltip title="Delete">
                                                 <IconButton
@@ -106,8 +106,8 @@ export default function ReservationCustomerSection() {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleClose();
-                                                        setCustomerDeleteId(Number(row.id));
-                                                        setSelectedCustomerDeleteItem(row.attributes)
+                                                        setCustomerDeleteId(row.id);
+                                                        setSelectedCustomerDeleteItem(row)
                                                     }}
                                                 >
                                                     <Trash />
@@ -122,7 +122,7 @@ export default function ReservationCustomerSection() {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <CustomerModalDelete selectedItem={selectedCustomerDeleteItem} setIsEdit={setIsEdit} id={Number(customerDeleteId)} title={customerDeleteId} open={customerModalDelete} handleClose={handleClose} />
+            <CustomerModalDelete selectedItem={selectedCustomerDeleteItem} setIsEdit={setIsEdit} id={customerDeleteId} title={customerDeleteId} open={customerModalDelete} handleClose={handleClose} />
             <ReservationCustomerModal open={customerModal} modalToggler={setCustomerModal} setIsEdit={setIsEdit} />
             <ReservationCustomerUpdateModal open={customerUpdateModal} id={selectedId} modalToggler={setCustomerUpdateModal} setIsEdit={setIsEdit} />
         </MainCard>

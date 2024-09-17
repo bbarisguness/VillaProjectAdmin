@@ -14,9 +14,11 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import { APP_DEFAULT_PATH } from 'config';
 
 // assets
-import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick } from 'iconsax-react';
+import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick, MoneySend } from 'iconsax-react';
 import { Button, Grid } from '@mui/material';
-import { GetApartName } from 'services/apartServices';
+import { GetApart, GetApartName } from 'services/apartServices';
+import ApartSelectModal from 'sections/facilities/aparts/ApartSelectModal';
+import ApartDetailUpdateModal from 'sections/facilities/aparts/ApartDetailUpdateModal';
 
 // ==============================|| PROFILE - ACCOUNT ||============================== //
 
@@ -32,12 +34,15 @@ export default function ApartShow() {
     if (pathname.indexOf('summary') != -1) {
         selectedTab = 0;
     } else if (pathname.indexOf('content') != -1) {
-        selectedTab = 4;
+        selectedTab = 1;
     } else if (pathname.indexOf('gallery') != -1) {
-        selectedTab = 5;
+        selectedTab = 2;
     }
     else if (pathname.indexOf('file') != -1) {
-        selectedTab = 6;
+        selectedTab = 3;
+    }
+    else if (pathname.indexOf('accounting') != -1) {
+        selectedTab = 4;
     }
     // switch (pathname) {
     //     case '/apps/profiles/account/personal':
@@ -75,6 +80,10 @@ export default function ApartShow() {
     const [value, setValue] = useState(selectedTab);
     const [villa, setVilla] = useState();
 
+    const [villaSelectModal, setVillaSelectModal] = useState(false)
+    const [villaUpdateModal, setVillaUpdateModal] = useState(false)
+    const [isDeleted, setIsDeleted] = useState(false)
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -83,16 +92,19 @@ export default function ApartShow() {
         { title: 'Apart Yönetimi', to: '/facilities/aparts-list' }
     ];
     if (selectedTab === 0) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes.name, to: `/facilities/aparts/apart-show/summary/${params.id}` }, { title: 'Özet Bilgiler' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${params.id}` }, { title: 'Özet Bilgiler' }];
+    }
+    else if (selectedTab === 1) {
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/content/${params.id}` }, { title: 'İçerik Yönetimi' }];
+    }
+    else if (selectedTab === 2) {
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/gallery/${params.id}` }, { title: 'Galeri' }];
+    }
+    else if (selectedTab === 3) {
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/file/${params.id}` }, { title: 'Dosyalar' }];
     }
     else if (selectedTab === 4) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes.name, to: `/facilities/aparts/apart-show/content/${params.id}` }, { title: 'İçerik Yönetimi' }];
-    }
-    else if (selectedTab === 5) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes.name, to: `/facilities/aparts/apart-show/gallery/${params.id}` }, { title: 'Galeri' }];
-    }
-    else if (selectedTab === 6) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.attributes.name, to: `/facilities/aparts/apart-show/file/${params.id}` }, { title: 'Dosyalar' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/accounting/${params.id}` }, { title: 'Gelir Gider' }];
     }
 
     useEffect(() => {
@@ -104,17 +116,31 @@ export default function ApartShow() {
 
 
     useEffect(() => {
-        if (params.id >= 1)
-            GetApartName(params.id).then((res) => {
+        if (params.id)
+            GetApart(params.id).then((res) => {
                 setVilla(res.data);
             })
     }, [])
 
+    useEffect(() => {
+        if (isDeleted) {
+            if (params.id) {
+                GetApart(params.id).then((res) => {
+                    setVilla(res.data);
+                })
+            }
+            setIsDeleted(false)
+        }
+    }, [isDeleted])
+
     return (
         <>
+            <ApartSelectModal villaDetailModal={setVillaUpdateModal} navigate={navigate} title={villa} open={villaSelectModal} handleClose={() => setVillaSelectModal(false)} id={params.id} />
+            <ApartDetailUpdateModal selectedUpdateItem={villa} setIsAdded={setIsDeleted} open={villaUpdateModal} modalToggler={setVillaUpdateModal} />
+
             <Breadcrumbs custom links={breadcrumbLinks} />
             <Grid style={{ marginBottom: '10px' }} container justifyContent="flex-end" alignItems="normal">
-                <Button onClick={() => navigate(`/facilities/apart-update/${params.id}`)} size='small' type="button" variant="contained">GÜNCELLE</Button>
+                <Button onClick={() => setVillaSelectModal(true)} size='small' type="button" variant="contained">GÜNCELLE</Button>
             </Grid>
             <MainCard border={false}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
@@ -129,6 +155,7 @@ export default function ApartShow() {
                         />
                         <Tab label="Galeri" component={Link} to={`/facilities/aparts/apart-show/gallery/${params.id}`} icon={<Image />} iconPosition="start" />
                         <Tab label="Dosyalar" component={Link} to={`/facilities/aparts/apart-show/file/${params.id}`} icon={<Folder />} iconPosition="start" />
+                        <Tab label="Gelir Gider" component={Link} to={`/facilities/aparts/apart-show/accounting/${params.id}`} icon={<MoneySend />} iconPosition="start" />
                     </Tabs>
                 </Box>
                 <Box sx={{ mt: 2.5 }}>

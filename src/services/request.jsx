@@ -22,6 +22,7 @@ function request(
 
     let response, result;
     let options = {};
+    
 
     if (!token) {
       options = {
@@ -50,7 +51,7 @@ function request(
     //   options.body = formData ? objectToFormData(data) : JSON.stringify(data);
     // }
 
-    if (data && method === "POST" && formData) {
+    if (data && method === "POST" && formData) {  
       options.body = formData ? data : JSON.stringify(data);
     }
     else if (data && method === "POST") {
@@ -70,7 +71,7 @@ function request(
     }
 
     try {
-      response = await fetch('http://185.59.31.233:2030' + url, options);
+      response = await fetch(import.meta.env.VITE_APP_API_URL + url, options);
       if (response?.status === 401) {
         localStorage.removeItem('serviceToken')
         location.replace('/login')
