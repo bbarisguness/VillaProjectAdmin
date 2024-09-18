@@ -130,7 +130,7 @@ export default function ApartGallerySection() {
                                   e.stopPropagation();
                                   handleClose();
                                   setPhotoDeleteId(photoList.find((pht) => pht.videoLink !== null).id);
-                                  setSelectedPhotoDeleteItem(photoList.find((pht) => pht.videoLink !== null).image)
+                                  setSelectedPhotoDeleteItem(photoList.find((pht) => pht.videoLink !== null))
                                 }}
                               >
                                 <Trash />
@@ -151,7 +151,7 @@ export default function ApartGallerySection() {
                                   e.stopPropagation();
                                   handleClose();
                                   setPhotoDeleteId(item.id);
-                                  setSelectedPhotoDeleteItem(item?.image)
+                                  setSelectedPhotoDeleteItem(item)
                                   // console.log("photoId => ", Number(item.id));
                                 }}
                               >

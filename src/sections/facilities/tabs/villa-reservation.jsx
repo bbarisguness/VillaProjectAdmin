@@ -213,7 +213,7 @@ export default function VillaReservationSection() {
                                 src={getImageUrl(`avatar-${!row.original.avatar ? 1 : row.original.avatar}.png`, ImagePath.USERS)}
                             />
                             <Stack spacing={0}>
-                                <Typography variant="subtitle1">{`${row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.name ? row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.name : 'Ev Sahibi'} ${row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.surname ? row?.original?.attributes?.reservation_infos?.data[0]?.attributes?.surname : ''}`}</Typography>
+                                <Typography variant="subtitle1">{`${row?.original?.reservationInfos[0]?.name ? row?.original?.reservationInfos[0]?.name : 'Ev Sahibi'} ${row?.original?.reservationInfos[0]?.surname ? row?.original?.reservationInfos[0]?.surname : ''}`}</Typography>
                             </Stack>
                         </Stack>
                     )

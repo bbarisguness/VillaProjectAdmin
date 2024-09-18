@@ -60,10 +60,13 @@ export default function PhotoModalDelete({ id, title, open, handleClose, setIsEd
           </Avatar>
           <Stack spacing={2}>
             <Typography variant="h4" align="center">
-              Resimi silmek istiyormusunuz?
+              {
+                selectedItem?.videoLink === null ?
+                "Resimi silmek istiyormusunuz?" : "Videoyu silmek istiyormusunuz?" 
+              }
             </Typography>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px', marginBottom: '40px' }}>
-              <img src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/${apart ? 'HotelPhotos' : room ? 'RoomPhotos' : 'VillaPhotos'}/k_${selectedItem}`} width={180} height={160} style={{ border: '3px solid #999696' }} />
+              <img src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/${apart ? 'HotelPhotos' : room ? 'RoomPhotos' : 'VillaPhotos'}/k_${selectedItem?.image}`} width={180} height={160} style={{ border: '3px solid #999696' }} />
             </div>
           </Stack>
 

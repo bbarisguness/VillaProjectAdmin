@@ -129,7 +129,7 @@ export default function VillaGallerySection() {
                                   e.stopPropagation();
                                   handleClose();
                                   setPhotoDeleteId(photoList.find((pht) => pht.videoLink !== null).id);
-                                  setSelectedPhotoDeleteItem(photoList.find((pht) => pht.videoLink !== null).image)
+                                  setSelectedPhotoDeleteItem(photoList.find((pht) => pht.videoLink !== null))
                                 }}
                               >
                                 <Trash />
@@ -151,7 +151,7 @@ export default function VillaGallerySection() {
                                   e.stopPropagation();
                                   handleClose();
                                   setPhotoDeleteId(item.id);
-                                  setSelectedPhotoDeleteItem(item?.image)
+                                  setSelectedPhotoDeleteItem(item)
                                 }}
                               >
                                 <Trash />

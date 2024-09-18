@@ -140,10 +140,29 @@ export default function FormReservationAdd({ villaId, closeModal, setIsAdded }) 
                 fd.append('Email', formik.values.email)
 
                 await AddReservation(fd).then((res) => {
+                    if (res?.statusCode === 200) {
+                        openSnackbar({
+                            open: true,
+                            message: 'Rezervasyon oluşturuldu.',
+                            variant: 'alert',
+                            alert: {
+                                color: 'success'
+                            }
+                        });
+                        navigate(`/reservations/show/summary/${res.data.id}`);
+                    } else {
+                        openSnackbar({
+                            open: true,
+                            message: res?.message ? res?.message : 'Hata',
+                            variant: 'alert',
+                            alert: {
+                                color: 'error'
+                            }
+                        });
+                    }
                     setLoading(false);
                     setSubmitting(false);
                     closeModal();
-                    navigate(`/reservations/show/summary/${res.data.id}`);
                 })
 
                 // if (customer) {
@@ -290,6 +309,25 @@ export default function FormReservationAdd({ villaId, closeModal, setIsAdded }) 
                 fd.append('HomeOwner', true)
 
                 AddReservation(fd).then((res) => {
+                    if (res?.statusCode === 200) {
+                        openSnackbar({
+                            open: true,
+                            message: 'Rezervasyon oluşturuldu.',
+                            variant: 'alert',
+                            alert: {
+                                color: 'success'
+                            }
+                        });
+                    } else {
+                        openSnackbar({
+                            open: true,
+                            message: res?.message ? res?.message : 'Hata',
+                            variant: 'alert',
+                            alert: {
+                                color: 'error'
+                            }
+                        });
+                    }
                     setLoading(false);
                     setIsAdded(true)
                     closeModal();
