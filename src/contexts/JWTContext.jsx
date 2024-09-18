@@ -11,6 +11,8 @@ import authReducer from 'store/reducers/auth';
 // project-imports
 import Loader from 'components/Loader';
 import axios from 'utils/axios';
+import { openSnackbar } from 'api/snackbar';
+import { LoginService } from 'services/authServices';
 
 const chance = new Chance();
 
@@ -84,34 +86,44 @@ export const JWTProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    //const response = await axios.post('/api/account/login', { email, password });
-    // const { serviceToken, user } = response.data;
-    // setSession(serviceToken);
-    // dispatch({
-    //   type: LOGIN,
-    //   payload: {
-    //     isLoggedIn: true,
-    //     user
-    //   }
-    // });
-
     var fd = new FormData();
     fd.append("Email", email);
     fd.append("Password", password);
 
-    const response = await axios.post('/Auth/Login', fd);    
-    window.localStorage.setItem('config', JSON.stringify({ companyLanguages: response?.data?.data?.companyLanguages.toString().split(','), userLanguage: response?.data?.data?.userLanguage, companyDefaultLanguage: response?.data?.data?.companyDefaultLanguage }));
+    const response = await LoginService(fd).then((res) => {
+      if (res.statusCode === 200) {
+        window.localStorage.setItem('config', JSON.stringify({ companyLanguages: res?.data?.companyLanguages.toString().split(','), userLanguage: res?.data?.userLanguage, companyDefaultLanguage: res?.data?.companyDefaultLanguage }));
 
-    const user = response.data.user;
-    setSession(response.data.data.token);
-    dispatch({
-      type: LOGIN,
-      payload: {
-        isLoggedIn: true,
-        user
+        const user = res?.data?.user;
+        setSession(res?.data?.token);
+        dispatch({
+          type: LOGIN,
+          payload: {
+            isLoggedIn: true,
+            user
+          }
+        });
+        openSnackbar({
+          open: true,
+          message: 'Giriş başarılı.',
+          variant: 'alert',
+
+          alert: {
+            color: 'success'
+          }
+        });
+      } else {
+        openSnackbar({
+          open: true,
+          message: res?.message,
+          variant: 'alert',
+
+          alert: {
+            color: 'error'
+          }
+        });
       }
-    });
-
+    })
   };
 
   const register = async (email, password, firstName, lastName) => {

@@ -55,7 +55,8 @@ const getInitialValues = (villa) => {
       categories: defaultCategoriesId || [],
       metaTitle: villa?.metaTitle || '',
       metaDescription: villa?.metaDescription || '',
-      video: villa?.video || ''
+      isRent: villa?.isRent || false,
+      isSale: villa?.isSale || false
     };
     return newVilla;
   }
@@ -98,7 +99,7 @@ export default function FormVillaUpdate() {
     // name: Yup.string().max(255).required('Lütfen villa adı yazınız..'),
     room: Yup.number().moreThan(0, "Oda sayısı 0'dan büyük olmalıdır").required('Oda Sayısı zorunludur'),
     bath: Yup.number().moreThan(0, "Banyo sayısı 0'dan büyük olmalıdır").required('Banyo Sayısı zorunludur'),
-    categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
+    // categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
     person: Yup.number().moreThan(0, "Kişi sayısı 0'dan büyük olmalıdır").required('Kişi Sayısı zorunludur'),
     region: Yup.string().max(255).required('Lütfen bölge yazınız..'),
     onlineReservation: Yup.boolean().required('Rezervasyon seçeneği zorunludur')
@@ -130,7 +131,8 @@ export default function FormVillaUpdate() {
         fd.append('TownId', values.region)
         fd.append('MetaDescription', values.metaDescription)
         fd.append('Slug', values.slug)
-        fd.append('Video', values.video)
+        fd.append('isRent', values.isRent)
+        fd.append('isSale', values.isSale)
 
         await VillaUpdate(fd).then(async (res) => {
           const fdd = new FormData()
@@ -138,15 +140,40 @@ export default function FormVillaUpdate() {
           formik.values.categories.map((itm, i) => {
             fdd.append(`CategoryIds[${i}]`, itm)
           })
-          await VillaCategoryAsign(fdd).then(() => {
-            if (res?.error) {
+          if (formik?.values?.categories.length !== 0) {
+            await VillaCategoryAsign(fdd).then(() => {
+              if (res.statusCode !== 200) {
+                openSnackbar({
+                  open: true,
+                  message: 'Hata',
+                  variant: 'alert',
+
+                  alert: {
+                    color: 'error'
+                  }
+                });
+              } else {
+                openSnackbar({
+                  open: true,
+                  message: 'Villa Güncellendi.',
+                  variant: 'alert',
+
+                  alert: {
+                    color: 'success'
+                  }
+                });
+                navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
+              }
+            })
+          } else {
+            if (res.statusCode !== 200) {
               openSnackbar({
                 open: true,
-                message: res?.error?.message,
+                message: 'Hata',
                 variant: 'alert',
 
                 alert: {
-                  color: 'errorr'
+                  color: 'error'
                 }
               });
             } else {
@@ -161,7 +188,7 @@ export default function FormVillaUpdate() {
               });
               navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
             }
-          })
+          }
         })
         setSubmitting(false)
       } catch (error) {
@@ -182,11 +209,7 @@ export default function FormVillaUpdate() {
     );
 
 
-  const handleChangeEditor = (value) => {
-    if (formik?.values?.descriptionLong) {
-      setFieldValue('descriptionLong', value)
-    }
-  };
+
 
   return (
     <>
@@ -227,57 +250,56 @@ export default function FormVillaUpdate() {
                   <Grid item xs={12}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="categories">Kategori</InputLabel>
-                      {
-                        defaultCategories.length > 0 &&
 
-                        <Autocomplete
-                          id="categories"
-                          multiple
-                          fullWidth
-                          autoHighlight
-                          freeSolo
-                          disableCloseOnSelect
-                          defaultValue={defaultCategories}
-                          options={categories?.data?.map((item) => item?.categoryDetails[0]?.name) || []}
-                          getOptionLabel={(option) => option}
-                          onChange={(event, newValue) => {
-                            var x = [];
-                            categories?.data?.map(function (item) {
-                              if (newValue.includes(item.categoryDetails[0].name)) {
-                                x.push(item.id);
-                              }
-                            });
-                            setFieldValue('categories', x);
-                          }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              name="categories"
-                              placeholder="Kategori Seç"
-                              error={touched.categories && Boolean(errors.categories)}
-                            />
-                          )}
-                          renderTags={(value, getTagProps) =>
-                            value.map((option, index) => {
-                              let error = false;
-                              if (touched.categories && errors.categories && typeof errors.categories !== 'string') {
-                                if (typeof errors.categories[index] === 'object') error = true;
-                              }
 
-                              return (
-                                <Chip
-                                  {...getTagProps({ index })}
-                                  variant="combined"
-                                  key={index}
-                                  label={option}
-                                  deleteIcon={<CloseCircle style={{ fontSize: '0.75rem' }} />}
-                                  sx={{ color: 'text.primary' }}
-                                />
-                              );
-                            })
-                          }
-                        />
-                      }
+                      <Autocomplete
+                        id="categories"
+                        multiple
+                        fullWidth
+                        autoHighlight
+                        freeSolo
+                        disableCloseOnSelect
+                        defaultValue={defaultCategories}
+                        options={categories?.data?.map((item) => item?.categoryDetails[0]?.name) || []}
+                        getOptionLabel={(option) => option}
+                        onChange={(event, newValue) => {
+                          var x = [];
+                          categories?.data?.map(function (item) {
+                            if (newValue.includes(item.categoryDetails[0].name)) {
+                              x.push(item.id);
+                            }
+                          });
+                          setFieldValue('categories', x);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            name="categories"
+                            placeholder="Kategori Seç"
+                            error={touched.categories && Boolean(errors.categories)}
+                          />
+                        )}
+                        renderTags={(value, getTagProps) =>
+                          value.map((option, index) => {
+                            let error = false;
+                            if (touched.categories && errors.categories && typeof errors.categories !== 'string') {
+                              if (typeof errors.categories[index] === 'object') error = true;
+                            }
+
+                            return (
+                              <Chip
+                                {...getTagProps({ index })}
+                                variant="combined"
+                                key={index}
+                                label={option}
+                                deleteIcon={<CloseCircle style={{ fontSize: '0.75rem' }} />}
+                                sx={{ color: 'text.primary' }}
+                              />
+                            );
+                          })
+                        }
+                      />
+
                     </Stack>
                   </Grid>
 
@@ -439,17 +461,6 @@ export default function FormVillaUpdate() {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <InputLabel htmlFor="villa-video">Video</InputLabel>
-                    <TextField
-                      fullWidth
-                      id="villa-video"
-                      placeholder="Video"
-                      {...getFieldProps('video')}
-                      error={Boolean(touched.video && errors.video)}
-                      helperText={touched.video && errors.video}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
                     <InputLabel htmlFor="villa-googleMap">Google Map</InputLabel>
                     <TextField
                       fullWidth
@@ -466,6 +477,20 @@ export default function FormVillaUpdate() {
                       Tesisinize Online (Anlık) Rezervasyon Kabul Ediyormusunuz?
                     </Typography>
                     <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" checked={formik?.values?.onlineReservation} labelPlacement="start" onChange={() => { setFieldValue('onlineReservation', !getFieldProps('onlineReservation').value) }} />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1">Kiralık</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Tesisiniz kiralık mı olacak ?
+                    </Typography>
+                    <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" checked={formik?.values?.isRent} labelPlacement="start" onChange={() => { setFieldValue('isRent', !getFieldProps('isRent').value) }} />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1">Satılık</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Tesisiniz satılık mı olacak ?
+                    </Typography>
+                    <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" checked={formik?.values?.isSale} labelPlacement="start" onChange={() => { setFieldValue('isSale', !getFieldProps('isSale').value) }} />
                   </Grid>
                 </Grid>
               </Grid>

@@ -47,7 +47,8 @@ const getInitialValues = () => {
     categories: [],
     metaTitle: '',
     metaDescription: '',
-    video: ''
+    isRent: true,
+    isSale: false
   };
   return newVilla;
 };
@@ -71,7 +72,7 @@ export default function FormVillaAdd() {
     name: Yup.string().max(255).required('Lütfen villa adı yazınız..'),
     room: Yup.number().moreThan(0, "Oda sayısı 0'dan büyük olmalıdır").required('Oda Sayısı zorunludur'),
     bath: Yup.number().moreThan(0, "Banyo sayısı 0'dan büyük olmalıdır").required('Banyo Sayısı zorunludur'),
-    categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
+    // categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
     person: Yup.number().moreThan(0, "Kişi sayısı 0'dan büyük olmalıdır").required('Kişi Sayısı zorunludur'),
     region: Yup.string().max(255).required('Lütfen bölge seçiniz..'),
     onlineReservation: Yup.boolean().required('Rezervasyon seçeneği zorunludur')
@@ -116,7 +117,8 @@ export default function FormVillaAdd() {
         fd.append('InternetMeterNumber', values.internetMeterNumber)
         fd.append('ElectricityMeterNumber', values.electricityMeterNumber)
         fd.append('WaterMaterNumber', values.waterMaterNumber)
-        fd.append('Video', values.video)
+        fd.append('isSale', values.isSale)
+        fd.append('isRent', values.isRent)
 
         await VillaAdd(fd).then(async (res) => {
           const fdd = new FormData()
@@ -124,21 +126,59 @@ export default function FormVillaAdd() {
           formik.values.categories.map((itm, i) => {
             fdd.append(`CategoryIds[${i}]`, itm)
           })
+          if (formik?.values?.categories.length !== 0) {
+            await VillaCategoryAsign(fdd).then(() => {
+              if (res?.statusCode === 200) {
+                openSnackbar({
+                  open: true,
+                  message: 'Yeni Villa Eklendi.',
+                  variant: 'alert',
 
+                  alert: {
+                    color: 'success'
+                  }
+                });
+                setSubmitting(false);
+                navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
+              } else {
+                openSnackbar({
+                  open: true,
+                  message: 'Hata',
+                  variant: 'alert',
 
-          await VillaCategoryAsign(fdd).then(() => {
-            openSnackbar({
-              open: true,
-              message: 'Yeni Villa Eklendi.',
-              variant: 'alert',
-
-              alert: {
-                color: 'success'
+                  alert: {
+                    color: 'error'
+                  }
+                });
+                setSubmitting(false);
               }
-            });
-            setSubmitting(false);
-            navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
-          })
+            })
+          } else {
+            if (res?.statusCode === 200) {
+              openSnackbar({
+                open: true,
+                message: 'Yeni Villa Eklendi.',
+                variant: 'alert',
+
+                alert: {
+                  color: 'success'
+                }
+              });
+              setSubmitting(false);
+              navigate(`/facilities/villas-show/summary/${res?.data?.id}`);
+            } else {
+              openSnackbar({
+                open: true,
+                message: 'Hata',
+                variant: 'alert',
+
+                alert: {
+                  color: 'error'
+                }
+              });
+              setSubmitting(false);
+            }
+          }
         });
       } catch (error) {
         // console.error(error);
@@ -437,17 +477,6 @@ export default function FormVillaAdd() {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <InputLabel htmlFor="villa-video">Video</InputLabel>
-                    <TextField
-                      fullWidth
-                      id="villa-video"
-                      placeholder="Video"
-                      {...getFieldProps('video')}
-                      error={Boolean(touched.video && errors.video)}
-                      helperText={touched.video && errors.video}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
                     <InputLabel htmlFor="villa-googleMap">Google Map</InputLabel>
                     <TextField
                       fullWidth
@@ -464,6 +493,20 @@ export default function FormVillaAdd() {
                       Tesisinize Online (Anlık) Rezervasyon Kabul Ediyormusunuz?
                     </Typography>
                     <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" labelPlacement="start" onChange={() => { setFieldValue('onlineReservation', !getFieldProps('onlineReservation').value) }} />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1">Kiralık</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Tesisiniz kiralık mı olacak ?
+                    </Typography>
+                    <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" checked={formik?.values?.isRent} labelPlacement="start" onChange={() => { setFieldValue('isRent', !getFieldProps('isRent').value) }} />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1">Satılık</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Tesisiniz satılık mı olacak ?
+                    </Typography>
+                    <FormControlLabel control={<Switch sx={{ mt: 0 }} />} label="" checked={formik?.values?.isSale} labelPlacement="start" onChange={() => { setFieldValue('isSale', !getFieldProps('isSale').value) }} />
                   </Grid>
                 </Grid>
               </Grid>
