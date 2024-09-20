@@ -111,6 +111,7 @@ export default function FormRoomDetailUpdate({ closeModal, setIsAdded, selectedI
                                     color: 'success'
                                 }
                             });
+                            location.reload()
                         } else {
                             openSnackbar({
                                 open: true,

@@ -3,7 +3,7 @@ import { get, post, put, remove } from './request'
 import * as qs from 'qs'
 
 // const Villas = (page, size, sort = true, fieldName = 'id', filter) => get(`/api/villas?sort=${fieldName}:${sort ? 'desc' : 'asc'}&publicationState=preview&filters[name][$containsi]=${filter}&pagination[page]=${page}&pagination[pageSize]=${size}`)
-const Villas = (page, size) => get(`/Villas/GetAll?Page=${page}&Size=${size}`, true)
+const Villas = (page, size, search, orderByName = null, orderByOnlineReservation = null, orderByPerson = null) => get(`/Villas/GetAll?Pagination.Page=${page}&Pagination.Size=${size}&SearchName=${search}${orderByName !== null ? `&OrderByName=${orderByName}` : ''}${orderByPerson !== null ? `&OrderByPerson=${orderByPerson}` : ''}${orderByOnlineReservation !== null ? `&OrderByOnlineReservation=${orderByOnlineReservation}` : ''}`, true)
 const GetVillaName = (id) => get(`/Villas/Get/${id}`, true)
 const GetVilla = (id) => get(`/Villas/Get/${id}`, true)
 const GetVillaDetail = (id) => get(`/Villas/Get/${id}`, true)
@@ -87,4 +87,4 @@ const GetVillaFull = (id) => {
 const VillaChangeState = (id, payload) => put(`/api/villas/${id}`, payload, true);
 
 
-export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, VillaChangeState, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail,VillaCreateDetail }
+export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, VillaChangeState, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail, VillaCreateDetail }

@@ -110,6 +110,7 @@ export default function FormApartDetailUpdate({ closeModal, setIsAdded, selected
                                     color: 'success'
                                 }
                             });
+                            location.reload()
                         } else {
                             openSnackbar({
                                 open: true,

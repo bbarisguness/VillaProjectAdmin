@@ -25,7 +25,7 @@ import { useParams } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import ReservationModal from 'sections/reservations/ReservationModal';
 import ReservationModalDelete from 'sections/reservations/ReservationModalDelete';
-import { Categories } from 'services/categoryServices';
+import { Categories, CategoriesList } from 'services/categoryServices';
 import CategoryAddModal from 'sections/category/CategoryAddModal';
 import CategoryUpdateModal from 'sections/category/CategoryUpdateModal';
 
@@ -70,7 +70,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                     value={globalFilter ?? ''}
                     disabled={showAllReservation}
                     onFilterChange={(value) => setGlobalFilter(String(value))}
-                    placeholder={`Search ${data?.meta?.pagination?.total} records...`}
+                    placeholder={`Kategori adı`}
                 />
 
                 <Stack direction="row" alignItems="center" spacing={2}>
@@ -87,6 +87,13 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                             <TableHead>
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
+                                        <TableCell
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <Box>SIRA</Box>
+                                            </Stack>
+                                        </TableCell>
                                         {headerGroup.headers.map((header) => {
                                             if (header.column.columnDef.meta !== undefined && header.column.getCanSort()) {
                                                 Object.assign(header.column.columnDef.meta, {
@@ -118,7 +125,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                                 ))}
                             </TableHead>
                             <TableBody>
-                                {table.getRowModel().rows.map((row) => (
+                                {table.getRowModel().rows.map((row, i) => (
                                     <TableRow
                                         key={row.id}
                                         onClick={() => {
@@ -127,6 +134,9 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                                         }}
                                         style={{ cursor: 'pointer' }}
                                     >
+                                        <TableCell>
+                                            {(pagination.pageIndex * pagination.pageSize) + (i + 1)}
+                                        </TableCell>
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id} {...cell.column.columnDef.meta}>
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -185,7 +195,7 @@ export default function CategoryPage() {
 
     useEffect(() => {
         setLoading(true)
-        Categories().then((res) => { setData(res); setLoading(false); });
+        CategoriesList(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation]);
 
 
@@ -198,25 +208,21 @@ export default function CategoryPage() {
             setIsDeleted(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            Categories().then((res) => { setData(res); setLoading(false); });
+            CategoriesList().then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted])
 
     const columns = useMemo(
         () => [
             {
-                header: '#',
-                cell: ({ row }) => { return row.index + 1 }
-            },
-            {
                 header: 'Başlık',
+                accessorKey: 'villaName',
                 cell: ({ row }) => { return row.original.categoryDetails[0].name }
             },
             {
                 header: 'durum',
-                accessorKey: 'generalStatusType',
-                cell: (cell) => {
-                    switch (cell.getValue()) {
+                cell: ({row}) => {
+                    switch (row.original.generalStatusType) {
                         case 1:
                             return <Chip color="success" label="Aktif" size="small" variant="light" />;
                         case 2:
@@ -248,7 +254,7 @@ export default function CategoryPage() {
                                     color="primary"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedItem(row.original)                                        
+                                        setSelectedItem(row.original)
                                         setCategoryUpdateModal(true)
                                     }}
                                 >

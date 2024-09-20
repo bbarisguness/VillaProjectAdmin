@@ -109,6 +109,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
                                     color: 'success'
                                 }
                             });
+                            location.reload()
                         } else {
                             openSnackbar({
                                 open: true,

@@ -3,7 +3,7 @@ import { get, post, put, remove } from './request'
 import * as qs from 'qs'
 
 
-const Aparts = (page, size) => get(`/Hotels/GetAll?Page=${page}&Size=${size}`, true)
+const Aparts = (page, size, search, orderByName = null) => get(`/Hotels/GetAll?Pagination.Page=${page}&Pagination.Size=${size}&SearchName=${search}${orderByName !== null ? `&OrderByName=${orderByName}` : ''}`, true)
 const GetApart = (id) => get(`/Hotels/Get/${id}`, true)
 
 const ApartChangeState = (payload) => post(`/Hotels/Update`, payload, true, true);

@@ -40,7 +40,7 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
         getCoreRowModel: getCoreRowModel(),
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
-        pageCount: data?.meta?.pagination?.pageCount || 1,
+        pageCount: Math.ceil(parseInt(data?.totalCount) / parseInt(pagination.pageSize)) || 1,
         autoResetPageIndex: false,
         state: {
             sorting,
@@ -70,7 +70,7 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                     <DebouncedInput
                         value={globalFilter ?? ''}
                         onFilterChange={(value) => setGlobalFilter(String(value))}
-                        placeholder={`Search ${data?.meta?.pagination?.total} records...`}
+                        placeholder={`Villa adı`}
                     />
                     <Stack direction="row" alignItems="center" spacing={2}>
                         <Button variant="contained" startIcon={<Add />} onClick={() => { navigate("/facilities/villas-add"); }} size="large">
@@ -86,6 +86,13 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                                 <TableHead>
                                     {table.getHeaderGroups().map((headerGroup) => (
                                         <TableRow key={headerGroup.id}>
+                                            <TableCell
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Box>SIRA</Box>
+                                                </Stack>
+                                            </TableCell>
                                             {headerGroup.headers.map((header) => {
                                                 if (header.column.columnDef.meta !== undefined && header.column.getCanSort()) {
                                                     Object.assign(header.column.columnDef.meta, {
@@ -116,15 +123,17 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                                     ))}
                                 </TableHead>
                                 <TableBody>
-                                    {table.getRowModel().rows.map((row) => (
+                                    {table.getRowModel().rows.map((row, i) => (
                                         <TableRow
                                             key={row.id}
                                             onClick={() => {
-                                                console.log("Kayıt Id => ", row.original.id);
                                                 navigate(`/facilities/villas-show/summary/${row.original.id}`)
                                             }}
                                             style={{ cursor: 'pointer' }}
                                         >
+                                            <TableCell>
+                                                {(pagination.pageIndex * pagination.pageSize) + (i + 1)}
+                                            </TableCell>
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id} {...cell.column.columnDef.meta}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -184,8 +193,7 @@ export default function VillasList() {
 
     useEffect(() => {
         setLoading(true)
-        // VillaServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-        VillaServices.Villas(pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
+        VillaServices.Villas(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null, sorting[0]?.id === 'onlineReservation' ? sorting[0]?.desc : null, sorting[0]?.id === 'person' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
 
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
 
@@ -197,8 +205,7 @@ export default function VillasList() {
         if (isDeleted) {
             setIsDeleted(false)
             setLoading(true)
-            // VillaServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            VillaServices.Villas(pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
+            VillaServices.Villas(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null, sorting[0]?.id === 'onlineReservation' ? sorting[0]?.desc : null, sorting[0]?.id === 'person' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted])
 
@@ -209,12 +216,8 @@ export default function VillasList() {
     const columns = useMemo(
         () => [
             {
-                header: '#',
-                cell: ({ row }) => { return row.index + 1 }
-            },
-            {
                 header: 'Villa Adı',
-                // accessorKey: 'villaDetails[0].name',
+                accessorKey: 'villaName',
                 cell: ({ row, getValue }) => (
                     <Stack direction="row" spacing={1.5} alignItems="center">
                         <Avatar
@@ -234,6 +237,7 @@ export default function VillasList() {
             },
             {
                 header: 'Kapasite',
+                accessorKey: 'person',
                 cell: ({ row }) => { return row.original.person }
             },
             {
@@ -255,9 +259,8 @@ export default function VillasList() {
             },
             {
                 header: 'Durum',
-                accessorKey: 'generalStatusType',
-                cell: (cell) => {
-                    if (cell.getValue() === 1) return <Chip color="success" label="Aktif" size="small" variant="light" />;
+                cell: ({ row }) => {
+                    if (row.original.generalStatusType === 1) return <Chip color="success" label="Aktif" size="small" variant="light" />;
                     else return <Chip color="error" label="Pasif" size="small" variant="light" />;
                 }
             },

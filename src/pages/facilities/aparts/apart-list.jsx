@@ -70,7 +70,7 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                     <DebouncedInput
                         value={globalFilter ?? ''}
                         onFilterChange={(value) => setGlobalFilter(String(value))}
-                        placeholder={`Search ${data?.meta?.pagination?.total} records...`}
+                        placeholder={`Otel adı`}
                     />
                     <Stack direction="row" alignItems="center" spacing={2}>
                         <Button variant="contained" startIcon={<Add />} onClick={() => { navigate("/facilities/apart-add"); }} size="large">
@@ -86,6 +86,13 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                                 <TableHead>
                                     {table.getHeaderGroups().map((headerGroup) => (
                                         <TableRow key={headerGroup.id}>
+                                            <TableCell
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Box>SIRA</Box>
+                                                </Stack>
+                                            </TableCell>
                                             {headerGroup.headers.map((header) => {
                                                 if (header.column.columnDef.meta !== undefined && header.column.getCanSort()) {
                                                     Object.assign(header.column.columnDef.meta, {
@@ -116,7 +123,7 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                                     ))}
                                 </TableHead>
                                 <TableBody>
-                                    {table.getRowModel().rows.map((row) => (
+                                    {table.getRowModel().rows.map((row, i) => (
                                         <TableRow
                                             key={row.id}
                                             onClick={() => {
@@ -125,6 +132,9 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                                             }}
                                             style={{ cursor: 'pointer' }}
                                         >
+                                            <TableCell>
+                                                {(pagination.pageIndex * pagination.pageSize) + (i + 1)}
+                                            </TableCell>
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id} {...cell.column.columnDef.meta}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -184,7 +194,7 @@ export default function ApartList() {
     useEffect(() => {
         setLoading(true)
         //VillaServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-        ApartServices.Aparts(pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); })
+        ApartServices.Aparts(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); })
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
 
     useEffect(() => {
@@ -195,7 +205,7 @@ export default function ApartList() {
         if (isDeleted) {
             setIsDeleted(false)
             setLoading(true)
-            ApartServices.Aparts(pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); })
+            ApartServices.Aparts(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); })
         }
     }, [isDeleted])
 
@@ -206,12 +216,8 @@ export default function ApartList() {
     const columns = useMemo(
         () => [
             {
-                header: '#',
-                cell: ({ row }) => { return row.index + 1 }
-            },
-            {
                 header: 'Tesis Adı',
-                // accessorKey: 'attributes.name',
+                accessorKey: 'villaName',
                 cell: ({ row, getValue }) => (
                     <Stack direction="row" spacing={1.5} alignItems="center">
                         <Avatar
@@ -230,27 +236,9 @@ export default function ApartList() {
                 cell: ({ row }) => { return `${row?.original?.town?.district?.city?.name} / ${row?.original?.town?.name}` }
             },
             {
-                header: 'Online Rez.',
-                accessorKey: 'onlineReservation',
-                cell: (cell) => {
-                    if (cell.getValue()) return <Chip color="success" label="Aktif" size="small" variant="light" />;
-                    else return <Chip color="error" label="Pasif" size="small" variant="light" />;
-                    // switch (cell.getValue()) {
-                    //     case 3:
-                    //         return <Chip color="error" label="Rejected" size="small" variant="light" />;
-                    //     case 1:
-                    //         return <Chip color="success" label="Verified" size="small" variant="light" />;
-                    //     case 2:
-                    //     default:
-                    //         return <Chip color="info" label="Pending" size="small" variant="light" />;
-                    // }
-                }
-            },
-            {
                 header: 'Durum',
-                accessorKey: 'generalStatusType',
-                cell: (cell) => {
-                    if (cell.getValue() === 1) return <Chip color="success" label="Aktif" size="small" variant="light" />;
+                cell: ({ row }) => {
+                    if (row?.original?.generalStatusType === 1) return <Chip color="success" label="Aktif" size="small" variant="light" />;
                     else return <Chip color="error" label="Pasif" size="small" variant="light" />;
                 }
             },
