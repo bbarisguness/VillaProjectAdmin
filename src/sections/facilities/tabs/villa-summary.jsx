@@ -10,7 +10,7 @@ import Avatar from 'components/@extended/Avatar';
 import LinearWithLabel from 'components/@extended/progress/LinearWithLabel';
 
 import { CallCalling, Gps, Sms, Trash, Wifi } from 'iconsax-react';
-import { GetVilla, VillaChangeState } from 'services/villaServices';
+import { GetVilla, VillaUpdate } from 'services/villaServices';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { openSnackbar } from 'api/snackbar';
@@ -37,17 +37,20 @@ export default function VillaSummarySection() {
     }
   }, [loading])
 
-  function changeStateHandle() {
+  async function changeStateHandle() {
+    const fd = new FormData()
+    fd.append('Id', params.id)
 
-    if (villa?.attributes?.publishedAt === null) {
-      const nowDate = new Date()
-      const data = {
-        publishedAt: nowDate
-      }
-      VillaChangeState(params.id, { data }).then((res) => {
-        setLoading(true)
-        if (!res?.error) {
+    if (villa?.generalStatusType === 1) {
+      fd.append('GeneralStatusType', 2)
+    } else if (villa?.generalStatusType === 2) {
+      fd.append('GeneralStatusType', 1)
+    }
 
+    await VillaUpdate(fd).then((res) => {
+      setLoading(true)
+      if (res?.statusCode === 200) {
+        if (villa?.generalStatusType === 2) {
           openSnackbar({
             open: true,
             message: 'Villa Yayınlandı.',
@@ -57,28 +60,7 @@ export default function VillaSummarySection() {
               color: 'success'
             }
           });
-        }
-        else {
-          openSnackbar({
-            open: true,
-            message: res?.error?.message,
-            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-            variant: 'alert',
-            alert: {
-              color: 'error'
-            }
-          });
-
-        }
-      })
-
-    } else {
-      const data = {
-        publishedAt: null
-      }
-      VillaChangeState(params.id, { data }).then((res) => {
-        setLoading(true)
-        if (!res?.error) {
+        } else {
           openSnackbar({
             open: true,
             message: 'Villa Yayından Kaldırıldı.',
@@ -89,19 +71,20 @@ export default function VillaSummarySection() {
             }
           });
         }
-        else {
-          openSnackbar({
-            open: true,
-            message: res?.error?.message,
-            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-            variant: 'alert',
-            alert: {
-              color: 'error'
-            }
-          });
-        }
-      })
-    }
+      }
+      else {
+        openSnackbar({
+          open: true,
+          message: 'Hata',
+          anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+          variant: 'alert',
+          alert: {
+            color: 'error'
+          }
+        });
+      }
+    })
+
   }
 
   if (loading) return (<Loader open={loading} />)
@@ -116,14 +99,14 @@ export default function VillaSummarySection() {
                   <Grid item xs={12}>
                     <Stack direction="row" justifyContent="flex-end">
                       <div onClick={() => changeStateHandle()}>
-                        <Chip style={{ cursor: 'pointer' }} label={villa?.attributes?.publishedAt === null ? 'Pasif' : 'Aktif'} size="small" color={villa?.attributes?.publishedAt === null ? 'error' : 'success'} />
+                        <Chip style={{ cursor: 'pointer' }} label={villa?.generalStatusType === 2 ? 'Pasif' : 'Aktif'} size="small" color={villa?.generalStatusType === 2 ? 'error' : 'success'} />
                       </div>
                     </Stack>
                     <Stack spacing={2.5} alignItems="center">
                       <Avatar alt={villa?.villaDetails[0]?.name} size="xxl" src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/VillaPhotos/k_${villa?.photos[0]?.image}`} />
                       <Stack spacing={0.5} alignItems="center">
                         <Typography variant="h5">{villa?.villaDetails[0]?.name}</Typography>
-                        <Typography color="secondary">{villa?.attributes?.region}</Typography>
+                        <Typography color="secondary">{villa?.town?.district?.city?.name} / {villa?.town?.name}</Typography>
                       </Stack>
                     </Stack>
                   </Grid>

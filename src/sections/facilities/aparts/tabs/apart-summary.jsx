@@ -57,17 +57,18 @@ export default function ApartSummarySection() {
   }, [isEdit])
 
 
-  function changeStateHandle() {
-
-    if (villa?.attributes?.publishedAt === null) {
-      const nowDate = new Date()
-      const data = {
-        publishedAt: nowDate
-      }
-      ApartChangeState(params.id, { data }).then((res) => {
-        setLoading(true)
-        if (!res?.error) {
-
+  async function changeStateHandle() {
+    const fd = new FormData()
+    fd.append('Id', params.id)
+    if (villa?.generalStatusType === 1) {
+      fd.append('GeneralStatusType', 2)
+    } else if (villa?.generalStatusType === 2) {
+      fd.append('GeneralStatusType', 1)
+    }
+    await ApartChangeState(fd).then((res) => {
+      setLoading(true)
+      if (res?.statusCode === 200) {
+        if (villa?.generalStatusType === 2) {
           openSnackbar({
             open: true,
             message: 'Apart Yayınlandı.',
@@ -77,31 +78,7 @@ export default function ApartSummarySection() {
               color: 'success'
             }
           });
-        }
-        else {
-          openSnackbar({
-            open: true,
-            message: res?.error?.message,
-            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-            variant: 'alert',
-            alert: {
-              color: 'error'
-            }
-          });
-
-        }
-      })
-
-    } else {
-      const data = {
-        publishedAt: null
-      }
-      ApartChangeState(params.id, { data }).then((res) => {
-        setLoading(true)
-        if (!res?.error) {
-
-
-
+        } else if (villa?.generalStatusType === 1) {
           openSnackbar({
             open: true,
             message: 'Apart Yayından Kaldırıldı.',
@@ -112,19 +89,21 @@ export default function ApartSummarySection() {
             }
           });
         }
-        else {
-          openSnackbar({
-            open: true,
-            message: res?.error?.message,
-            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-            variant: 'alert',
-            alert: {
-              color: 'error'
-            }
-          });
-        }
-      })
-    }
+
+      }
+      else {
+        openSnackbar({
+          open: true,
+          message: 'Hata',
+          anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+          variant: 'alert',
+          alert: {
+            color: 'error'
+          }
+        });
+
+      }
+    })
   }
 
 
@@ -142,7 +121,7 @@ export default function ApartSummarySection() {
                     <Grid item xs={12}>
                       <Stack direction="row" justifyContent="flex-end">
                         <div onClick={() => changeStateHandle()}>
-                          <Chip style={{ cursor: 'pointer' }} label={villa?.attributes?.publishedAt === null ? 'Pasif' : 'Aktif'} size="small" color={villa?.attributes?.publishedAt === null ? 'error' : 'success'} />
+                          <Chip style={{ cursor: 'pointer' }} label={villa?.generalStatusType === 2 ? 'Pasif' : 'Aktif'} size="small" color={villa?.generalStatusType === 2 ? 'error' : 'success'} />
                         </div>
                       </Stack>
                       <Stack spacing={2.5} alignItems="center">

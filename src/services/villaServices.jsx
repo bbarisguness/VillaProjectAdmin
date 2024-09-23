@@ -84,7 +84,4 @@ const GetVillaFull = (id) => {
 }
 
 
-const VillaChangeState = (id, payload) => put(`/api/villas/${id}`, payload, true);
-
-
-export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, VillaChangeState, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail, VillaCreateDetail }
+export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail, VillaCreateDetail }

@@ -26,7 +26,7 @@ export default function RoomSummarySection() {
 
   useEffect(() => {
 
-    if (params.id  && loading) {
+    if (params.id && loading) {
       GetRoom(params.id).then((res) => {
         setVilla(res.data);
         setLoading(false)
@@ -39,17 +39,31 @@ export default function RoomSummarySection() {
 
   }, [loading])
 
-  function changeStateHandle() {
+  async function changeStateHandle() {
 
-    if (villa?.attributes?.publishedAt === null) {
-      const nowDate = new Date()
-      const data = {
-        publishedAt: nowDate
-      }
-      RoomChangeState(params.id, { data }).then((res) => {
-        setLoading(true)
-        if (!res?.error) {
+    const fd = new FormData()
+    fd.append('Id', params.id)
 
+    if (villa?.generalStatusType === 1) {
+      fd.append('GeneralStatusType', 2)
+    } else if (villa?.generalStatusType === 2) {
+      fd.append('GeneralStatusType', 1)
+    }
+
+    await RoomChangeState(fd).then((res) => {
+      setLoading(true)
+      if (res?.statusCode === 200) {
+        if (villa?.generalStatusType === 1) {
+          openSnackbar({
+            open: true,
+            message: 'Oda Yayından Kaldırıldı.',
+            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+            variant: 'alert',
+            alert: {
+              color: 'warning'
+            }
+          });
+        } else if (villa?.generalStatusType === 2) {
           openSnackbar({
             open: true,
             message: 'Oda Yayınlandı.',
@@ -60,53 +74,19 @@ export default function RoomSummarySection() {
             }
           });
         }
-        else {
-          openSnackbar({
-            open: true,
-            message: res?.error?.message,
-            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-            variant: 'alert',
-            alert: {
-              color: 'error'
-            }
-          });
-
-        }
-      })
-
-    } else {
-      const data = {
-        publishedAt: null
       }
-      RoomChangeState(params.id, { data }).then((res) => {
-        setLoading(true)
-        if (!res?.error) {
-
-
-
-          openSnackbar({
-            open: true,
-            message: 'Oda Yayından Kaldırıldı.',
-            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-            variant: 'alert',
-            alert: {
-              color: 'warning'
-            }
-          });
-        }
-        else {
-          openSnackbar({
-            open: true,
-            message: res?.error?.message,
-            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-            variant: 'alert',
-            alert: {
-              color: 'error'
-            }
-          });
-        }
-      })
-    }
+      else {
+        openSnackbar({
+          open: true,
+          message: 'Hata',
+          anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+          variant: 'alert',
+          alert: {
+            color: 'error'
+          }
+        });
+      }
+    })
   }
 
 
@@ -123,7 +103,7 @@ export default function RoomSummarySection() {
                     <Grid item xs={12}>
                       <Stack direction="row" justifyContent="flex-end">
                         <div onClick={() => changeStateHandle()}>
-                          <Chip style={{ cursor: 'pointer' }} label={villa?.attributes?.publishedAt === null ? 'Pasif' : 'Aktif'} size="small" color={villa?.attributes?.publishedAt === null ? 'error' : 'success'} />
+                          <Chip style={{ cursor: 'pointer' }} label={villa?.generalStatusType === 2 ? 'Pasif' : 'Aktif'} size="small" color={villa?.generalStatusType === 2 ? 'error' : 'success'} />
                         </div>
                       </Stack>
                       <Stack spacing={2.5} alignItems="center">
