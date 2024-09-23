@@ -3,8 +3,8 @@ import { get, post, put, remove } from './request';
 import moment from 'moment';
 
 
-const GetAllReservations = (page, size, homeOwner, agencyOwner, search) => {
-    return get(`/Reservations/GetAll?Page=${page}&Size=${size}&HomeOwner=${homeOwner}&AgencyOwner=${agencyOwner}&SearchName=${search}`, true);
+const GetAllReservations = (page, size, homeOwner, agencyOwner, search = '', orderByCustomerName = null, orderByReservationStatus = null, orderByCheckIn = null, orderByCheckOut = null, orderByPrice = null) => {
+    return get(`/Reservations/GetAll?Page=${page}&Size=${size}&HomeOwner=${homeOwner}&AgencyOwner=${agencyOwner}${search !== '' ? `&CustomerSearchName=${search}` : ''}${orderByCustomerName !== null ? `&OrderByCustomerName=${orderByCustomerName}` : ''}${orderByReservationStatus !== null ? `&OrderByReservationStatus=${orderByReservationStatus}` : ''}${orderByCheckIn !== null ? `&OrderByCheckIn=${orderByCheckIn}` : ''}${orderByCheckOut !== null ? `&OrderByCheckOut=${orderByCheckOut}` : ''}${orderByPrice !== null ? `&OrderByPrice=${orderByPrice}` : ''}`, true);
 }
 
 // const GetReservations = (page, size, sort = true, fieldName = 'id', filter, id, homeOwner = false) => {
@@ -15,8 +15,12 @@ const GetAllReservations = (page, size, homeOwner, agencyOwner, search) => {
 //     }
 // }
 
-const GetReservations = (id, page, size) => {
-    return get(`/Reservations/GetAll?VillaId=${id}&Page=${page}&Size=${size}`, true);
+// const GetReservations = (id, page, size) => {
+//     return get(`/Reservations/GetAllForVilla?VillaId=${id}&Page=${page}&Size=${size}`, true);
+// }
+
+const GetReservations = (id, page, size, homeOwner, agencyOwner, search = '', orderByCustomerName = null, orderByReservationStatus = null, orderByCheckIn = null, orderByCheckOut = null, orderByPrice = null) => {
+    return get(`/Reservations/GetAllForVilla?VillaId=${id}&Page=${page}&Size=${size}&HomeOwner=${homeOwner}&AgencyOwner=${agencyOwner}${search !== '' ? `&CustomerSearchName=${search}` : ''}${orderByCustomerName !== null ? `&OrderByCustomerName=${orderByCustomerName}` : ''}${orderByReservationStatus !== null ? `&OrderByReservationStatus=${orderByReservationStatus}` : ''}${orderByCheckIn !== null ? `&OrderByCheckIn=${orderByCheckIn}` : ''}${orderByCheckOut !== null ? `&OrderByCheckOut=${orderByCheckOut}` : ''}${orderByPrice !== null ? `&OrderByPrice=${orderByPrice}` : ''}`, true);
 }
 
 const GetReservationsTop5 = (id) => {

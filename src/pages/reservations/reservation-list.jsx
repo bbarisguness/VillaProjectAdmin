@@ -194,7 +194,7 @@ export default function ReservationList() {
 
     useEffect(() => {
         setLoading(true)
-        ReservationServices.GetAllReservations(pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter).then((res) => { setData(res); setLoading(false); });
+        ReservationServices.GetAllReservations(pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter, sorting[0]?.id === 'customerName' ? sorting[0]?.desc : null, sorting[0]?.id === 'reservationStatus' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkIn' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkOut' ? sorting[0]?.desc : null, sorting[0]?.id === 'price' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation, showAgencyReservation]);
 
 
@@ -207,7 +207,7 @@ export default function ReservationList() {
             setIsDeleted(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            ReservationServices.GetAllReservations(pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter).then((res) => { setData(res); setLoading(false); });
+            ReservationServices.GetAllReservations(pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter, sorting[0]?.id === 'customerName' ? sorting[0]?.desc : null, sorting[0]?.id === 'reservationStatus' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkIn' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkOut' ? sorting[0]?.desc : null, sorting[0]?.id === 'price' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted])
 
@@ -215,6 +215,7 @@ export default function ReservationList() {
         () => [
             {
                 header: 'Misafir',
+                accessorKey: 'customerName',
                 cell: ({ row }) => {
                     return (
                         <Stack direction="row" spacing={1.5} alignItems="center">
@@ -247,9 +248,9 @@ export default function ReservationList() {
             },
             {
                 header: 'reservationStatus',
-                accessorKey: 'reservationStatusType',
-                cell: (cell) => {
-                    switch (cell.getValue()) {
+                accessorKey: 'reservationStatus',
+                cell: ({row}) => {
+                    switch (row.original.reservationStatusType) {
                         case 1:
                             return <Chip color="success" label="Rezerve" size="small" variant="light" />;
                         case 2:
@@ -266,14 +267,17 @@ export default function ReservationList() {
 
             {
                 header: 'Giriş Tarihi',
+                accessorKey: 'checkIn',
                 cell: ({ row }) => { return stringToDate(row.original.checkIn) }
             },
             {
                 header: 'Çıkış Tarihi',
+                accessorKey: 'checkOut',
                 cell: ({ row }) => { return stringToDate(row.original.checkOut) }
             },
             {
                 header: 'Tutar',
+                accessorKey: 'price',
                 cell: ({ row }) => { return (row.original.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " TL") }
             },
             {

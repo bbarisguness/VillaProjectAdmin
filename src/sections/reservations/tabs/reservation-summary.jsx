@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { TableContainer, Table, TableRow, TableCell, TableBody, FormControl, Select, MenuItem } from '@mui/material';
+import { TableContainer, Table, TableRow, TableCell, TableBody, FormControl, Select, MenuItem, Link } from '@mui/material';
 
 // third-party
 
@@ -116,7 +116,7 @@ export default function ReservationSummarySection() {
                                     Tesis Adı
                                 </TableCell>
                                 <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                    :<b> {reservation?.villa !== null ? reservation?.villa?.villaDetails[0]?.name : reservation?.room?.roomDetails[0]?.name}</b>
+                                    :<b> <Link href={reservation?.villa !== null ? `/facilities/villas-show/summary/${reservation?.villa?.id}` : `/facilities/aparts/room-show/summary/${reservation?.room?.id}`} >{reservation?.villa !== null ? reservation?.villa?.villaDetails[0]?.name : reservation?.room?.roomDetails[0]?.name}</Link></b>
                                 </TableCell>
                                 {
                                     !(reservation?.homeOwner) &&

@@ -29,7 +29,7 @@ import ReservationApartModal from 'sections/reservations/ReservationApartModal';
 import { stringToDate } from 'utils/custom/dateHelpers';
 
 const fallbackData = [];
-function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
+function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation, showAgencyReservation, setShowAgencyReservation }) {
 
     const navigate = useNavigate();
 
@@ -69,10 +69,11 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                     value={globalFilter ?? ''}
                     disabled={showAllReservation}
                     onFilterChange={(value) => setGlobalFilter(String(value))}
-                    placeholder={`Search ${data?.meta?.pagination?.total} records...`}
+                    placeholder={`Müşteri adı`}
                 />
 
                 <Stack direction="row" alignItems="center" spacing={2}>
+                    <FormControlLabel style={{ position: 'relative', top: '5px' }} control={<Switch sx={{ mt: 0 }} />} label={<p style={{ position: 'relative', top: '-4px' }}>Acenta Rezervasyonları</p>} labelPlacement="start" checked={showAgencyReservation} onChange={() => setShowAgencyReservation(!showAgencyReservation)} />
                     <FormControlLabel style={{ position: 'relative', top: '5px' }} control={<Switch sx={{ mt: 0 }} />} label={<p style={{ position: 'relative', top: '-4px' }}>Tüm rezervasyonlar</p>} labelPlacement="start" checked={showAllReservation} onChange={() => setShowAllReservation(!showAllReservation)} />
                     <Button variant="contained" startIcon={<Add />} onClick={modalToggler} size="large">
                         Rezervasyon Ekle
@@ -175,12 +176,14 @@ export default function RoomReservationSection() {
 
     const [data, setData] = useState(() => []);
 
+    const [showAgencyReservation, setShowAgencyReservation] = useState(true)
+
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setLoading(true)
-        GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setLoading(false); setData(res) })
-    }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation]);
+        GetReservations(params.id, pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter, sorting[0]?.id === 'customerName' ? sorting[0]?.desc : null, sorting[0]?.id === 'reservationStatusType' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkIn' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkOut' ? sorting[0]?.desc : null, sorting[0]?.id === 'price' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
+    }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation, showAgencyReservation]);
 
 
     useEffect(() => {
@@ -193,7 +196,8 @@ export default function RoomReservationSection() {
             setIsAdded(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setLoading(false); setData(res) })
+            // GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setLoading(false); setData(res) })
+            GetReservations(params.id, pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter, sorting[0]?.id === 'customerName' ? sorting[0]?.desc : null, sorting[0]?.id === 'reservationStatusType' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkIn' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkOut' ? sorting[0]?.desc : null, sorting[0]?.id === 'price' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted, isAdded])
 
@@ -205,6 +209,7 @@ export default function RoomReservationSection() {
             },
             {
                 header: 'Misafir',
+                accessorKey: 'customerName',
                 cell: ({ row }) => {
                     return (
                         <Stack direction="row" spacing={1.5} alignItems="center">
@@ -241,14 +246,17 @@ export default function RoomReservationSection() {
 
             {
                 header: 'Giriş Tarihi',
+                accessorKey: 'checkIn',
                 cell: ({ row }) => { return stringToDate(row.original.checkIn) }
             },
             {
                 header: 'Çıkış Tarihi',
+                accessorKey: 'checkOut',
                 cell: ({ row }) => { return stringToDate(row.original.checkOut) }
             },
             {
                 header: 'Tutar',
+                accessorKey: 'price',
                 cell: ({ row }) => { return (row.original.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " TL") }
             }
         ], // eslint-disable-next-line
@@ -272,7 +280,9 @@ export default function RoomReservationSection() {
                     globalFilter,
                     setGlobalFilter,
                     showAllReservation,
-                    setShowAllReservation
+                    setShowAllReservation,
+                    showAgencyReservation,
+                    setShowAgencyReservation
                 }}
             />
 

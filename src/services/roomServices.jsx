@@ -48,8 +48,11 @@ const GetReservationListTop5 = (roomId) => {
 // }
 const RoomChangeState = (payload) => post(`/Rooms/Update`, payload, true, true);
 
-const GetReservations = (id, page, size) => {
-    return get(`/Reservations/GetAll?RoomId=${id}&Page=${page}&Size=${size}`, true);
+// const GetReservations = (id, page, size) => {
+//     return get(`/Reservations/GetAll?RoomId=${id}&Page=${page}&Size=${size}`, true);
+// }
+const GetReservations = (id, page, size, homeOwner, agencyOwner, search = '', orderByCustomerName = null, orderByReservationStatus = null, orderByCheckIn = null, orderByCheckOut = null, orderByPrice = null) => {
+    return get(`/Reservations/GetAllForRoom?RoomId=${id}&Page=${page}&Size=${size}&HomeOwner=${homeOwner}&AgencyOwner=${agencyOwner}${search !== '' ? `&CustomerSearchName=${search}` : ''}${orderByCustomerName !== null ? `&OrderByCustomerName=${orderByCustomerName}` : ''}${orderByReservationStatus !== null ? `&OrderByReservationStatus=${orderByReservationStatus}` : ''}${orderByCheckIn !== null ? `&OrderByCheckIn=${orderByCheckIn}` : ''}${orderByCheckOut !== null ? `&OrderByCheckOut=${orderByCheckOut}` : ''}${orderByPrice !== null ? `&OrderByPrice=${orderByPrice}` : ''}`, true);
 }
 
 
