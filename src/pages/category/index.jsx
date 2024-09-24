@@ -208,7 +208,7 @@ export default function CategoryPage() {
             setIsDeleted(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            CategoriesList().then((res) => { setData(res); setLoading(false); });
+            CategoriesList(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted])
 
