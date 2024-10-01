@@ -38,6 +38,11 @@ const AddReservation = (payload) => {
     return post('/Reservations/Create', payload, true, true)
 }
 
+const GetReservationIsAvailable = ({ villaId = null, roomId = null, checkIn, checkOut }) => {
+    return get(`/Reservations/IsAvailible?CheckIn=${checkIn}&CheckOut=${checkOut}${villaId !== null ? `&villaId=${villaId}` : ''}${roomId !== null ? `&roomId=${roomId}` : ''}`, true);
+}
+
+
 // const AddReservationInfo = (payload) =>
 //     post(
 //         `/api/reservation-infos`, payload, true
@@ -93,4 +98,4 @@ const GetDailyReservationActions = () => {
 }
 
 
-export { GetReservations, GetReservation, AddReservation, AddReservationItem, GetAvailibleDate, GetReservationsTop5, GetAllReservations, UpdateReservation, ReservationRemove, GetNewReservations, GetDailyReservationActions, GetAvailibleDateRoom }
+export { GetReservations, GetReservation, AddReservation, AddReservationItem, GetAvailibleDate, GetReservationsTop5, GetAllReservations, UpdateReservation, ReservationRemove, GetNewReservations, GetDailyReservationActions, GetAvailibleDateRoom, GetReservationIsAvailable }

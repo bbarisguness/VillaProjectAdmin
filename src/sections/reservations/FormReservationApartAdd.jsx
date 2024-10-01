@@ -32,7 +32,7 @@ import { VillaGetPriceForReservation, VillaIsAvailible } from 'services/villaSer
 import { dateToString } from 'utils/custom/dateHelpers';
 import { useNavigate, useParams } from 'react-router';
 import Loader from 'components/Loader';
-import { AddReservation, AddReservationItem } from 'services/reservationServices';
+import { AddReservation, AddReservationItem, GetReservationIsAvailable } from 'services/reservationServices';
 import { AddReservationInfo } from 'services/reservationInfoServices';
 import { RoomGetPriceForReservation, RoomIsAvailible } from 'services/roomServices';
 
@@ -174,56 +174,72 @@ export default function FormReservationApartAdd({ roomId, closeModal, setIsAdded
                 setLoading(false)
                 return;
             }
-            RoomGetPriceForReservation(params.id, dateToString(date1), dateToString(date2)).then((res) => {
-                if (res.statusCode === 400) {
-                    openSnackbar({
-                        open: true,
-                        message: res.message,
-                        variant: 'alert',
-                        alert: {
-                            color: 'error'
+            GetReservationIsAvailable({ checkIn: moment(date1).format('YYYY-MM-DD').toString(), checkOut: moment(date2).format('YYYY-MM-DD').toString(), roomId: params.id }).then((ress) => {
+                if (ress === false) {
+                    RoomGetPriceForReservation(params.id, dateToString(date1), dateToString(date2)).then((res) => {
+                        if (res.statusCode === 400) {
+                            openSnackbar({
+                                open: true,
+                                message: res.message,
+                                variant: 'alert',
+                                alert: {
+                                    color: 'error'
+                                }
+                            });
+                            setLoading(false);
                         }
-                    });
-                    setLoading(false);
-                }
-                var fakeDate = new Date(moment(date1).format('YYYY-MM-DD'));
-                var days = [];
-                res.data.days.map((priceDate) => {
-                    while (fakeDate >= new Date(res.data.checkIn) && fakeDate <= new Date(res.data.checkOut)) {
-                        if (fakeDate >= new Date(moment(date2).format('YYYY-MM-DD'))) break;
-                        days.push({ date: moment(fakeDate).format('YYYY-MM-DD'), price: priceDate.price });
-                        fakeDate.setDate(fakeDate.getDate() + 1);
-                    }
-                });
-                var toplam = 0;
-                var rezItem = [];
-                for (var i = 0; i < days.length; i++) {
-                    toplam = toplam + Number(days[i].price);
-                    rezItem.push({ day: days[i].date, price: days[i].price });
-                }
-                setReservationItem(rezItem);
+                        var fakeDate = new Date(moment(date1).format('YYYY-MM-DD'));
+                        var days = [];
+                        res.data.days.map((priceDate) => {
+                            while (fakeDate >= new Date(res.data.checkIn) && fakeDate <= new Date(res.data.checkOut)) {
+                                if (fakeDate >= new Date(moment(date2).format('YYYY-MM-DD'))) break;
+                                days.push({ date: moment(fakeDate).format('YYYY-MM-DD'), price: priceDate.price });
+                                fakeDate.setDate(fakeDate.getDate() + 1);
+                            }
+                        });
+                        var toplam = 0;
+                        var rezItem = [];
+                        for (var i = 0; i < days.length; i++) {
+                            toplam = toplam + Number(days[i].price);
+                            rezItem.push({ day: days[i].date, price: days[i].price });
+                        }
+                        setReservationItem(rezItem);
 
-                let time1 = date1.getTime();
-                let time2 = date2.getTime();
+                        let time1 = date1.getTime();
+                        let time2 = date2.getTime();
 
-                let timeDifference = Math.abs(time2 - time1);
-                let dayDifference = timeDifference / (1000 * 60 * 60 * 24);
+                        let timeDifference = Math.abs(time2 - time1);
+                        let dayDifference = timeDifference / (1000 * 60 * 60 * 24);
 
-                if (toplam > 0 && (rezItem.length === parseInt(dayDifference))) {
-                    setFieldValue('amount', toplam);
-                    setIsAvailable(true);
-                    setLoading(false);
+                        if (toplam > 0 && (rezItem.length === parseInt(dayDifference))) {
+                            setFieldValue('amount', toplam);
+                            setIsAvailable(true);
+                            setLoading(false);
+                        } else {
+                            openSnackbar({
+                                open: true,
+                                message: 'Seçtiğiniz tarihlerde fiyat bilgisi bulunamadı.',
+                                variant: 'alert',
+                                alert: {
+                                    color: 'error'
+                                }
+                            });
+                            setLoading(false);
+                        }
+                    })
                 } else {
                     openSnackbar({
                         open: true,
-                        message: 'Seçtiğiniz tarihlerde fiyat bilgisi bulunamadı.',
+                        message: 'Seçtiğiniz tarihler müsait değil.',
                         variant: 'alert',
                         alert: {
                             color: 'error'
                         }
                     });
                     setLoading(false);
+                    closeModal()
                 }
+
             })
         }
         else {
@@ -260,30 +276,47 @@ export default function FormReservationApartAdd({ roomId, closeModal, setIsAdded
                 fd.append('CheckOut', moment(date2).format('YYYY-MM-DD').toString())
                 fd.append('HomeOwner', true)
 
-                AddReservation(fd).then((res) => {
-                    if (res?.statusCode === 200) {
-                        openSnackbar({
-                            open: true,
-                            message: 'Rezervasyon oluşturuldu.',
-                            variant: 'alert',
-                            alert: {
-                                color: 'success'
+                GetReservationIsAvailable({ checkIn: moment(date1).format('YYYY-MM-DD').toString(), checkOut: moment(date2).format('YYYY-MM-DD').toString(), roomId: params.id }).then((ress) => {
+                    if (ress === false) {
+                        AddReservation(fd).then((res) => {
+                            if (res?.statusCode === 200) {
+                                openSnackbar({
+                                    open: true,
+                                    message: 'Rezervasyon oluşturuldu.',
+                                    variant: 'alert',
+                                    alert: {
+                                        color: 'success'
+                                    }
+                                });
+                            } else {
+                                openSnackbar({
+                                    open: true,
+                                    message: res?.message ? res?.message : 'Hata',
+                                    variant: 'alert',
+                                    alert: {
+                                        color: 'error'
+                                    }
+                                });
                             }
+                            setLoading(false);
+                            setIsAdded(true)
+                            closeModal();
                         });
                     } else {
                         openSnackbar({
                             open: true,
-                            message: res?.message ? res?.message : 'Hata',
+                            message: 'Seçtiginiz tarihler müsait değil.',
                             variant: 'alert',
                             alert: {
                                 color: 'error'
                             }
                         });
+                        setLoading(false);
+                        closeModal();
                     }
-                    setLoading(false);
-                    setIsAdded(true)
-                    closeModal();
-                });
+                })
+
+
             }
         }
         else {
