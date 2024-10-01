@@ -121,12 +121,6 @@ export default function FormVillaUpdate() {
     enableReinitialize: true,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const data = {
-          data: {
-            ...values
-          }
-        }
-
         const fd = new FormData()
         fd.append('Id', params.id)
         // fd.append('Name', values.name)
@@ -140,13 +134,16 @@ export default function FormVillaUpdate() {
         fd.append('MetaTitle', values.metaTitle)
         fd.append('TownId', values.region)
         fd.append('MetaDescription', values.metaDescription)
-        fd.append('Slug', values.slug)
         fd.append('isRent', values.isRent)
         fd.append('isSale', values.isSale)
         fd.append('VillaOwnerName', values.villaOwner)
         fd.append('VillaOwnerPhone', values.villaOwnerPhone)
         fd.append('VillaNumber', values.villaNumber)
         fd.append('PriceType', values.priceType)
+        fd.append('WaterMaterNumber', values.waterMaterNumber)
+        fd.append('ElectricityMeterNumber', values.electricityMeterNumber)
+        fd.append('InternetMeterNumber', values.internetMeterNumber)
+        fd.append('WifiPassword', values.wifiPassword)
 
         await VillaUpdate(fd).then(async (res) => {
           const fdd = new FormData()

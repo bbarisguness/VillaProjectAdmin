@@ -52,6 +52,11 @@ export default function FormRoomUpdate({ closeModal }) {
 
     useEffect(() => {
         GetRoom(params?.id).then((res) => {
+            if (res?.statusCode !== 200) {
+                navigate('/404')
+            } else if (res?.data === null) {
+                navigate('/404')
+            }
             setData(res?.data)
             setLoading(false)
         })
@@ -71,16 +76,6 @@ export default function FormRoomUpdate({ closeModal }) {
         enableReinitialize: true,
         onSubmit: async (values, { setSubmitting }) => {
             try {
-                values.slug = values.name
-                    .toString()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '')
-                    .toLowerCase()
-                    .trim()
-                    .replace(/\s+/g, '-')
-                    .replace(/[^\w-]+/g, '')
-                    .replace(/--+/g, '-');
-
                 const fd = new FormData()
                 fd.append('Id', params.id)
                 // fd.append('Name', values.name)
@@ -88,7 +83,6 @@ export default function FormRoomUpdate({ closeModal }) {
                 fd.append('Bath', values.bath)
                 fd.append('Person', values.person)
                 fd.append('Rooms', values.room)
-                fd.append('Slug', values.slug)
                 fd.append('WifiPassword', values.wifiPassword)
                 fd.append('InternetMeterNumber', values.internetMeterNumber)
                 fd.append('ElectricityMeterNumber', values.electricityMeterNumber)
@@ -131,7 +125,6 @@ export default function FormRoomUpdate({ closeModal }) {
                         navigate(`/facilities/aparts/room-show/summary/${params?.id}`)
                     }
                     setSubmitting(false);
-                    closeModal();
                 })
 
 

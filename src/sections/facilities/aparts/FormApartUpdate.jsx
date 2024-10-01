@@ -61,7 +61,11 @@ export default function FormApartUpdate() {
     async function fetchData() {
       await GetApart(params?.id).then((res) => {
         setVilla(res?.data)
-
+        if (res?.statusCode !== 200) {
+          navigate('/404')
+        } else if (res?.data === null) {
+          navigate('/404')
+        }
       })
       await getTowns().then((res) => {
         setTowns(res?.data)
@@ -73,7 +77,7 @@ export default function FormApartUpdate() {
 
 
   const VillaSchema = Yup.object().shape({
-    name: Yup.string().max(255).required('Lütfen villa adı yazınız..'),
+    // name: Yup.string().max(255).required('Lütfen villa adı yazınız..'),
     region: Yup.string().max(255).required('Lütfen bölge yazınız..'),
     room: Yup.number().required('Bu alan zorunlu').min(1, 'Min 1'),
     bath: Yup.number().required('Bu alan zorunlu').min(1, 'Min 1'),
@@ -93,14 +97,14 @@ export default function FormApartUpdate() {
 
         fd.append('Id', params.id)
         fd.append('TownId', formik.values.region)
-        fd.append('Name', formik.values.name)
+        // fd.append('Name', formik.values.name)
         // fd.append('DescriptionShort', formik.values.descriptionShort)
         // fd.append('DescriptionLong', formik.values.descriptionLong)
         fd.append('Room', formik.values.room)
         fd.append('GoogleMap', formik.values.googleMap)
         fd.append('MetaTitle', formik.values.metaTitle)
         fd.append('MetaDescription', formik.values.metaDescription)
-        fd.append('Slug', formik.values.slug)
+        // fd.append('Slug', formik.values.slug)
         fd.append('LanguageCode', 'tr')
         fd.append('Bath', formik.values.bath)
         fd.append('Person', formik.values.person)
@@ -189,7 +193,7 @@ export default function FormApartUpdate() {
                       )}
                     </Stack>
                   </Grid>
-                  <Grid item xs={6}>
+                  {/* <Grid item xs={6}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="villa-name">Villa Adı</InputLabel>
                       <TextField
@@ -201,8 +205,8 @@ export default function FormApartUpdate() {
                         helperText={touched.name && errors.name}
                       />
                     </Stack>
-                  </Grid>
-                  <Grid item xs={6}>
+                  </Grid> */}
+                  <Grid item xs={12}>
                     <InputLabel sx={{ marginBottom: 1.5 }}>Bölge</InputLabel>
                     <Autocomplete
                       fullWidth
