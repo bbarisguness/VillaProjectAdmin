@@ -3,7 +3,7 @@ import { useMemo, useState, Fragment, useEffect } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Chip, Divider, Stack, Button, Table, TableCell, TableBody, TableHead, TableRow, TableContainer, Typography, Box, FormControlLabel, Switch, } from '@mui/material';
+import { Chip, Divider, Stack, Button, Table, TableCell, TableBody, TableHead, TableRow, TableContainer, Typography, Box, FormControlLabel, Switch, Tooltip, IconButton, } from '@mui/material';
 
 // third-party
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -16,20 +16,19 @@ import { DebouncedInput, HeaderSort, TablePagination } from 'components/third-pa
 import { ImagePath, getImageUrl } from 'utils/getImageUrl';
 
 // assets
-import { Add } from 'iconsax-react';
+import { Add, Edit, Eye, Trash } from 'iconsax-react';
 
 // custom
 import { ReservationServices } from 'services';
 import Loader from 'components/Loader';
 import { useParams } from 'react-router';
 import { useNavigate } from 'react-router-dom';
-import ReservationModal from 'sections/reservations/ReservationModal';
-import { GetReservations } from 'services/roomServices';
-import ReservationApartModal from 'sections/reservations/ReservationApartModal';
-import { stringToDate } from 'utils/custom/dateHelpers';
+import { GetAllPaymentTypes } from 'services/paymentTypeServices';
+import PaymentTypeAddModal from 'sections/payment-types/PaymentTypeAddModal';
+import PaymentTypeModalDelete from 'sections/payment-types/PaymentTypeModalDelete';
 
 const fallbackData = [];
-function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation, showAgencyReservation, setShowAgencyReservation }) {
+function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
 
     const navigate = useNavigate();
 
@@ -69,14 +68,12 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                     value={globalFilter ?? ''}
                     disabled={showAllReservation}
                     onFilterChange={(value) => setGlobalFilter(String(value))}
-                    placeholder={`Müşteri adı`}
+                    placeholder={`Ödeme türü adı`}
                 />
 
                 <Stack direction="row" alignItems="center" spacing={2}>
-                    <FormControlLabel style={{ position: 'relative', top: '5px' }} control={<Switch sx={{ mt: 0 }} />} label={<p style={{ position: 'relative', top: '-4px' }}>Acenta Rezervasyonları</p>} labelPlacement="start" checked={showAgencyReservation} onChange={() => setShowAgencyReservation(!showAgencyReservation)} />
-                    <FormControlLabel style={{ position: 'relative', top: '5px' }} control={<Switch sx={{ mt: 0 }} />} label={<p style={{ position: 'relative', top: '-4px' }}>Tüm rezervasyonlar</p>} labelPlacement="start" checked={showAllReservation} onChange={() => setShowAllReservation(!showAllReservation)} />
                     <Button variant="contained" startIcon={<Add />} onClick={modalToggler} size="large">
-                        Rezervasyon Ekle
+                        Ödeme Türü Ekle
                     </Button>
                 </Stack>
             </Stack>
@@ -88,6 +85,13 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                             <TableHead>
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
+                                        <TableCell
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <Box>SIRA</Box>
+                                            </Stack>
+                                        </TableCell>
                                         {headerGroup.headers.map((header) => {
                                             if (header.column.columnDef.meta !== undefined && header.column.getCanSort()) {
                                                 Object.assign(header.column.columnDef.meta, {
@@ -119,14 +123,18 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                                 ))}
                             </TableHead>
                             <TableBody>
-                                {table.getRowModel().rows.map((row) => (
+                                {table.getRowModel().rows.map((row, i) => (
                                     <TableRow
                                         key={row.id}
                                         onClick={() => {
-                                            navigate(`/reservations/show/summary/${row.original.id}`)
+                                            // console.log("Kayıt Id => ", row.original.id);
+                                            // navigate(`/reservations/show/summary/${row.original.id}`)
                                         }}
                                         style={{ cursor: 'pointer' }}
                                     >
+                                        <TableCell>
+                                            {(pagination.pageIndex * pagination.pageSize) + (i + 1)}
+                                        </TableCell>
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id} {...cell.column.columnDef.meta}>
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -157,7 +165,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
     );
 }
 
-export default function RoomReservationSection() {
+export default function PaymentTypesPage() {
     const theme = useTheme();
     const params = useParams();
 
@@ -167,7 +175,12 @@ export default function RoomReservationSection() {
     const [reservationModal, setReservationModal] = useState(false);
     const [isDeleted, setIsDeleted] = useState(false)
     const [showAllReservation, setShowAllReservation] = useState(false)
-    const [isAdded, setIsAdded] = useState(false)
+    const [reservationDeleteId, setReservationDeleteId] = useState('');
+    const [reservationModalDelete, setReservationModalDelete] = useState(false);
+    const [selectedReservationDeleteItem, setSelectedReservationDeleteItem] = useState([])
+
+    const [selectedItem, setSelectedItem] = useState([])
+    const [categoryUpdateModal, setCategoryUpdateModal] = useState(false)
 
     const [pagination, setPagination] = useState({
         pageIndex: 0,
@@ -176,14 +189,12 @@ export default function RoomReservationSection() {
 
     const [data, setData] = useState(() => []);
 
-    const [showAgencyReservation, setShowAgencyReservation] = useState(true)
-
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setLoading(true)
-        GetReservations(params.id, pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter, sorting[0]?.id === 'customerName' ? sorting[0]?.desc : null, sorting[0]?.id === 'reservationStatusType' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkIn' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkOut' ? sorting[0]?.desc : null, sorting[0]?.id === 'price' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
-    }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation, showAgencyReservation]);
+        GetAllPaymentTypes(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
+    }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation]);
 
 
     useEffect(() => {
@@ -191,79 +202,67 @@ export default function RoomReservationSection() {
     }, [globalFilter, showAllReservation])
 
     useEffect(() => {
-        if (isDeleted || isAdded) {
+        if (isDeleted) {
             setIsDeleted(false)
-            setIsAdded(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            // GetReservations(params.id, pagination.pageIndex, pagination.pageSize).then((res) => { setLoading(false); setData(res) })
-            GetReservations(params.id, pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter, sorting[0]?.id === 'customerName' ? sorting[0]?.desc : null, sorting[0]?.id === 'reservationStatusType' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkIn' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkOut' ? sorting[0]?.desc : null, sorting[0]?.id === 'price' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
+            GetAllPaymentTypes(pagination.pageIndex, pagination.pageSize, globalFilter, sorting[0]?.id === 'villaName' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
         }
-    }, [isDeleted, isAdded])
+    }, [isDeleted])
 
     const columns = useMemo(
         () => [
             {
-                header: '#',
-                cell: ({ row }) => { return row.index + 1 }
+                header: 'Başlık',
+                cell: ({ row }) => { return row.original.title }
             },
             {
-                header: 'Misafir',
-                accessorKey: 'customerName',
+                header: 'Açıklama',
+                cell: ({ row }) => { return row.original.description }
+            },
+            {
+                header: 'Actions',
+                meta: {
+                    className: 'cell-center'
+                },
+                disableSortBy: true,
                 cell: ({ row }) => {
+                    const collapseIcon =
+                        row.getCanExpand() && row.getIsExpanded() ? (
+                            <Add style={{ color: theme.palette.error.main, transform: 'rotate(45deg)' }} />
+                        ) : (
+                            <Eye />
+                        );
                     return (
-                        <Stack direction="row" spacing={1.5} alignItems="center">
-                            <Avatar
-                                alt="Avatar"
-                                size="sm"
-                                src={getImageUrl(`avatar-${!row.original.avatar ? 1 : row.original.avatar}.png`, ImagePath.USERS)}
-                            />
-                            <Stack spacing={0}>
-                                <Typography variant="subtitle1">{`${row?.original?.reservationInfos[0]?.name ? row?.original?.reservationInfos[0]?.name : 'Ev Sahibi'} ${row?.original?.reservationInfos[0]?.surname ? row?.original?.reservationInfos[0]?.surname : ''}`}</Typography>
-                            </Stack>
+                        <Stack direction="row" spacing={0}>
+                            <Tooltip title="Delete">
+                                <IconButton
+                                    color="error"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleClose();
+                                        setReservationDeleteId(row.original.id);
+                                        setSelectedReservationDeleteItem(row.original);
+                                    }}
+                                >
+                                    <Trash />
+                                </IconButton>
+                            </Tooltip>
                         </Stack>
-                    )
+                    );
                 }
-            },
-            {
-                header: 'reservationStatus',
-                accessorKey: 'reservationStatusType',
-                cell: (cell) => {
-                    switch (cell.getValue()) {
-                        case 1:
-                            return <Chip color="success" label="Rezerve" size="small" variant="light" />;
-                        case 2:
-                            return <Chip color="info" label="Opsiyonlanmış" size="small" variant="light" />;
-                        case 3:
-                            return <Chip color="error" label="İptal Edilmiş" size="small" variant="light" />;
-                        case 4:
-                            return <Chip color="primary" label="Konaklama Bitmiş" size="small" variant="light" />;
-                        default:
-                            return <Chip color="info" label="Pending" size="small" variant="light" />;
-                    }
-                }
-            },
-
-            {
-                header: 'Giriş Tarihi',
-                accessorKey: 'checkIn',
-                cell: ({ row }) => { return stringToDate(row.original.checkIn) }
-            },
-            {
-                header: 'Çıkış Tarihi',
-                accessorKey: 'checkOut',
-                cell: ({ row }) => { return stringToDate(row.original.checkOut) }
-            },
-            {
-                header: 'Tutar',
-                accessorKey: 'price',
-                cell: ({ row }) => { return (row.original.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + `${row?.original?.priceType === 1 ? ' TL' : row?.original?.priceType === 2 ? ' USD' : row?.original?.priceType === 3 ? ' EUR' : row?.original?.priceType === 4 ? ' GBP' : ''}`) }
             }
         ], // eslint-disable-next-line
         [theme]
     );
 
+
+    const handleClose = () => {
+        setReservationModalDelete(!reservationModalDelete);
+    };
+
     if (loading) return (<Loader open={loading} />)
+
     return (
         <>
             <ReactTable
@@ -280,13 +279,12 @@ export default function RoomReservationSection() {
                     globalFilter,
                     setGlobalFilter,
                     showAllReservation,
-                    setShowAllReservation,
-                    showAgencyReservation,
-                    setShowAgencyReservation
+                    setShowAllReservation
                 }}
             />
 
-            <ReservationApartModal setIsAdded={setIsAdded} open={reservationModal} modalToggler={setReservationModal} villaId={params.id} />
+            <PaymentTypeAddModal setIsAdded={setIsDeleted} open={reservationModal} modalToggler={setReservationModal} />
+            <PaymentTypeModalDelete selectedItem={selectedReservationDeleteItem} setIsDeleted={setIsDeleted} setLoading={setLoading} id={reservationDeleteId} title={reservationDeleteId} open={reservationModalDelete} handleClose={handleClose} />
         </>
     );
 }

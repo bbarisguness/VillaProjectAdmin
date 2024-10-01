@@ -30,6 +30,8 @@
   "reservations-list-title":"Rezervasyon Listesi",
   "reservations-add-title":"Rezervasyon Ekle",
   "category-group-title": "Kategori Yönetimi",
-  "category-list-title": "Kategori Listesi"
+  "category-list-title": "Kategori Listesi",
+  "payment-types-list-title": "Ödeme Türleri Listesi",
+  "payment-types-group-title": "Kasa Yönetimi"
   
 }

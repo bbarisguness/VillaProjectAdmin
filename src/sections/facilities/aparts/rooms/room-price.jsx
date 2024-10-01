@@ -89,7 +89,7 @@ export default function RoomPriceSection() {
                             <TableRow hover key={row.id}>
                                 <TableCell align="left">{stringToDate(row.startDate)}</TableCell>
                                 <TableCell align="left">{stringToDate(row.endDate)}</TableCell>
-                                <TableCell align="left">{row.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                                <TableCell align="left">{row.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {row?.room?.hotel?.priceType === 1 ? ' TL' : row?.room?.hotel?.priceType === 2 ? ' USD' : row?.room?.hotel?.priceType === 3 ? ' EUR' : row?.room?.hotel?.priceType === 4 ? ' GBP' : ''}</TableCell>
                                 <TableCell sx={{ pr: 3 }} align="right">
                                     <Stack direction="row" spacing={0}>
                                         <Tooltip title="Delete">
@@ -98,7 +98,7 @@ export default function RoomPriceSection() {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleClose();
-                                                    setPriceDeleteId(Number(row.id));
+                                                    setPriceDeleteId(row.id);
                                                     setSelectedDeleteItem(row)
                                                 }}
                                             >
@@ -112,7 +112,7 @@ export default function RoomPriceSection() {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <PriceModalDelete setIsEdit={setIsEdit} id={Number(priceDeleteId)} title={priceDeleteId} open={priceModalDelete} handleClose={handleClose} selectedItem={selectedDeleteItem}/>
+            <PriceModalDelete setIsEdit={setIsEdit} id={priceDeleteId} title={priceDeleteId} open={priceModalDelete} handleClose={handleClose} selectedItem={selectedDeleteItem}/>
             {/* <PriceModal open={priceModal} modalToggler={setPriceModal} villaId={params.id} setIsEdit={setIsEdit} /> */}
             <PriceApartModal open={priceModal} modalToggler={setPriceModal} roomId={params.id} setIsEdit={setIsEdit} />
         </MainCard>

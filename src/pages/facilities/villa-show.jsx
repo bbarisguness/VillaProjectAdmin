@@ -133,8 +133,19 @@ export default function VillaShow() {
 
 
     useEffect(() => {
-        if (params.id)
-            GetVillaName(params.id).then((res) => setVilla(res.data))
+        if (params.id) {
+            GetVillaName(params.id).then((res) => {
+                if (res?.statusCode === 200) {
+                    if (res?.data !== null) {
+                        setVilla(res.data)
+                    } else {
+                        navigate('/404')
+                    }
+                } else {
+                    navigate('/404')
+                }
+            })
+        }
     }, [])
 
     useEffect(() => {

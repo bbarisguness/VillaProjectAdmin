@@ -107,7 +107,7 @@ export default function RoomSummarySection() {
                         </div>
                       </Stack>
                       <Stack spacing={2.5} alignItems="center">
-                        <Avatar alt={villa.roomDetails[0].name} size="xxl" src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/RoomPhotos/k_${villa?.photos[0]?.image}`} />
+                        <Avatar alt={villa.roomDetails[0].name} size="xxl" src={villa?.photos?.length > 0 ? `${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/RoomPhotos/k_${villa?.photos[0]?.image}` : ''} />
                         <Stack spacing={0.5} alignItems="center">
                           <Typography variant="h5">{villa.roomDetails[0].name}</Typography>
                           <Typography color="secondary">{villa.roomDetails[0].region}</Typography>
@@ -140,30 +140,6 @@ export default function RoomSummarySection() {
                     </Grid>
                     <Grid item xs={12}>
                       <List component="nav" aria-label="main mailbox folders" sx={{ py: 0, '& .MuiListItem-root': { p: 0, py: 1 } }}>
-                        <ListItem>
-                          <ListItemIcon>
-                            <Sms size={18} />
-                          </ListItemIcon>
-                          <ListItemSecondaryAction>
-                            <Typography align="right">Oda Sahibi Adı Soyadı</Typography>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                        <ListItem>
-                          <ListItemIcon>
-                            <CallCalling size={18} />
-                          </ListItemIcon>
-                          <ListItemSecondaryAction>
-                            <Typography align="right">0532 000 00 00</Typography>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                        <ListItem>
-                          <ListItemIcon>
-                            <Gps size={18} />
-                          </ListItemIcon>
-                          <ListItemSecondaryAction>
-                            <Typography align="right">{villa?.region}</Typography>
-                          </ListItemSecondaryAction>
-                        </ListItem>
                         <ListItem>
                           <ListItemIcon>
                             <Wifi size={18} />

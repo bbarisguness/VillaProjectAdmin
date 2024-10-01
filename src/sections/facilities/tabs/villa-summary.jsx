@@ -103,9 +103,9 @@ export default function VillaSummarySection() {
                       </div>
                     </Stack>
                     <Stack spacing={2.5} alignItems="center">
-                      <Avatar alt={villa?.villaDetails[0]?.name} size="xxl" src={`${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/VillaPhotos/k_${villa?.photos[0]?.image}`} />
+                      <Avatar alt={villa?.villaDetails[0]?.name} size="xxl" src={villa?.photos?.length > 0 ? `${import.meta.env.VITE_APP_BACKEND_URL}/Uploads/VillaPhotos/k_${villa?.photos[0]?.image}` : ''}  />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{villa?.villaDetails[0]?.name}</Typography>
+                        <Typography variant="h5">{villa?.villaDetails[0]?.name} {`${villa?.villaNumber ? `(${villa?.villaNumber})` : ''}`} </Typography>
                         <Typography color="secondary">{villa?.town?.district?.city?.name} / {villa?.town?.name}</Typography>
                       </Stack>
                     </Stack>
@@ -141,7 +141,7 @@ export default function VillaSummarySection() {
                           <Sms size={18} />
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">Villa Sahibi Adı Soyadı</Typography>
+                          <Typography align="right">{villa?.villaOwnerName || '-'}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
@@ -149,15 +149,7 @@ export default function VillaSummarySection() {
                           <CallCalling size={18} />
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">0532 000 00 00</Typography>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      <ListItem>
-                        <ListItemIcon>
-                          <Gps size={18} />
-                        </ListItemIcon>
-                        <ListItemSecondaryAction>
-                          <Typography align="right">Fethiye</Typography>
+                          <Typography align="right">{villa?.villaOwnerPhone || '-'}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>

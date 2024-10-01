@@ -31,7 +31,8 @@ const getInitialValues = () => {
         reservation: {},
         villa: {},
         room: {},
-        apart: {}
+        apart: {},
+        priceType: 0
     };
     return newPriceDate;
 };
@@ -42,6 +43,7 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
     const [paymentType, setPaymentType] = useState();
     const validationSchema = Yup.object({
         amount: Yup.number().min(1).required('Lütfen tutar yazınız..'),
+        priceType: Yup.number().min(1, 'Bu alan zorunlu').required('Lütfen fiyat türü yazınız..'),
         paymentType: Yup.string().max(255).required('Lütfen ödemenin alındığı kasa hesabını seçiniz..')
     });
 
@@ -63,6 +65,7 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
                 fd.append('PaymentTypeId', values.paymentType)
                 fd.append('ReservationId', params.id)
                 fd.append('InOrOut', true)
+                fd.append('PriceType', values.priceType)
 
                 await AddPayment(fd).then((res) => {
                     if (res?.statusCode === 200) {
@@ -96,7 +99,7 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
         }
     });
 
-    const { handleChange, handleSubmit, isSubmitting } = formik;
+    const { handleChange, handleSubmit, isSubmitting, setFieldValue } = formik;
 
     if (loading) return <Loader open={loading} />
 
@@ -109,6 +112,28 @@ export default function ReservationPaymentAddForm({ closeModal, setIsEdit, facil
                         <Divider />
                         <DialogContent sx={{ p: 2.5 }}>
                             <Grid container spacing={3} justifyContent="space-between" alignItems="center">
+                                <Grid item xs={2}>
+                                    <Stack spacing={1}>
+                                        <InputLabel htmlFor="amount">Fiyat Türü *</InputLabel>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={10}>
+                                    <Stack spacing={1}>
+                                        <FormControl>
+                                            <RadioGroup row aria-label="priceType" value={formik.values.priceType} onChange={(e) => setFieldValue('priceType', parseInt(e.target.value))} name="priceType" id="priceType">
+                                                <FormControlLabel value={1} control={<Radio />} label="TL" />
+                                                <FormControlLabel value={2} control={<Radio />} label="USD" />
+                                                <FormControlLabel value={3} control={<Radio />} label="EUR" />
+                                                <FormControlLabel value={4} control={<Radio />} label="GBP" />
+                                            </RadioGroup>
+                                        </FormControl>
+                                        {formik.errors.priceType && (
+                                            <FormHelperText error id="standard-weight-helper-text-email-login">
+                                                {formik.errors.priceType}
+                                            </FormHelperText>
+                                        )}
+                                    </Stack>
+                                </Grid>
                                 <Grid item xs={2}>
                                     <Stack spacing={1}>
                                         <InputLabel htmlFor="amount">Amount *</InputLabel>

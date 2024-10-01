@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 
 // material ui
-import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel } from '@mui/material';
+import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel, FormControl, RadioGroup, FormHelperText, Radio } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
@@ -44,6 +44,7 @@ const getInitialValues = (villa) => {
       room: villa?.room || 0,
       bath: villa?.bath || 0,
       person: villa?.person || 0,
+      priceType: villa?.priceType || 0
     };
     return newVilla;
   }
@@ -77,6 +78,7 @@ export default function FormApartUpdate() {
     room: Yup.number().required('Bu alan zorunlu').min(1, 'Min 1'),
     bath: Yup.number().required('Bu alan zorunlu').min(1, 'Min 1'),
     person: Yup.number().required('Bu alan zorunlu').min(1, 'Min 1'),
+    priceType: Yup.number().required('Fiyat türü zorunlu').min(1, 'Fiyat türü zorunlu'),
   });
 
   const formik = useFormik({
@@ -109,6 +111,7 @@ export default function FormApartUpdate() {
         fd.append('InternetMeterNumber', formik.values.internetMeterNumber)
         fd.append('ElectricityMeterNumber', formik.values.electricityMeterNumber)
         fd.append('WaterMaterNumber', formik.values.waterMaterNumber)
+        fd.append('PriceType', formik.values.priceType)
 
         await ApartChangeState(fd).then((res) => {
           if (res?.status === 400) {
@@ -168,6 +171,24 @@ export default function FormApartUpdate() {
             <DialogContent sx={{ p: 2.5 }}>
               <Grid item xs={12} md={12}>
                 <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="priceType">Fiyat Türü</InputLabel>
+                      <FormControl>
+                        <RadioGroup row aria-label="priceType" value={formik.values.priceType} onChange={(e) => setFieldValue('priceType', parseInt(e.target.value))} name="priceType" id="priceType">
+                          <FormControlLabel value={1} control={<Radio />} label="TL" />
+                          <FormControlLabel value={2} control={<Radio />} label="USD" />
+                          <FormControlLabel value={3} control={<Radio />} label="EUR" />
+                          <FormControlLabel value={4} control={<Radio />} label="GBP" />
+                        </RadioGroup>
+                      </FormControl>
+                      {formik.errors.priceType && (
+                        <FormHelperText error id="standard-weight-helper-text-email-login">
+                          {formik.errors.priceType}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
                   <Grid item xs={6}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="villa-name">Villa Adı</InputLabel>

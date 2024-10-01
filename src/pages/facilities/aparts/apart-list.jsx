@@ -127,7 +127,6 @@ function ReactTable({ data, columns, pagination, setPagination, setSorting, sort
                                         <TableRow
                                             key={row.id}
                                             onClick={() => {
-                                                console.log("Kayıt Id => ", row.original.id);
                                                 navigate(`/facilities/aparts/apart-show/summary/${row.original.id}`)
                                             }}
                                             style={{ cursor: 'pointer' }}

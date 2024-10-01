@@ -28,11 +28,13 @@ import AnimateButton from 'components/@extended/AnimateButton';
 
 // assets
 import { Eye, EyeSlash } from 'iconsax-react';
+import Loader from 'components/Loader';
 
 // ============================|| JWT - LOGIN ||============================ //
 
 export default function AuthLogin({ forgot }) {
   const [checked, setChecked] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const { isLoggedIn, login } = useAuth();
   const scriptedRef = useScriptRef();
@@ -60,7 +62,9 @@ export default function AuthLogin({ forgot }) {
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
+            setLoading(true)
             await login(values.email, values.password);
+            setLoading(false)
             if (scriptedRef.current) {
               setStatus({ success: true });
               setSubmitting(false);
@@ -77,6 +81,8 @@ export default function AuthLogin({ forgot }) {
         }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+          <>
+          <Loader open={loading} />
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -169,6 +175,7 @@ export default function AuthLogin({ forgot }) {
               </Grid>
             </Grid>
           </form>
+          </>
         )}
       </Formik>
     </>

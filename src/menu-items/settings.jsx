@@ -37,12 +37,6 @@ const settings = {
           title: <FormattedMessage id="settings-menu-user-list" />,
           type: 'item',
           url: '/settings/user-list'
-        },
-        {
-          id: 'settings-menu-role-list',
-          title: <FormattedMessage id="settings-menu-role-list" />,
-          type: 'item',
-          url: '/settings/role-list'
         }
       ]
     }

@@ -21,7 +21,6 @@ export default function ReservationSummarySection() {
     useEffect(() => {
         if (params.id && loading) {
             GetReservation(params.id).then((res) => {
-                console.log("res => ", res.data);
                 setReservation(res.data);
                 setLoading(false);
             })
@@ -81,7 +80,7 @@ export default function ReservationSummarySection() {
                                         <b> GENEL TOPLAM</b>
                                     </TableCell>
                                     <TableCell sx={{ pl: 3, cursor: 'pointer', backgroundColor: '#F5E7D3' }} component="th" scope="row">
-                                        : <b>{reservation.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL </b>
+                                        : <b>{reservation.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {reservation?.priceType === 1 ? ' TL' : reservation?.priceType === 2 ? ' USD' : reservation?.priceType === 3 ? ' EUR' : reservation?.priceType === 4 ? ' GBP' : ''} </b>
                                     </TableCell>
                                 </>}
                             </TableRow>
@@ -104,7 +103,7 @@ export default function ReservationSummarySection() {
                                             :{' '}
                                             <b>
                                                 {reservation.payments?.reduce((a, v) => (a = a + v?.amount), 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{' '}
-                                                TL
+                                                {reservation?.priceType === 1 ? ' TL' : reservation?.priceType === 2 ? ' USD' : reservation?.priceType === 3 ? ' EUR' : reservation?.priceType === 4 ? ' GBP' : ''}
                                             </b>
                                         </TableCell>
                                     </>
@@ -129,7 +128,7 @@ export default function ReservationSummarySection() {
                                     :{' '}
                                     <b style={{}}>
                                         {(reservation.total - reservation.payments?.reduce((a, v) => (a = a + v?.amount), 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{' '}
-                                        TL
+                                        {reservation?.priceType === 1 ? ' TL' : reservation?.priceType === 2 ? ' USD' : reservation?.priceType === 3 ? ' EUR' : reservation?.priceType === 4 ? ' GBP' : ''}
                                     </b>
                                 </TableCell>
                                 </>
@@ -185,7 +184,7 @@ export default function ReservationSummarySection() {
                                             Toplam
                                         </TableCell>
                                         <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                            : <b>{reservation.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
+                                            : <b>{reservation.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {reservation?.priceType === 1 ? ' TL' : reservation?.priceType === 2 ? ' USD' : reservation?.priceType === 3 ? ' EUR' : reservation?.priceType === 4 ? ' GBP' : ''}</b>
                                         </TableCell>
                                     </TableRow>
 
@@ -194,7 +193,7 @@ export default function ReservationSummarySection() {
                                             İndirim
                                         </TableCell>
                                         <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                            : <b>{reservation.discount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
+                                            : <b>{reservation.discount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {reservation?.priceType === 1 ? ' TL' : reservation?.priceType === 2 ? ' USD' : reservation?.priceType === 3 ? ' EUR' : reservation?.priceType === 4 ? ' GBP' : ''}</b>
                                         </TableCell>
                                     </TableRow>
 
@@ -203,7 +202,7 @@ export default function ReservationSummarySection() {
                                             Genel Toplam
                                         </TableCell>
                                         <TableCell sx={{ pl: 3, cursor: 'pointer' }} component="th" scope="row">
-                                            : <b>{reservation.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</b>
+                                            : <b>{reservation.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {reservation?.priceType === 1 ? ' TL' : reservation?.priceType === 2 ? ' USD' : reservation?.priceType === 3 ? ' EUR' : reservation?.priceType === 4 ? ' GBP' : ''}</b>
                                         </TableCell>
                                     </TableRow>
                                 </>

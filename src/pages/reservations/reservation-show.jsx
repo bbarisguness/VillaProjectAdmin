@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { useEffect, useState } from 'react';
-import { useLocation, Link, Outlet, useParams } from 'react-router-dom';
+import { useLocation, Link, Outlet, useParams, useNavigate } from 'react-router-dom';
 
 
 // material-ui
@@ -16,12 +16,14 @@ import { APP_DEFAULT_PATH } from 'config';
 // assets
 import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick } from 'iconsax-react';
 import { GetVilla, GetVillaName } from 'services/villaServices';
+import { GetReservation } from 'services/reservationServices';
 
 // ==============================|| PROFILE - ACCOUNT ||============================== //
 
 export default function ReservationShow() {
     const { pathname } = useLocation();
     const params = useParams();
+    const navigate = useNavigate()
 
     let selectedTab = 0;
     let breadcrumbTitle = '';
@@ -35,9 +37,9 @@ export default function ReservationShow() {
     else if (pathname.indexOf('payments') != -1) {
         selectedTab = 2;
     }
-     else if (pathname.indexOf('customers') != -1) {
+    else if (pathname.indexOf('customers') != -1) {
         selectedTab = 3;
-    } 
+    }
     // switch (pathname) {
     //     case '/apps/profiles/account/personal':
     //         breadcrumbTitle = 'Personal';
@@ -99,6 +101,20 @@ export default function ReservationShow() {
             setValue(0);
         }
     }, [pathname]);
+
+    useEffect(() => {
+        if (params.id) {
+            GetReservation(params.id).then((res) => {
+                if (res?.statusCode !== 200) {
+                    navigate('/404')
+                } else if (res?.data === null) {
+                    navigate('/404')
+                }
+            })
+        }
+
+    }, [])
+
 
 
 

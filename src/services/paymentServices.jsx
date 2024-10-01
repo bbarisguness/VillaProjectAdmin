@@ -21,8 +21,8 @@ const GetPayment = (id) => {
     return get(`/api/payments/${id}?populate=payment_type`);
 }
 
-const UpdatePayment = ({ id, data }) => {
-    return put(`/api/payments/${id}`, data, true)
+const UpdatePayment = (fd) => {
+    return post(`/Payments/Update`, fd, true, true)
 }
 
 

@@ -50,7 +50,7 @@ export default function ReservationPaymentSection() {
     useEffect(() => {
         if (isEdit) {
             setLoading(true);
-            
+
             GetAllPaymentsByReservation(params.id).then((res) => { setData(res.data); setIsEdit(false); setLoading(false); })
         }
     }, [isEdit])
@@ -96,8 +96,8 @@ export default function ReservationPaymentSection() {
                     </TableHead>
                     <TableBody>
                         {data && data.map((row) => (
-                            <TableRow style={{ cursor: 'pointer' }} onClick={() => { setSelectedId(row?.id); setPaymentUpdateModal(true) }} hover key={row.id}>
-                                <TableCell align="left">{row?.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                            <TableRow style={{ cursor: 'pointer' }} onClick={() => { setSelectedId(row?.id); setPaymentUpdateModal(true); setSelectedPaymentDeleteItem(row) }} hover key={row.id}>
+                                <TableCell align="left">{row?.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {row?.priceType === 1 ? ' TL' : row?.priceType === 2 ? ' USD' : row?.priceType === 3 ? ' EUR' : row?.priceType === 4 ? ' GBP' : ''}</TableCell>
                                 <TableCell align="left">{row?.paymentType?.title}</TableCell>
                                 <TableCell align="left">{row?.description}</TableCell>
                                 <TableCell align="left">{row?.createdAt.toString().split('T')[0]}</TableCell>
@@ -124,8 +124,8 @@ export default function ReservationPaymentSection() {
                 </Table>
             </TableContainer>
             <PaymentModalDelete selectedItem={selectedPaymentDeleteItem} setIsEdit={setIsEdit} id={Number(paymentDeleteId)} title={paymentDeleteId} open={paymentModalDelete} handleClose={handleClose} />
-            <ReservationPaymentsModal open={paymentModal} modalToggler={setPaymentModal} setIsEdit={setIsEdit} facilityId={data?.attributes?.villa.data !== null ? data?.attributes?.villa?.data.id : data?.attributes?.room.data.id} facilityType={data?.attributes?.villa.data !== null ? 1 : 2 } apartId={data?.attributes?.room?.data?.attributes.apart.data.id} />
-            <ReservationPaymentsUpdateModal open={paymentUpdateModal} modalToggler={setPaymentUpdateModal} setIsEdit={setIsEdit} id={selectedId} />
+            <ReservationPaymentsModal open={paymentModal} modalToggler={setPaymentModal} setIsEdit={setIsEdit} facilityId={data?.attributes?.villa.data !== null ? data?.attributes?.villa?.data.id : data?.attributes?.room.data.id} facilityType={data?.attributes?.villa.data !== null ? 1 : 2} apartId={data?.attributes?.room?.data?.attributes.apart.data.id} />
+            <ReservationPaymentsUpdateModal reservation={true} selectedItem={selectedPaymentDeleteItem} open={paymentUpdateModal} modalToggler={setPaymentUpdateModal} setIsEdit={setIsEdit} id={selectedId} />
         </MainCard>
     );
 }

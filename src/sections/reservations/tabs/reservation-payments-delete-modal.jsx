@@ -11,7 +11,7 @@ import { openSnackbar } from 'api/snackbar';
 import { Trash } from 'iconsax-react';
 import { PaymentRemove } from 'services/paymentServices';
 
-export default function PaymentModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem }) {
+export default function PaymentModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem }) {  
   const deletehandler = async () => {
     await PaymentRemove(id).then((res) => {
       setIsEdit(true);

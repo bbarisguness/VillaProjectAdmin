@@ -48,8 +48,6 @@ const getInitialValues = (selectedItem, selectedLanguage) => {
 // ==============================|| CUSTOMER ADD / EDIT - FORM ||============================== //
 
 export default function FormApartDetailUpdate({ closeModal, setIsAdded, selectedItem }) {
-    console.log(selectedItem);
-
     const user = useUser()
     const theme = useTheme();
     const params = useParams();

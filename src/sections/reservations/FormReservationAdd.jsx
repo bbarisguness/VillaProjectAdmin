@@ -69,6 +69,7 @@ export default function FormReservationAdd({ villaId, closeModal, setIsAdded }) 
     const params = useParams();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [priceType,setPriceType] = useState('')
 
     const [reservationItem, setReservationItem] = useState([]);
 
@@ -234,6 +235,7 @@ export default function FormReservationAdd({ villaId, closeModal, setIsAdded }) 
                     });
                     setLoading(false);
                 }
+                setPriceType(res?.data?.priceType)
                 var fakeDate = new Date(moment(date1).format('YYYY-MM-DD'));
                 var days = [];
                 res.data.days.map((priceDate) => {
@@ -416,12 +418,12 @@ export default function FormReservationAdd({ villaId, closeModal, setIsAdded }) 
 
                                                 {isAvailable && (
                                                     <Button color="warning" size="large" onClick={() => null}>
-                                                        Toplam Fiyat : {formik?.values?.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL
+                                                        Toplam Fiyat : {formik?.values?.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {priceType === 1 ? ' TL' : priceType === 2 ? ' USD' : priceType === 3 ? ' EUR' : priceType === 4 ? ' GBP' : ''}
                                                     </Button>
                                                 )}
                                                 {isAvailable && (
                                                     <Button size="large" onClick={() => null}>
-                                                        İndirimli Fiyat : {(formik?.values?.amount - formik?.values?.discount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL
+                                                        İndirimli Fiyat : {(formik?.values?.amount - formik?.values?.discount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {priceType === 1 ? ' TL' : priceType === 2 ? ' USD' : priceType === 3 ? ' EUR' : priceType === 4 ? ' GBP' : ''}
                                                     </Button>
                                                 )}
                                             </Stack>

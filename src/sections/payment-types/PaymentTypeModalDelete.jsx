@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 // material-ui
 import { Dialog, Button, Stack, Typography, DialogContent } from '@mui/material';
 
@@ -9,36 +8,42 @@ import { openSnackbar } from 'api/snackbar';
 
 // assets
 import { Trash } from 'iconsax-react';
-import { PriceRemove } from 'services/priceServices';
+import { ReservationRemove } from 'services/reservationServices';
+import { DeletePaymentTypes } from 'services/paymentTypeServices';
 
-export default function PriceModalDelete({ id, title, open, handleClose, setIsEdit, selectedItem }) {
+// ==============================|| CUSTOMER - DELETE ||============================== //
+
+export default function PaymentTypeModalDelete({ id, title, open, handleClose, setLoading, setIsDeleted, selectedItem }) {
   const deletehandler = async () => {
-    await PriceRemove(id).then((res) => {
-      setIsEdit(true);
+    setLoading(true);
+
+    await DeletePaymentTypes(id).then((res) => {
       if (res?.statusCode === 200) {
         openSnackbar({
           open: true,
-          message: 'Fiyat Silindi',
+          message: 'Ödeme Türü silindi.',
           anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
           variant: 'alert',
+
           alert: {
             color: 'success'
           }
         });
-      }
-      else {
+        setIsDeleted(true);
+      } else {
         openSnackbar({
           open: true,
           message: 'Hata',
           anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
           variant: 'alert',
+
           alert: {
-            color: 'error'
+            color: 'success'
           }
         });
       }
       handleClose();
-    })
+    });
   };
 
   return (
@@ -58,21 +63,15 @@ export default function PriceModalDelete({ id, title, open, handleClose, setIsEd
           </Avatar>
           <Stack spacing={2}>
             <Typography variant="h4" align="center">
-              Fiyatı silmek istiyormusunuz?
+              Ödeme türünü silmek istediğinize emin misiniz?
             </Typography>
             <Typography align="center">
-              Başlangıç tarihi {""}
               <Typography variant="subtitle1" component="span">
-                {selectedItem?.startDate?.toString().split('T')[0]} {""}
+                {selectedItem?.title} {""}
               </Typography>
-              Bitiş tarihi {""}
-              <Typography variant="subtitle1" component="span">
-                {selectedItem?.endDate?.toString().split('T')[0]} {""}
-              </Typography>
-              olan fiyatı silmek istediğinize emin misiniz?
+              başlıklı ödeme türünü silmek istediğinize emin misiniz?
             </Typography>
           </Stack>
-
           <Stack direction="row" spacing={2} sx={{ width: 1 }}>
             <Button fullWidth onClick={handleClose} color="secondary" variant="outlined">
               Cancel
@@ -86,4 +85,3 @@ export default function PriceModalDelete({ id, title, open, handleClose, setIsEd
     </Dialog>
   );
 }
-

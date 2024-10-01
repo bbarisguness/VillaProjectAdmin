@@ -251,7 +251,7 @@ export default function VillaContentSection() {
                                                             <TableRow hover key={row.id}>
                                                                 <TableCell align="left">{row?.priceTableDetails[0]?.title}</TableCell>
                                                                 <TableCell align="left">{row?.priceTableDetails[0].description}</TableCell>
-                                                                <TableCell align="left">{row?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</TableCell>
+                                                                <TableCell align="left">{row?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {row?.villa?.priceType === 1 ? ' TL' : row?.villa?.priceType === 2 ? ' USD' : row?.villa?.priceType === 3 ? ' EUR' : row?.villa?.priceType === 4 ? ' GBP' : ''}</TableCell>
                                                                 <TableCell sx={{ pr: 3 }} align="right">
                                                                     <Stack direction="row" spacing={0}>
                                                                         <Tooltip title="Delete">

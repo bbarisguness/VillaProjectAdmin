@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 
 // material ui
-import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel } from '@mui/material';
+import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel, FormControl, RadioGroup, Radio } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
@@ -56,7 +56,11 @@ const getInitialValues = (villa) => {
       metaTitle: villa?.metaTitle || '',
       metaDescription: villa?.metaDescription || '',
       isRent: villa?.isRent || false,
-      isSale: villa?.isSale || false
+      isSale: villa?.isSale || false,
+      priceType: villa?.priceType || 0,
+      villaOwner: villa?.villaOwnerName || '',
+      villaOwnerPhone: villa?.villaOwnerPhone || '',
+      villaNumber: villa?.villaNumber || ''
     };
     return newVilla;
   }
@@ -75,6 +79,11 @@ export default function FormVillaUpdate() {
   useEffect(() => {
     async function fetchData() {
       await GetVillaDetail(params.id).then(async (res) => {
+        if (res?.statusCode !== 200) {
+          navigate('/404')
+        } else if (res?.data === null) {
+          navigate('/404')
+        }
         setVilla(res?.data)
         await Categories().then((ress) => {
           setCategories(ress)
@@ -102,7 +111,8 @@ export default function FormVillaUpdate() {
     // categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
     person: Yup.number().moreThan(0, "Kişi sayısı 0'dan büyük olmalıdır").required('Kişi Sayısı zorunludur'),
     region: Yup.string().max(255).required('Lütfen bölge yazınız..'),
-    onlineReservation: Yup.boolean().required('Rezervasyon seçeneği zorunludur')
+    onlineReservation: Yup.boolean().required('Rezervasyon seçeneği zorunludur'),
+    priceType: Yup.number().moreThan(0, 'Fiyat türü zorunlu').required('Fiyat türü zorunlu')
   });
 
   const formik = useFormik({
@@ -133,6 +143,10 @@ export default function FormVillaUpdate() {
         fd.append('Slug', values.slug)
         fd.append('isRent', values.isRent)
         fd.append('isSale', values.isSale)
+        fd.append('VillaOwnerName', values.villaOwner)
+        fd.append('VillaOwnerPhone', values.villaOwnerPhone)
+        fd.append('VillaNumber', values.villaNumber)
+        fd.append('PriceType', values.priceType)
 
         await VillaUpdate(fd).then(async (res) => {
           const fdd = new FormData()
@@ -219,6 +233,46 @@ export default function FormVillaUpdate() {
             <DialogContent sx={{ p: 2.5 }}>
               <Grid item xs={12} md={12}>
                 <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="priceType">Fiyat Türü</InputLabel>
+                      <FormControl>
+                        <RadioGroup row aria-label="priceType" value={formik.values.priceType} onChange={(e) => setFieldValue('priceType', parseInt(e.target.value))} name="priceType" id="priceType">
+                          <FormControlLabel value={1} control={<Radio />} label="TL" />
+                          <FormControlLabel value={2} control={<Radio />} label="USD" />
+                          <FormControlLabel value={3} control={<Radio />} label="EUR" />
+                          <FormControlLabel value={4} control={<Radio />} label="GBP" />
+                        </RadioGroup>
+                      </FormControl>
+                      {formik.errors.priceType && (
+                        <FormHelperText error id="standard-weight-helper-text-email-login">
+                          {formik.errors.priceType}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <InputLabel htmlFor="villaOwner">Villa Sahibi</InputLabel>
+                    <TextField
+                      fullWidth
+                      id="villaOwner"
+                      placeholder="Villa Sahibi"
+                      {...getFieldProps('villaOwner')}
+                      error={Boolean(touched.villaOwner && errors.villaOwner)}
+                      helperText={touched.villaOwner && errors.villaOwner}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <InputLabel htmlFor="villaOwnerPhone">Villa Sahibi Telefon No</InputLabel>
+                    <TextField
+                      fullWidth
+                      id="villaOwnerPhone"
+                      placeholder="Villa Sahibi Telefon No"
+                      {...getFieldProps('villaOwnerPhone')}
+                      error={Boolean(touched.villaOwnerPhone && errors.villaOwnerPhone)}
+                      helperText={touched.villaOwnerPhone && errors.villaOwnerPhone}
+                    />
+                  </Grid>
                   {/* <Grid item xs={6}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="villa-name">Villa Adı</InputLabel>
@@ -469,6 +523,17 @@ export default function FormVillaUpdate() {
                       {...getFieldProps('googleMap')}
                       error={Boolean(touched.googleMap && errors.googleMap)}
                       helperText={touched.googleMap && errors.googleMap}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <InputLabel htmlFor="villaNumber">Villa Numarası</InputLabel>
+                    <TextField
+                      fullWidth
+                      id="villaNumber"
+                      placeholder="Villa Numarası"
+                      {...getFieldProps('villaNumber')}
+                      error={Boolean(touched.villaNumber && errors.villaNumber)}
+                      helperText={touched.villaNumber && errors.villaNumber}
                     />
                   </Grid>
                   <Grid item xs={12}>

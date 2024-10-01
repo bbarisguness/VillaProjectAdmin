@@ -35,7 +35,6 @@ export default function VillaGallerySection() {
 
   const [videoModal, setVideoModal] = useState(false)
 
-
   useEffect(() => {
     if ((params.id && loading) || lineChangeLoading || isEdit)
 

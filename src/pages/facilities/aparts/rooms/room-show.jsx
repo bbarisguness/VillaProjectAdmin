@@ -134,7 +134,15 @@ export default function RoomShow() {
     useEffect(() => {
         if (params.id)
             GetRoomName(params.id).then((res) => {
-                setVilla(res.data)
+                if (res?.statusCode === 200) {
+                    if (res?.data !== null) {
+                        setVilla(res.data)
+                    } else {
+                        navigate('/404')
+                    }
+                } else {
+                    navigate('/404')
+                }
             })
     }, [])
 

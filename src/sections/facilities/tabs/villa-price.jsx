@@ -88,7 +88,7 @@ export default function VillaPriceSection() {
                             <TableRow hover key={row.id}>
                                 <TableCell align="left">{stringToDate(row.startDate)}</TableCell>
                                 <TableCell align="left">{stringToDate(row.endDate)}</TableCell>
-                                <TableCell align="left">{row.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                                <TableCell align="left">{row.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {row?.villa?.priceType === 1 ? ' TL' : row?.villa?.priceType === 2 ? ' USD' : row?.villa?.priceType === 3 ? ' EUR' : row?.villa?.priceType === 4 ? ' GBP' : ''}</TableCell>
                                 <TableCell sx={{ pr: 3 }} align="right">
                                     <Stack direction="row" spacing={0}>
                                         <Tooltip title="Delete">

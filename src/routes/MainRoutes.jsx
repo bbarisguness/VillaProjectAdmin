@@ -5,7 +5,6 @@ import Loadable from 'components/Loadable';
 import DashboardLayout from 'layout/Dashboard';
 import GeneralSettings from 'pages/settings/general-settings';
 import UserList from 'pages/settings/user-settings/user-list';
-import RoleList from 'pages/settings/user-settings/role-list';
 import Default from 'pages/default';
 import VillasList from 'pages/facilities/villas-list';
 import ApartList from 'pages/facilities/aparts/apart-list';
@@ -47,6 +46,7 @@ import RoomUpdate from 'pages/facilities/aparts/rooms/room-update';
 import VillaAccounting from 'pages/facilities/tabs/villa-accounting';
 import ApartAccounting from 'pages/facilities/aparts/tabs/apart-accounting';
 import RoomAccounting from 'pages/facilities/aparts/rooms/tabs/room-accounting';
+import PaymentTypesPage from 'pages/payment-types';
 
 
 const ErrorPage = Loadable(lazy(() => import('pages/error-pages/404')));
@@ -205,6 +205,11 @@ const MainRoutes = {
           element: <CategoryPage />
         },
         {
+          path: '/payment-types',
+          url: '/payment-types',
+          element: <PaymentTypesPage />
+        },
+        {
           path: '/reservations',
           children: [
             {
@@ -252,10 +257,6 @@ const MainRoutes = {
                 {
                   path: 'user-list',
                   element: <UserList />
-                },
-                {
-                  path: 'role-list',
-                  element: <RoleList />
                 }
               ]
             }

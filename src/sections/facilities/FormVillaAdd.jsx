@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 
 // material ui
-import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel, FormControl, RadioGroup, Radio } from '@mui/material';
+import { Box, Chip, Grid, Stack, Button, Switch, Divider, TextField, InputLabel, Typography, Autocomplete, DialogContent, DialogActions, FormControlLabel, FormControl, RadioGroup, Radio, FormHelperText } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
@@ -48,7 +48,11 @@ const getInitialValues = () => {
     metaTitle: '',
     metaDescription: '',
     isRent: true,
-    isSale: false
+    isSale: false,
+    priceType: 0,
+    villaOwner: '',
+    villaOwnerPhone: '',
+    villaNumber: ''
   };
   return newVilla;
 };
@@ -75,7 +79,8 @@ export default function FormVillaAdd() {
     // categories: Yup.array().of(Yup.string()).min(1, 'En az bir adet kategori zorunludur.').required('En az bir adet kategori zorunludur.'),
     person: Yup.number().moreThan(0, "Kişi sayısı 0'dan büyük olmalıdır").required('Kişi Sayısı zorunludur'),
     region: Yup.string().max(255).required('Lütfen bölge seçiniz..'),
-    onlineReservation: Yup.boolean().required('Rezervasyon seçeneği zorunludur')
+    onlineReservation: Yup.boolean().required('Rezervasyon seçeneği zorunludur'),
+    priceType: Yup.number().moreThan(0, "Fiyat türü zorunlu").required('Fiyat türü zorunlu')
   });
 
   const formik = useFormik({
@@ -119,6 +124,10 @@ export default function FormVillaAdd() {
         fd.append('WaterMaterNumber', values.waterMaterNumber)
         fd.append('isSale', values.isSale)
         fd.append('isRent', values.isRent)
+        fd.append('VillaOwnerName', values.villaOwner)
+        fd.append('VillaOwnerPhone', values.villaOwnerPhone)
+        fd.append('VillaNumber', values.villaNumber)
+        fd.append('PriceType', values.priceType)
 
         await VillaAdd(fd).then(async (res) => {
           const fdd = new FormData()
@@ -210,6 +219,50 @@ export default function FormVillaAdd() {
             <DialogContent sx={{ p: 2.5 }}>
               <Grid item xs={12} md={12}>
                 <Grid container spacing={3}>
+                  <Grid item xs={6}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="villa-owner">Villa Sahibi</InputLabel>
+                      <TextField
+                        fullWidth
+                        id="villa-owner"
+                        placeholder="Villa Sahibi"
+                        {...getFieldProps('villaOwner')}
+                        error={Boolean(touched.villaOwner && errors.villaOwner)}
+                        helperText={touched.villaOwner && errors.villaOwner}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="villa-owner-phone">Villa Sahibi Telefon No</InputLabel>
+                      <TextField
+                        fullWidth
+                        id="villa-owner-phone"
+                        placeholder="Villa Sahibi Telefon No"
+                        {...getFieldProps('villaOwnerPhone')}
+                        error={Boolean(touched.villaOwnerPhone && errors.villaOwnerPhone)}
+                        helperText={touched.villaOwnerPhone && errors.villaOwnerPhone}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="priceType">Fiyat Türü</InputLabel>
+                      <FormControl>
+                        <RadioGroup row aria-label="priceType" value={formik.values.priceType} onChange={(e) => setFieldValue('priceType', parseInt(e.target.value))} name="priceType" id="priceType">
+                          <FormControlLabel value={1} control={<Radio />} label="TL" />
+                          <FormControlLabel value={2} control={<Radio />} label="USD" />
+                          <FormControlLabel value={3} control={<Radio />} label="EUR" />
+                          <FormControlLabel value={4} control={<Radio />} label="GBP" />
+                        </RadioGroup>
+                      </FormControl>
+                      {formik.errors.priceType && (
+                        <FormHelperText error id="standard-weight-helper-text-email-login">
+                          {formik.errors.priceType}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
                   <Grid item xs={12}>
                     <Stack spacing={1}>
                       <InputLabel htmlFor="languageCode">Dil</InputLabel>
@@ -485,6 +538,17 @@ export default function FormVillaAdd() {
                       {...getFieldProps('googleMap')}
                       error={Boolean(touched.googleMap && errors.googleMap)}
                       helperText={touched.googleMap && errors.googleMap}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <InputLabel htmlFor="villaNumber">Villa Numarası</InputLabel>
+                    <TextField
+                      fullWidth
+                      id="villaNumber"
+                      placeholder="Villa Numarası"
+                      {...getFieldProps('villaNumber')}
+                      error={Boolean(touched.villaNumber && errors.villaNumber)}
+                      helperText={touched.villaNumber && errors.villaNumber}
                     />
                   </Grid>
                   <Grid item xs={12}>

@@ -95,8 +95,8 @@ export default function VillaAccountingSection({ apart = false, villa = false, r
                     </TableHead>
                     <TableBody>
                         {data && data.map((row) => (
-                            <TableRow style={{ cursor: 'pointer' }} onClick={() => { setSelectedId(row?.id); setPaymentUpdateModal(true) }} hover key={row.id}>
-                                <TableCell align="left">{row?.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} TL</TableCell>
+                            <TableRow style={{ cursor: 'pointer' }} onClick={() => { setSelectedId(row?.id); setPaymentUpdateModal(true); setSelectedPaymentDeleteItem(row) }} hover key={row.id}>
+                                <TableCell align="left">{row?.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {row?.priceType === 1 ? ' TL' : row?.priceType === 2 ? ' USD' : row?.priceType === 3 ? ' EUR' : row?.priceType === 4 ? ' GBP' : ''}</TableCell>
                                 <TableCell align="left">{row?.paymentType?.title}</TableCell>
                                 <TableCell align="left">{row?.description}</TableCell>
                                 <TableCell align="left">{row?.createdAt.toString().split('T')[0]}</TableCell>
@@ -116,7 +116,7 @@ export default function VillaAccountingSection({ apart = false, villa = false, r
                                                     e.stopPropagation();
                                                     handleClose();
                                                     setPaymentDeleteId(Number(row.id));
-                                                    setSelectedPaymentDeleteItem(row.attributes)
+                                                    setSelectedPaymentDeleteItem(row)
                                                 }}
                                             >
                                                 <Trash />
@@ -131,7 +131,7 @@ export default function VillaAccountingSection({ apart = false, villa = false, r
             </TableContainer>
             <PaymentModalDelete selectedItem={selectedPaymentDeleteItem} setIsEdit={setIsEdit} id={Number(paymentDeleteId)} title={paymentDeleteId} open={paymentModalDelete} handleClose={handleClose} />
             <VillaPaymentsModal open={paymentModal} modalToggler={setPaymentModal} setIsEdit={setIsEdit} villa={villa} apart={apart} room={room} />
-            <ReservationPaymentsUpdateModal open={paymentUpdateModal} modalToggler={setPaymentUpdateModal} setIsEdit={setIsEdit} id={selectedId} />
+            <ReservationPaymentsUpdateModal selectedItem={selectedPaymentDeleteItem} open={paymentUpdateModal} modalToggler={setPaymentUpdateModal} setIsEdit={setIsEdit} id={selectedId} />
         </MainCard>
     );
 }

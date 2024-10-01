@@ -121,7 +121,6 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
                                     <TableRow
                                         key={row.id}
                                         onClick={() => {
-                                            console.log("Kayıt Id => ", row.original.id);
                                             navigate(`/reservations/show/summary/${row.original.id}`)
                                         }}
                                         style={{ cursor: 'pointer' }}
@@ -256,14 +255,14 @@ export default function VillaReservationSection() {
             {
                 header: 'Tutar',
                 accessorKey: 'price',
-                cell: ({ row }) => { return (row?.original.total?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " TL") }
+                cell: ({ row }) => { return (row?.original.total?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + `${row?.original?.priceType === 1 ? ' TL' : row?.original?.priceType === 2 ? ' USD' : row?.original?.priceType === 3 ? ' EUR' : row?.original?.priceType === 4 ? ' GBP' : ''}`) }
             }
         ], // eslint-disable-next-line
         [theme]
     );
 
     if (loading) return (<Loader open={loading} />)
-    console.log('reservations = ', data);
+    
     return (
         <>
             <ReactTable

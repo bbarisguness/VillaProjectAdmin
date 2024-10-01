@@ -10,7 +10,7 @@ import ReservationPaymentAddForm from './reservation-payments-add-form';
 import ReservationPaymentUpdateForm from './reservation-payments-update-form';
 
 
-export default function ReservationPaymentsUpdateModal({ open, modalToggler, setIsEdit, id }) {
+export default function ReservationPaymentsUpdateModal({ reservation = false, open, modalToggler, setIsEdit, id, selectedItem }) {
 
     const closeModal = () => modalToggler(false);
 
@@ -30,7 +30,7 @@ export default function ReservationPaymentsUpdateModal({ open, modalToggler, set
                         content={false}
                     >
                         <SimpleBar sx={{ maxHeight: `calc(100vh - 48px)`, '& .simplebar-content': { display: 'flex', flexDirection: 'column' } }}>
-                            <ReservationPaymentUpdateForm closeModal={closeModal} setIsEdit={setIsEdit} id={id}/>
+                            <ReservationPaymentUpdateForm reservation={reservation} selectedItem={selectedItem} closeModal={closeModal} setIsEdit={setIsEdit} id={id} />
                         </SimpleBar>
                     </MainCard>
                 </Modal>
