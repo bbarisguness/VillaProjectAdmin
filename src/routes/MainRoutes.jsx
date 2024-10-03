@@ -47,6 +47,10 @@ import VillaAccounting from 'pages/facilities/tabs/villa-accounting';
 import ApartAccounting from 'pages/facilities/aparts/tabs/apart-accounting';
 import RoomAccounting from 'pages/facilities/aparts/rooms/tabs/room-accounting';
 import PaymentTypesPage from 'pages/payment-types';
+import BlogPage from 'pages/website-management/blog-page';
+import StaticContentPage from 'pages/website-management/static-contents-page';
+import SssPage from 'pages/website-management/sss-page';
+import RoomContent from 'pages/facilities/aparts/rooms/tabs/room-content';
 
 
 const ErrorPage = Loadable(lazy(() => import('pages/error-pages/404')));
@@ -177,7 +181,7 @@ const MainRoutes = {
                 },
                 {
                   path: 'content/:id',
-                  element: <ApartContent />
+                  element: <RoomContent />
                 },
                 {
                   path: 'available-date/:id',
@@ -260,6 +264,24 @@ const MainRoutes = {
                 }
               ]
             }
+          ]
+        },
+        {
+          path: '/website-management',
+          children: [
+            {
+              path: 'blogs',
+              element: <BlogPage />
+            },
+            {
+              path: 'static-contents',
+              element: <StaticContentPage />
+            },
+            {
+              path: 'sss',
+              element: <SssPage />
+            }
+
           ]
         }
       ]

@@ -30,9 +30,9 @@ export default function ReservationPriceDetailSection() {
     let today = new Date();
 
     useEffect(() => {
-        setLoading(false);
         GetAllReservationItems(params.id).then((res) => { setData(res.data); setLoading(false); })
     }, [])
+    
     if (loading) return (<Loader open={loading} />)
     return (
         <MainCard content={false} title="">

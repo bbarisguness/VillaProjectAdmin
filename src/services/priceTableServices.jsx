@@ -18,4 +18,9 @@ const GetPriceTableApart = (id) => {
 }
 
 
-export { PriceTableAdd, PriceTableRemove, GetPriceTable, GetPriceTableApart, PriceTableUpdate, PriceTableUpdateDetail, PriceTableCreateDetail }
+const GetPriceTableRoom = (id) => {
+    return get(`/PriceTables/GetAll?RoomId=${id}`, true);
+}
+
+
+export { PriceTableAdd, PriceTableRemove, GetPriceTable, GetPriceTableApart, PriceTableUpdate, PriceTableUpdateDetail, PriceTableCreateDetail,GetPriceTableRoom }

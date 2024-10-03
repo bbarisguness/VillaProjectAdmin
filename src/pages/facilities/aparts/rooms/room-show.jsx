@@ -44,13 +44,16 @@ export default function RoomShow() {
     else if (pathname.indexOf('price') != -1) {
         selectedTab = 3;
     }
-    else if (pathname.indexOf('gallery') != -1) {
+    else if (pathname.indexOf('content') != -1) {
         selectedTab = 4;
-    } else if (pathname.indexOf('file') != -1) {
+    }
+    else if (pathname.indexOf('gallery') != -1) {
         selectedTab = 5;
+    } else if (pathname.indexOf('file') != -1) {
+        selectedTab = 6;
     }
     else if (pathname.indexOf('accounting') != -1) {
-        selectedTab = 6;
+        selectedTab = 7;
     }
     // else if (pathname.indexOf('file') != -1) {
     //     selectedTab = 6;
@@ -114,12 +117,15 @@ export default function RoomShow() {
         breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Fiyatlar' }];
     }
     else if (selectedTab === 4) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Galeri' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'İçerik Yönetimi' }];
     }
     else if (selectedTab === 5) {
-        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Dosyalar' }];
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Galeri' }];
     }
     else if (selectedTab === 6) {
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/summary/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Dosyalar' }];
+    }
+    else if (selectedTab === 7) {
         breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotel?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/accounting/${villa?.hotel?.id}` }, { title: villa?.roomDetails[0]?.name }, { title: 'Gelir Gider' }];
     }
 
@@ -191,6 +197,13 @@ export default function RoomShow() {
                             component={Link}
                             to={`/facilities/aparts/room-show/price/${params.id}`}
                             icon={<DollarCircle />}
+                            iconPosition="start"
+                        />
+                        <Tab
+                            label="İçerik Yönetimi"
+                            component={Link}
+                            to={`/facilities/aparts/room-show/content/${params.id}`}
+                            icon={<ArchiveTick />}
                             iconPosition="start"
                         />
                         <Tab label="Galeri" component={Link} to={`/facilities/aparts/room-show/gallery/${params.id}`} icon={<Image />} iconPosition="start" />

@@ -70,7 +70,7 @@ export default function FormPriceTableAdd({ closeModal, setIsEdit, apart = false
 
                 const fd = new FormData()
                 if (apart) {
-                    fd.append('HotelId', params.id)
+                    fd.append('RoomId', params.id)
                 } else {
                     fd.append('VillaId', params.id)
                 }
