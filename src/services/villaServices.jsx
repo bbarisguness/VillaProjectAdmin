@@ -13,6 +13,7 @@ const VillaUpdate = (data) => post(`/Villas/Update`, data, true, true)
 const VillaCategoryAsign = (payload) => post('/Villas/VillaCategoryAsign', payload, true, true)
 const VillaUpdateDetail = (data) => post(`/Villas/UpdateDetail`, data, true, true)
 const VillaCreateDetail = (data) => post(`/Villas/CreateDetail`, data, true, true)
+const GetVillaAvailableDates = (id) => get(`/Villas/GetVillaAvailableDates?VillaId=${id}`, true)
 
 
 
@@ -84,4 +85,4 @@ const GetVillaFull = (id) => {
 }
 
 
-export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail, VillaCreateDetail }
+export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail, VillaCreateDetail,GetVillaAvailableDates }

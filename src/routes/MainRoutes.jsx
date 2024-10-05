@@ -51,6 +51,8 @@ import BlogPage from 'pages/website-management/blog-page';
 import StaticContentPage from 'pages/website-management/static-contents-page';
 import SssPage from 'pages/website-management/sss-page';
 import RoomContent from 'pages/facilities/aparts/rooms/tabs/room-content';
+import VillaCommentSection from 'pages/facilities/tabs/villa-comments';
+import ApartComments from 'pages/facilities/aparts/tabs/apart-comments';
 
 
 const ErrorPage = Loadable(lazy(() => import('pages/error-pages/404')));
@@ -104,6 +106,10 @@ const MainRoutes = {
                   element: <VillaGallery />
                 },
                 {
+                  path: 'comments/:id',
+                  element: <VillaCommentSection />
+                },
+                {
                   path: 'file/:id',
                   element: <VillaFile />
                 },
@@ -152,6 +158,10 @@ const MainRoutes = {
                 {
                   path: 'file/:id',
                   element: <ApartFile />
+                },
+                {
+                  path: 'comments/:id',
+                  element: <ApartComments />
                 },
                 {
                   path: 'accounting/:id',

@@ -3,6 +3,7 @@ import { get, post, put, remove } from './request'
 import * as qs from 'qs'
 
 const GetRoom = (id) => get(`/Rooms/Get/${id}`, true)
+const GetRoomAvailableDates = (id) => get(`/Rooms/GetRoomAvailableDates?RoomId=${id}`, true)
 const AddRoom = (payload) => post(`/Rooms/Create`, payload, true, true);
 const CreateRoomDetail = (payload) => post(`/Rooms/CreateDetail`, payload, true, true);
 const UpdateRoomDetail = (payload) => post(`/Rooms/UpdateDetail`, payload, true, true);
@@ -112,4 +113,4 @@ const RoomGetPriceForReservation = (roomId, date1, date2) => {
     return get(`/Reservations/GetReservationPrice?RoomId=${roomId}&CheckIn=${date1}&CheckOut=${date2}`, true);
 }
 
-export { GetRoom, GetRoomList, GetReservations, GetReservationListTop5, RoomChangeState, AddRoom, RoomIsAvailible, RoomGetPriceForReservation, GetRoomName, CreateRoomDetail, UpdateRoomDetail }
+export { GetRoom, GetRoomList, GetReservations, GetReservationListTop5, RoomChangeState, AddRoom, RoomIsAvailible, RoomGetPriceForReservation, GetRoomName, CreateRoomDetail, UpdateRoomDetail,GetRoomAvailableDates }

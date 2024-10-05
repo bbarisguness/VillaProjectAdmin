@@ -9,7 +9,7 @@ import SimpleBar from 'components/third-party/SimpleBar';
 import FormWebsitePhotoAdd from './FormWebsitePhotoAdd';
 
 
-export default function WebsitePhotoModal({ open, modalToggler, villaId, setIsEdit, lastLine, setLoading, apart, room }) {
+export default function WebsitePhotoModal({ open, modalToggler, websiteId, setIsEdit, setLoading }) {
 
     const closeModal = () => modalToggler(false);
 
@@ -29,7 +29,7 @@ export default function WebsitePhotoModal({ open, modalToggler, villaId, setIsEd
                         content={false}
                     >
                         <SimpleBar sx={{ maxHeight: `calc(100vh - 48px)`, '& .simplebar-content': { display: 'flex', flexDirection: 'column' } }}>
-                            <FormWebsitePhotoAdd apart={apart} room={room} villaId={villaId} closeModal={closeModal} setIsEdit={setIsEdit} lastLine={lastLine} setLoading={setLoading} />
+                            <FormWebsitePhotoAdd websiteId={websiteId} closeModal={closeModal} setIsEdit={setIsEdit} setLoading={setLoading} />
                         </SimpleBar>
                     </MainCard>
                 </Modal>

@@ -14,7 +14,7 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import { APP_DEFAULT_PATH } from 'config';
 
 // assets
-import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick, MoneySend } from 'iconsax-react';
+import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick, MoneySend, Message } from 'iconsax-react';
 import { Button, Grid } from '@mui/material';
 import { GetApart, GetApartName } from 'services/apartServices';
 import ApartSelectModal from 'sections/facilities/aparts/ApartSelectModal';
@@ -43,6 +43,9 @@ export default function ApartShow() {
     }
     else if (pathname.indexOf('accounting') != -1) {
         selectedTab = 4;
+    }
+    else if (pathname.indexOf('comments') != -1) {
+        selectedTab = 5;
     }
     // switch (pathname) {
     //     case '/apps/profiles/account/personal':
@@ -106,6 +109,9 @@ export default function ApartShow() {
     else if (selectedTab === 4) {
         breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/accounting/${params.id}` }, { title: 'Gelir Gider' }];
     }
+    else if (selectedTab === 5) {
+        breadcrumbLinks = [{ title: 'Apart Yönetimi', to: '/facilities/aparts-list' }, { title: villa?.hotelDetails[0]?.name, to: `/facilities/aparts/apart-show/comments/${params.id}` }, { title: 'Yorumlar' }];
+    }
 
     useEffect(() => {
         if (pathname === `/facilities/aparts/apart-show/summary/${params.id}`) {
@@ -164,6 +170,7 @@ export default function ApartShow() {
                         <Tab label="Galeri" component={Link} to={`/facilities/aparts/apart-show/gallery/${params.id}`} icon={<Image />} iconPosition="start" />
                         <Tab label="Dosyalar" component={Link} to={`/facilities/aparts/apart-show/file/${params.id}`} icon={<Folder />} iconPosition="start" />
                         <Tab label="Gelir Gider" component={Link} to={`/facilities/aparts/apart-show/accounting/${params.id}`} icon={<MoneySend />} iconPosition="start" />
+                        <Tab label="Yorumlar" component={Link} to={`/facilities/aparts/apart-show/comments/${params.id}`} icon={<Message />} iconPosition="start" />
                     </Tabs>
                 </Box>
                 <Box sx={{ mt: 2.5 }}>

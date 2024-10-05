@@ -71,7 +71,7 @@ export default function AuthLogin({ forgot }) {
               preload('api/menu/dashboard'); // load menu on login success
             }
           } catch (err) {
-            console.error(err);
+            setLoading(false)
             if (scriptedRef.current) {
               setStatus({ success: false });
               setErrors({ submit: err.message });

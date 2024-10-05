@@ -13,7 +13,8 @@ import MainCard from 'components/MainCard';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { GetAvailibleDate } from 'services/reservationServices';
-import { dateToString,days } from 'utils/custom/dateHelpers';
+import { GetVillaAvailableDates } from 'services/villaServices';
+import { dateToString, days } from 'utils/custom/dateHelpers';
 
 export const header = [
   { label: 'Başlangıç Tarihi', key: 'name' },
@@ -30,8 +31,7 @@ export default function VillaAvailableDateSection() {
   let today = new Date();
 
   useEffect(() => {
-    setLoading(false);
-    GetAvailibleDate(params.id).then((res) => { setData(res.data); setLoading(false); })
+    GetVillaAvailableDates(params.id).then((res) => { setData(res.data); setLoading(false); })
   }, [])
 
   if (loading) return (<Loader open={loading} />)
@@ -48,7 +48,20 @@ export default function VillaAvailableDateSection() {
           </TableHead>
           <TableBody>
 
-            {data &&
+            {
+              data && data.map((item, i) => {
+                return (
+                  <TableRow key={i} hover>
+                    <TableCell align="left">{item?.startDate}</TableCell>
+                    <TableCell align="left">{item?.endDate}</TableCell>
+                    <TableCell align="left">{item?.nightCount} Gece</TableCell>
+                  </TableRow>
+                )
+              })
+            }
+
+
+            {/* {data &&
               (data.length > 0 ? (
                 data.map((item, index) => {
                   if (
@@ -91,7 +104,7 @@ export default function VillaAvailableDateSection() {
                   <TableCell align="left">{new Date(today).getFullYear().toString() + '-12-31'}</TableCell>
                   <TableCell align="left">{days(today, new Date(today).getFullYear().toString() + '-12-31')} Gece</TableCell>
                 </TableRow>
-              ))}
+              ))} */}
 
           </TableBody>
         </Table>

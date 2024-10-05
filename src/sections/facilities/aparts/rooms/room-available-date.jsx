@@ -13,6 +13,7 @@ import MainCard from 'components/MainCard';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { GetAvailibleDateRoom } from 'services/reservationServices';
+import { GetRoomAvailableDates } from 'services/roomServices';
 import { dateToString, days } from 'utils/custom/dateHelpers';
 
 export const header = [
@@ -30,8 +31,7 @@ export default function RoomAvailableDateSection() {
   let today = new Date();
 
   useEffect(() => {
-    setLoading(false);
-    GetAvailibleDateRoom(params.id).then((res) => { setData(res.data); setLoading(false); })
+    GetRoomAvailableDates(params.id).then((res) => { setData(res.data); setLoading(false); })
   }, [])
 
   if (loading) return (<Loader open={loading} />)
@@ -47,51 +47,17 @@ export default function RoomAvailableDateSection() {
             </TableRow>
           </TableHead>
           <TableBody>
-
-            {data &&
-              (data.length > 0 ? (
-                data.map((item, index) => {
-                  if (
-                    days(
-                      item.attributes.checkOut,
-                      data[index + 1] != null
-                        ? data[index + 1].attributes.checkIn
-                        : new Date(item.attributes.checkOut).getFullYear().toString() + '-12-31'
-                    ) > 0
-                  ) {
-                    if (data[index + 1] != null) {
-                      return (
-                        <TableRow hover key={index}>
-                          <TableCell align="left">{item.attributes.checkOut}</TableCell>
-                          <TableCell align="left">{data[index + 1].attributes.checkIn}</TableCell>
-                          <TableCell align="left">
-                            {days(item.attributes.checkOut, data[index + 1].attributes.checkIn)} Gece
-                          </TableCell>
-                        </TableRow>
-                      );
-                    } else {
-                      return (
-                        <TableRow hover key={index}>
-                          <TableCell align="left">{item.attributes.checkOut}</TableCell>
-                          <TableCell align="left">
-                            {new Date(item.attributes.checkOut).getFullYear().toString() + '-12-31'}
-                          </TableCell>
-                          <TableCell align="left">
-                            {days(item.attributes.checkOut, new Date(item.attributes.checkOut).getFullYear().toString() + '-12-31')}{' '}
-                            Gece
-                          </TableCell>
-                        </TableRow>
-                      );
-                    }
-                  }
-                })
-              ) : (
-                <TableRow hover>
-                  <TableCell align="left">{dateToString(today)}</TableCell>
-                  <TableCell align="left">{new Date(today).getFullYear().toString() + '-12-31'}</TableCell>
-                  <TableCell align="left">{days(today, new Date(today).getFullYear().toString() + '-12-31')} Gece</TableCell>
-                </TableRow>
-              ))}
+            {
+              data && data.map((item, i) => {
+                return (
+                  <TableRow key={i} hover>
+                    <TableCell align="left">{item?.startDate}</TableCell>
+                    <TableCell align="left">{item?.endDate}</TableCell>
+                    <TableCell align="left">{item?.nightCount} Gece</TableCell>
+                  </TableRow>
+                )
+              })
+            }
 
           </TableBody>
         </Table>

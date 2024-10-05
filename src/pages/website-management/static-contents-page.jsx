@@ -16,7 +16,7 @@ import { DebouncedInput, HeaderSort, TablePagination } from 'components/third-pa
 import { ImagePath, getImageUrl } from 'utils/getImageUrl';
 
 // assets
-import { Add, Edit, Eye, Trash } from 'iconsax-react';
+import { Add, Edit, Eye, Image, Trash } from 'iconsax-react';
 
 // custom
 import Loader from 'components/Loader';
@@ -26,6 +26,7 @@ import { GetWebPages } from 'services/websiteServices';
 import BlogModalDelete from 'sections/website-management/BlogModalDelete';
 import StaticContentAddModal from 'sections/website-management/StaticContentAddModal';
 import StaticContentUpdateModal from 'sections/website-management/StaticContentUpdateModal';
+import WebsitePhotoModal from 'sections/website-management/WebsitePhotoModal';
 
 const fallbackData = [];
 function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
@@ -180,6 +181,10 @@ export default function BlogPage() {
     const [reservationModalDelete, setReservationModalDelete] = useState(false);
     const [selectedReservationDeleteItem, setSelectedReservationDeleteItem] = useState([])
 
+
+    const [websiteId, setWebsiteId] = useState('')
+    const [photoModal, setPhotoModal] = useState(false)
+
     const [selectedItem, setSelectedItem] = useState([])
     const [categoryUpdateModal, setCategoryUpdateModal] = useState(false)
 
@@ -233,6 +238,19 @@ export default function BlogPage() {
                         );
                     return (
                         <Stack direction="row" spacing={0}>
+                            <Tooltip title="Photo">
+                                <IconButton
+                                    color="secondary"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedItem(row.original)
+                                        setWebsiteId(row?.original?.id)
+                                        setPhotoModal(true)
+                                    }}
+                                >
+                                    <Image />
+                                </IconButton>
+                            </Tooltip>
                             <Tooltip title="Edit">
                                 <IconButton
                                     color="primary"
@@ -296,6 +314,7 @@ export default function BlogPage() {
             <StaticContentAddModal setIsAdded={setIsDeleted} open={reservationModal} modalToggler={setReservationModal} />
             <StaticContentUpdateModal selectedUpdateItem={selectedItem} setIsAdded={setIsDeleted} open={categoryUpdateModal} modalToggler={setCategoryUpdateModal} />
             <BlogModalDelete selectedItem={selectedReservationDeleteItem} setIsDeleted={setIsDeleted} setLoading={setLoading} id={Number(reservationDeleteId)} title={reservationDeleteId} open={reservationModalDelete} handleClose={handleClose} />
+            <WebsitePhotoModal open={photoModal} modalToggler={setPhotoModal} websiteId={websiteId} setIsEdit={setIsDeleted} setLoading={setLoading} />
         </>
     );
 }

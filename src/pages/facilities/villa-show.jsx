@@ -14,7 +14,7 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import { APP_DEFAULT_PATH } from 'config';
 
 // assets
-import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick, MoneySend } from 'iconsax-react';
+import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick, MoneySend, Message } from 'iconsax-react';
 import { GetVilla, GetVillaName } from 'services/villaServices';
 import { Button, Grid } from '@mui/material';
 import VillaSelectModal from 'sections/facilities/VillaSelectModal';
@@ -51,6 +51,9 @@ export default function VillaShow() {
     }
     else if (pathname.indexOf('accounting') != -1) {
         selectedTab = 7;
+    }
+    else if (pathname.indexOf('comments') != -1) {
+        selectedTab = 8;
     }
     // switch (pathname) {
     //     case '/apps/profiles/account/personal':
@@ -122,6 +125,9 @@ export default function VillaShow() {
     }
     else if (selectedTab === 7) {
         breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/accounting/${params.id}` }, { title: 'Gelir Gider' }];
+    }
+    else if (selectedTab === 8) {
+        breadcrumbLinks = [{ title: 'Villa Yönetimi', to: '/facilities/villas-list' }, { title: villa?.villaDetails[0]?.name, to: `/facilities/villas-show/comments/${params.id}` }, { title: 'Yorumlar' }];
     }
 
     useEffect(() => {
@@ -201,6 +207,7 @@ export default function VillaShow() {
                         <Tab label="Galeri" component={Link} to={`/facilities/villas-show/gallery/${params.id}`} icon={<Image />} iconPosition="start" />
                         <Tab label="Dosyalar" component={Link} to={`/facilities/villas-show/file/${params.id}`} icon={<Folder />} iconPosition="start" />
                         <Tab label="Gelir Gider" component={Link} to={`/facilities/villas-show/accounting/${params.id}`} icon={<MoneySend />} iconPosition="start" />
+                        <Tab label="Yorumlar" component={Link} to={`/facilities/villas-show/comments/${params.id}`} icon={<Message />} iconPosition="start" />
                     </Tabs>
                 </Box>
                 <Box sx={{ mt: 2.5 }}>
