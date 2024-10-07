@@ -94,8 +94,9 @@ export default function FormCommentAdd({ closeModal, setIsAdded, villa = false, 
                 fd.append('Title', formik.values.title)
                 fd.append('Phone', formik.values.phone)
                 fd.append('Email', formik.values.email)
-                fd.append('Rating', formik.values.rating)
+                fd.append('Rating', formik.values.rating.toString().replace('.', ','))
                 fd.append('CommentText', formik.values.longDescription)
+
 
                 await CreateComment(fd).then((res) => {
                     if (res?.statusCode === 200) {
