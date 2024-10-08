@@ -92,7 +92,7 @@ export default function ApartGallerySection() {
 
           <Grid item xs={12}>
             <MainCard>
-              <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ paddingBottom: 4 }}>
+              <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ paddingBottom: 4,overflowX: 'auto' }}>
 
 
                 <Stack direction="row" alignItems="center" spacing={2}>

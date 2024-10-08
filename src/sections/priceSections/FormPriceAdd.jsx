@@ -16,6 +16,7 @@ import moment from 'moment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useParams } from 'react-router';
 import { GetPriceForAddForm, PriceAdd, PricePut, PriceRemove } from 'services/priceServices';
+import { openSnackbar } from 'api/snackbar';
 
 
 const getInitialValues = () => {
@@ -51,6 +52,27 @@ export default function FormPriceAdd({ closeModal, setIsEdit }) {
                 fd.append('VillaId', params.id)
 
                 await PriceAdd(fd).then((res) => {
+                    if (res?.statusCode === 200) {
+                        openSnackbar({
+                            open: true,
+                            message: 'Fiyat ekleme başarılı',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'success'
+                            }
+                        });
+                    } else {
+                        openSnackbar({
+                            open: true,
+                            message: res?.message ? res?.message : 'Hata',
+                            anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+                            variant: 'alert',
+                            alert: {
+                                color: 'error'
+                            }
+                        });
+                    }
                     setIsEdit(true);
                     setSubmitting(false);
                     closeModal();

@@ -63,7 +63,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
 
     return (
         <MainCard content={false}>
-            <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3 }}>
+            <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3,overflowX: 'auto' }}>
                 <DebouncedInput
                     value={globalFilter ?? ''}
                     disabled={showAllReservation}
