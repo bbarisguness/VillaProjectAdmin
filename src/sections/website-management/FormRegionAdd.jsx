@@ -42,7 +42,7 @@ const getInitialValues = () => {
 
 // ==============================|| CUSTOMER ADD / EDIT - FORM ||============================== //
 
-export default function FormBlogAdd({ closeModal, setIsAdded }) {
+export default function FormRegionAdd({ closeModal, setIsAdded }) {
     const user = useUser()
     const theme = useTheme();
     const params = useParams();
@@ -53,7 +53,7 @@ export default function FormBlogAdd({ closeModal, setIsAdded }) {
 
     useEffect(() => {
 
-        GetMenuBySlug('bloglar').then((res) => {
+        GetMenuBySlug('bolgeler').then((res) => {
             setMenuId(res?.data?.id)
             setLoading(false);
         })
@@ -147,7 +147,7 @@ export default function FormBlogAdd({ closeModal, setIsAdded }) {
             <FormikProvider value={formik}>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-                        <DialogTitle>Blog Ekle</DialogTitle>
+                        <DialogTitle>Bölge Ekle</DialogTitle>
                         <Divider />
                         <DialogContent sx={{ p: 2.5 }}>
                             <Grid spacing={3} container >

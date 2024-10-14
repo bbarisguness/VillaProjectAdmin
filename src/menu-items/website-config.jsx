@@ -29,6 +29,13 @@ const websiteConfig = {
       url: '/website-management/blogs'
     },
     {
+      id: 'settings-region-list',
+      title: <FormattedMessage id="settings-region-list" />,
+      type: 'item',
+      icon: icons.maintenance,
+      url: '/website-management/regions'
+    },
+    {
       id: 'static-content-list',
       title: <FormattedMessage id="static-content-list" />,
       type: 'item',

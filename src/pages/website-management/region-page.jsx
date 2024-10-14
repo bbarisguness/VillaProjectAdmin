@@ -33,6 +33,8 @@ import BlogAddModal from 'sections/website-management/BlogAddModal';
 import BlogModalDelete from 'sections/website-management/BlogModalDelete';
 import BlogUpdateModal from 'sections/website-management/BlogUpdateModal';
 import WebsitePhotoModal from 'sections/website-management/WebsitePhotoModal';
+import RegionAddModal from 'sections/website-management/RegionAddModal';
+import RegionUpdateModal from 'sections/website-management/RegionUpdateModal';
 
 const fallbackData = [];
 function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
@@ -80,7 +82,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
 
                 <Stack direction="row" alignItems="center" spacing={2}>
                     <Button variant="contained" startIcon={<Add />} onClick={modalToggler} size="large">
-                        Blog Ekle
+                        Bölge Ekle
                     </Button>
                 </Stack>
             </Stack>
@@ -172,7 +174,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
     );
 }
 
-export default function BlogPage() {
+export default function RegionPage() {
 
     const theme = useTheme();
     const params = useParams();
@@ -205,7 +207,7 @@ export default function BlogPage() {
 
     useEffect(() => {
         setLoading(true)
-        GetWebPages('bloglar', pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
+        GetWebPages('bolgeler', pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
     }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation]);
 
 
@@ -218,7 +220,7 @@ export default function BlogPage() {
             setIsDeleted(false)
             setLoading(true)
             //ReservationServices.Villas(pagination.pageIndex + 1, pagination.pageSize, sorting[0]?.desc, sorting[0]?.id.replace('attributes_', ''), globalFilter).then((res) => { setData(res); setLoading(false); });
-            GetWebPages('bloglar', pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
+            GetWebPages('bolgeler', pagination.pageIndex, pagination.pageSize).then((res) => { setData(res); setLoading(false); });
         }
     }, [isDeleted])
 
@@ -317,8 +319,8 @@ export default function BlogPage() {
                 }}
             />
 
-            <BlogAddModal setIsAdded={setIsDeleted} open={reservationModal} modalToggler={setReservationModal} />
-            <BlogUpdateModal selectedUpdateItem={selectedItem} setIsAdded={setIsDeleted} open={categoryUpdateModal} modalToggler={setCategoryUpdateModal} />
+            <RegionAddModal setIsAdded={setIsDeleted} open={reservationModal} modalToggler={setReservationModal} />
+            <RegionUpdateModal selectedUpdateItem={selectedItem} setIsAdded={setIsDeleted} open={categoryUpdateModal} modalToggler={setCategoryUpdateModal} />
             <BlogModalDelete selectedItem={selectedReservationDeleteItem} setIsDeleted={setIsDeleted} setLoading={setLoading} id={Number(reservationDeleteId)} title={reservationDeleteId} open={reservationModalDelete} handleClose={handleClose} />
             <WebsitePhotoModal open={photoModal} modalToggler={setPhotoModal} websiteId={websiteId} setIsEdit={setIsDeleted} setLoading={setLoading} />
         </>
