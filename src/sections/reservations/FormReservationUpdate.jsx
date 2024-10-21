@@ -90,6 +90,7 @@ export default function FormReservationUpdate({ closeModal, setIsAdded }) {
     useEffect(() => {
         if (data?.checkIn && data?.homeOwner !== true) {
             if ((new Date(data?.checkIn)).toString() !== (new Date(date1)).toString() || (new Date(data?.checkOut)).toString() !== (new Date(date2)).toString()) {
+                setLoading(true)
                 VillaGetPriceForReservation(data?.villaId !== null ? data?.villaId : data?.roomId, dateToString(date1), dateToString(date2), data?.villaId !== null ? false : true).then((res) => {
                     if (res.statusCode === 400) {
                         openSnackbar({
