@@ -68,8 +68,12 @@ const VillaIsAvailible = (villaId, date1, date2) => {
     return get(`/api/reservations?${query}`);
 }
 
-const VillaGetPriceForReservation = (villaId, date1, date2) => {
-    return get(`/Reservations/GetReservationPrice?VillaId=${villaId}&CheckIn=${date1}&CheckOut=${date2}`, true);
+const VillaGetPriceForReservation = (villaId, date1, date2, room = false) => {
+    if (room) {
+        return get(`/Reservations/GetReservationPrice?RoomId=${villaId}&CheckIn=${date1}&CheckOut=${date2}`, true);
+    } else {
+        return get(`/Reservations/GetReservationPrice?VillaId=${villaId}&CheckIn=${date1}&CheckOut=${date2}`, true);
+    }
 }
 
 const GetVillaFull = (id) => {
@@ -85,4 +89,4 @@ const GetVillaFull = (id) => {
 }
 
 
-export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail, VillaCreateDetail,GetVillaAvailableDates }
+export { Villas, GetVillaName, GetVilla, VillaAdd, VillaRemove, VillaIsAvailible, VillaGetPriceForReservation, GetVillaFull, GetVillaDetail, VillaUpdate, VillaCategoryAsign, VillaUpdateDetail, VillaCreateDetail, GetVillaAvailableDates }

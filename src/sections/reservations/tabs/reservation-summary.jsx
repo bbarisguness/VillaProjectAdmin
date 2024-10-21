@@ -70,7 +70,7 @@ export default function ReservationSummarySection() {
                                             <MenuItem value={2}>Opsiyonlanmış</MenuItem>
                                             <MenuItem value={1}>Rezerve</MenuItem>
                                             {/* <MenuItem value={130}>Konaklama Başladı</MenuItem> */}
-                                            <MenuItem value={4}>Konaklama Bitti</MenuItem>
+                                            {/* <MenuItem value={4}>Konaklama Bitti</MenuItem> */}
                                         </Select>
                                     </FormControl>
                                 </TableCell>

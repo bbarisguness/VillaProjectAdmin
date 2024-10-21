@@ -17,6 +17,8 @@ import { APP_DEFAULT_PATH } from 'config';
 import { Profile, Calendar, DollarCircle, Image, Folder, ClipboardText, ArchiveTick } from 'iconsax-react';
 import { GetVilla, GetVillaName } from 'services/villaServices';
 import { GetReservation } from 'services/reservationServices';
+import { Button, Grid } from '@mui/material';
+import ReservationUpdateModal from 'sections/reservations/ReservationUpdateModal';
 
 // ==============================|| PROFILE - ACCOUNT ||============================== //
 
@@ -24,6 +26,7 @@ export default function ReservationShow() {
     const { pathname } = useLocation();
     const params = useParams();
     const navigate = useNavigate()
+    const [reservationUpdateModal, setReservationUpdateModal] = useState(false)
 
     let selectedTab = 0;
     let breadcrumbTitle = '';
@@ -120,7 +123,11 @@ export default function ReservationShow() {
 
     return (
         <>
+            <ReservationUpdateModal open={reservationUpdateModal} modalToggler={setReservationUpdateModal} />
             <Breadcrumbs custom links={breadcrumbLinks} />
+            <Grid style={{ marginBottom: '10px' }} container justifyContent="flex-end" alignItems="normal">
+                <Button onClick={() => setReservationUpdateModal(true)} size='small' type="button" variant="contained">GÜNCELLE</Button>
+            </Grid>
             <MainCard border={false}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
                     <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="account profile tab">
