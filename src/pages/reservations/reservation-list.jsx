@@ -39,7 +39,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
         getCoreRowModel: getCoreRowModel(),
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
-        pageCount: data?.meta?.pagination?.pageCount || 1,
+        pageCount: Math.ceil(parseInt(data?.totalCount) / parseInt(pagination.pageSize)) || 1,
         autoResetPageIndex: false,
         state: {
             sorting,
@@ -63,7 +63,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
 
     return (
         <MainCard content={false}>
-            <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3,overflowX: 'auto' }}>
+            <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3, overflowX: 'auto' }}>
                 <DebouncedInput
                     value={globalFilter ?? ''}
                     disabled={showAllReservation}
@@ -249,7 +249,7 @@ export default function ReservationList() {
             {
                 header: 'reservationStatus',
                 accessorKey: 'reservationStatus',
-                cell: ({row}) => {
+                cell: ({ row }) => {
                     switch (row.original.reservationStatusType) {
                         case 1:
                             return <Chip color="success" label="Rezerve" size="small" variant="light" />;

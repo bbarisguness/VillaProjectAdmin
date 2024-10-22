@@ -139,6 +139,7 @@ export default function FormReservationAdd({ villaId, closeModal, setIsAdded }) 
                 fd.append('Surname', formik.values.surname)
                 fd.append('Phone', formik.values.phone)
                 fd.append('Email', formik.values.email)
+                fd.append('Note', formik.values.description)
 
                 await AddReservation(fd).then((res) => {
                     if (res?.statusCode === 200) {

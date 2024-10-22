@@ -38,7 +38,7 @@ function ReactTable({ data, columns, modalToggler, pagination, setPagination, se
         getCoreRowModel: getCoreRowModel(),
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
-        pageCount: data?.meta?.pagination?.pageCount || 1,
+        pageCount: Math.ceil(parseInt(data?.totalCount) / parseInt(pagination.pageSize)) || 1,
         autoResetPageIndex: false,
         state: {
             sorting,
@@ -181,7 +181,7 @@ export default function VillaReservationSection() {
     useEffect(() => {
         setLoading(true)
         ReservationServices.GetReservations(params.id, pagination.pageIndex, pagination.pageSize, showAllReservation, showAgencyReservation, globalFilter, sorting[0]?.id === 'customerName' ? sorting[0]?.desc : null, sorting[0]?.id === 'reservationStatusType' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkIn' ? sorting[0]?.desc : null, sorting[0]?.id === 'checkOut' ? sorting[0]?.desc : null, sorting[0]?.id === 'price' ? sorting[0]?.desc : null).then((res) => { setData(res); setLoading(false); });
-    }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation]);
+    }, [pagination.pageIndex, pagination.pageSize, sorting, globalFilter, showAllReservation,showAgencyReservation]);
 
 
     useEffect(() => {
