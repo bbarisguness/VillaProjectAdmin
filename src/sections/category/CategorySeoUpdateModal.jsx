@@ -11,11 +11,11 @@ import MainCard from 'components/MainCard';
 import SimpleBar from 'components/third-party/SimpleBar';
 import CircularWithPath from 'components/@extended/progress/CircularWithPath';
 import { useGetCustomer } from 'api/customer';
-import FormCategoryUpdate from './FormCategoryUpdate';
+import FormCategorySeoUpdate from './FormCategorySeoUpdate';
 
 // ==============================|| CUSTOMER ADD / EDIT ||============================== //
 
-export default function CategoryUpdateModal({ open, modalToggler, setIsAdded, selectedUpdateItem }) {
+export default function CategorySeoUpdateModal({ open, modalToggler, setIsAdded, selectedUpdateItem }) {
 
 
   const closeModal = () => modalToggler(false);
@@ -38,7 +38,7 @@ export default function CategoryUpdateModal({ open, modalToggler, setIsAdded, se
             content={false}
           >
             <SimpleBar sx={{ maxHeight: `calc(100vh - 48px)`, '& .simplebar-content': { display: 'flex', flexDirection: 'column' } }}>
-              <FormCategoryUpdate selectedItem={selectedUpdateItem} setIsAdded={setIsAdded} closeModal={closeModal} />
+              <FormCategorySeoUpdate selectedItem={selectedUpdateItem} setIsAdded={setIsAdded} closeModal={closeModal} />
             </SimpleBar>
           </MainCard>
         </Modal>

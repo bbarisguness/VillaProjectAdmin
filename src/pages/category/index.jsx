@@ -28,6 +28,8 @@ import ReservationModalDelete from 'sections/reservations/ReservationModalDelete
 import { Categories, CategoriesList } from 'services/categoryServices';
 import CategoryAddModal from 'sections/category/CategoryAddModal';
 import CategoryUpdateModal from 'sections/category/CategoryUpdateModal';
+import CategoryActionSelectModal from 'sections/category/CategoryActionSelectModal';
+import CategorySeoUpdateModal from 'sections/category/CategorySeoUpdateModal';
 
 const fallbackData = [];
 function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
@@ -183,6 +185,8 @@ export default function CategoryPage() {
 
     const [selectedItem, setSelectedItem] = useState([])
     const [categoryUpdateModal, setCategoryUpdateModal] = useState(false)
+    const [categoryActionSelectModal, setCategoryActionSelectModal] = useState(false)
+    const [categorySeoUpdateModal, setCategorySeoUpdateModal] = useState(false)
 
     const [pagination, setPagination] = useState({
         pageIndex: 0,
@@ -221,7 +225,7 @@ export default function CategoryPage() {
             },
             {
                 header: 'durum',
-                cell: ({row}) => {
+                cell: ({ row }) => {
                     switch (row.original.generalStatusType) {
                         case 1:
                             return <Chip color="success" label="Aktif" size="small" variant="light" />;
@@ -255,7 +259,8 @@ export default function CategoryPage() {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedItem(row.original)
-                                        setCategoryUpdateModal(true)
+                                        // setCategoryUpdateModal(true)
+                                        setCategoryActionSelectModal(true)
                                     }}
                                 >
                                     <Edit />
@@ -308,9 +313,10 @@ export default function CategoryPage() {
                     setShowAllReservation
                 }}
             />
-
+            <CategoryActionSelectModal categoryDetailModal={setCategoryUpdateModal} categorySeoModal={setCategorySeoUpdateModal} title={selectedItem} open={categoryActionSelectModal} handleClose={() => setCategoryActionSelectModal(false)} />
             <CategoryAddModal setIsAdded={setIsDeleted} open={reservationModal} modalToggler={setReservationModal} />
             <CategoryUpdateModal selectedUpdateItem={selectedItem} setIsAdded={setIsDeleted} open={categoryUpdateModal} modalToggler={setCategoryUpdateModal} />
+            <CategorySeoUpdateModal selectedUpdateItem={selectedItem} setIsAdded={setIsDeleted} open={categorySeoUpdateModal} modalToggler={setCategorySeoUpdateModal} />
             <ReservationModalDelete selectedItem={selectedReservationDeleteItem} setIsDeleted={setIsDeleted} setLoading={setLoading} id={Number(reservationDeleteId)} title={reservationDeleteId} open={reservationModalDelete} handleClose={handleClose} />
         </>
     );

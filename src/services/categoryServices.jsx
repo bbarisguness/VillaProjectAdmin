@@ -8,4 +8,6 @@ export const CreateCategory = (payload) => post(`/Categories/Create`, payload, t
 
 export const UpdateCategoryDetail = (payload) => post(`/Categories/UpdateDetail`, payload, true, true)
 
+export const UpdateCategory = (payload) => post(`/Categories/Update`, payload, true, true)
+
 export const CreateCategoryDetail = (payload) => post(`/Categories/CreateDetail`, payload, true, true)

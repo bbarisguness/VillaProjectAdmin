@@ -35,6 +35,8 @@ import BlogUpdateModal from 'sections/website-management/BlogUpdateModal';
 import WebsitePhotoModal from 'sections/website-management/WebsitePhotoModal';
 import RegionAddModal from 'sections/website-management/RegionAddModal';
 import RegionUpdateModal from 'sections/website-management/RegionUpdateModal';
+import WebsiteSeoUpdateModal from 'sections/website-management/WebsiteSeoUpdateModal';
+import WebsiteActionSelectModal from 'sections/website-management/WebsiteActionSelectModal';
 
 const fallbackData = [];
 function ReactTable({ data, columns, modalToggler, pagination, setPagination, setSorting, sorting, globalFilter, setGlobalFilter, showAllReservation, setShowAllReservation }) {
@@ -191,6 +193,8 @@ export default function RegionPage() {
 
     const [selectedItem, setSelectedItem] = useState([])
     const [categoryUpdateModal, setCategoryUpdateModal] = useState(false)
+    const [websiteSelectActionModal, setWebsiteSelectActionModal] = useState(false)
+    const [websiteSeoModal, setWebsiteSeoModal] = useState(false)
 
     const [websiteId, setWebsiteId] = useState('')
 
@@ -265,7 +269,8 @@ export default function RegionPage() {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedItem(row.original)
-                                        setCategoryUpdateModal(true)
+                                        // setCategoryUpdateModal(true)
+                                        setWebsiteSelectActionModal(true)
                                     }}
                                 >
                                     <Edit />
@@ -318,7 +323,8 @@ export default function RegionPage() {
                     setShowAllReservation
                 }}
             />
-
+            <WebsiteSeoUpdateModal selectedUpdateItem={selectedItem} setIsAdded={setIsDeleted} modalToggler={setWebsiteSeoModal} open={websiteSeoModal} />
+            <WebsiteActionSelectModal websiteDetailModal={setCategoryUpdateModal} websiteSeoModal={setWebsiteSeoModal} title={selectedItem} open={websiteSelectActionModal} handleClose={() => setWebsiteSelectActionModal(false)} />
             <RegionAddModal setIsAdded={setIsDeleted} open={reservationModal} modalToggler={setReservationModal} />
             <RegionUpdateModal selectedUpdateItem={selectedItem} setIsAdded={setIsDeleted} open={categoryUpdateModal} modalToggler={setCategoryUpdateModal} />
             <BlogModalDelete selectedItem={selectedReservationDeleteItem} setIsDeleted={setIsDeleted} setLoading={setLoading} id={Number(reservationDeleteId)} title={reservationDeleteId} open={reservationModalDelete} handleClose={handleClose} />

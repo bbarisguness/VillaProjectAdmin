@@ -33,7 +33,9 @@ const getInitialValues = () => {
         shortDescription: '',
         longDescription: '',
         languageCode: '',
-        icon: ''
+        icon: '',
+        metaDesc: '',
+        metaTitle: ''
     };
 
 
@@ -83,6 +85,8 @@ export default function FormCategoryAdd({ closeModal, setIsAdded }) {
                 fd.append('LanguageCode', user?.config?.companyDefaultLanguage || 'tr')
                 fd.append('DescriptionShort', formik.values.shortDescription)
                 fd.append('DescriptionLong', formik.values.longDescription)
+                fd.append('MetaTitle', formik.values.metaTitle)
+                fd.append('MetaDescription', formik.values.metaDesc)
 
                 await CreateCategory(fd).then((res) => {
                     if (res?.statusCode === 200) {
@@ -193,6 +197,36 @@ export default function FormCategoryAdd({ closeModal, setIsAdded }) {
                                 <Grid item xs={12}>
                                     <InputLabel style={{ marginBottom: '10px' }} htmlFor="longDescription">Genel Açıklama</InputLabel>
                                     <ReactQuill style={{ height: '250px', marginBottom: '40px' }} onChange={handleChangeEditor} />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Stack spacing={1}>
+                                        <InputLabel htmlFor="metaTitle">Seo Meta Title</InputLabel>
+                                        <TextField
+                                            fullWidth
+                                            id="metaTitle"
+                                            name="metaTitle"
+                                            placeholder="Seo Meta Title"
+                                            value={formik.values.metaTitle}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.metaTitle && Boolean(formik.errors.metaTitle)}
+                                            helperText={formik.touched.metaTitle && formik.errors.metaTitle}
+                                        />
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Stack spacing={1}>
+                                        <InputLabel htmlFor="metaDesc">Seo Meta Description</InputLabel>
+                                        <TextField
+                                            fullWidth
+                                            id="metaDesc"
+                                            name="metaDesc"
+                                            placeholder="Seo Meta Description"
+                                            value={formik.values.metaDesc}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.metaDesc && Boolean(formik.errors.metaDesc)}
+                                            helperText={formik.touched.metaDesc && formik.errors.metaDesc}
+                                        />
+                                    </Stack>
                                 </Grid>
                                 <Grid item xs={12}>
                                     <Stack spacing={1}>
