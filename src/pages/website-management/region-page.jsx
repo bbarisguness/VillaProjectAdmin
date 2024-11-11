@@ -236,7 +236,7 @@ export default function RegionPage() {
                 cell: ({ row }) => { return row?.original?.webPageDetails[0]?.title }
             },
             {
-                header: 'Actions',
+                header: 'İşlemler',
                 meta: {
                     className: 'cell-center'
                 },

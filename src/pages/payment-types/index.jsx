@@ -221,7 +221,7 @@ export default function PaymentTypesPage() {
                 cell: ({ row }) => { return row.original.description }
             },
             {
-                header: 'Actions',
+                header: 'İşlemler',
                 meta: {
                     className: 'cell-center'
                 },

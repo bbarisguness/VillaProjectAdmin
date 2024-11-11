@@ -281,7 +281,7 @@ export default function ReservationList() {
                 cell: ({ row }) => { return (row.original.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + `${row?.original?.priceType === 1 ? ' TL' : row?.original?.priceType === 2 ? ' USD' : row?.original?.priceType === 3 ? ' EUR' : row?.original?.priceType === 4 ? ' GBP' : ''}`) }
             },
             {
-                header: 'Actions',
+                header: 'İşlemler',
                 meta: {
                     className: 'cell-center'
                 },

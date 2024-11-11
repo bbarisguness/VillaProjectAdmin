@@ -239,7 +239,7 @@ export default function CategoryPage() {
                 }
             },
             {
-                header: 'Actions',
+                header: 'İşlemler',
                 meta: {
                     className: 'cell-center'
                 },

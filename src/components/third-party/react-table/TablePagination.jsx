@@ -52,7 +52,7 @@ export default function TablePagination({ getPageCount, setPageIndex, setPageSiz
         <Stack direction="row" spacing={1} alignItems="center">
           <Stack direction="row" spacing={1} alignItems="center">
             <Typography variant="caption" color="secondary">
-              Row per page
+              Sayfa başına satır
             </Typography>
             <FormControl sx={{ m: 1 }}>
               <Select
@@ -74,7 +74,7 @@ export default function TablePagination({ getPageCount, setPageIndex, setPageSiz
             </FormControl>
           </Stack>
           <Typography variant="caption" color="secondary">
-            Go to
+            Sayfa
           </Typography>
           <TextField
             size="small"

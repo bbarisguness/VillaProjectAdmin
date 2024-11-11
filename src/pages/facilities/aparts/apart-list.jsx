@@ -242,7 +242,7 @@ export default function ApartList() {
                 }
             },
             {
-                header: 'Actions',
+                header: 'İşlemler',
                 meta: {
                     className: 'cell-center'
                 },

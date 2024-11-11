@@ -237,7 +237,7 @@ export default function CommentList({ apart = false, villa = false }) {
                 cell: ({ row }) => { return row.original.rating }
             },
             {
-                header: 'Actions',
+                header: 'İşlemler',
                 meta: {
                     className: 'cell-center'
                 },

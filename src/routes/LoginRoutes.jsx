@@ -29,26 +29,26 @@ const LoginRoutes = {
           path: 'login',
           element: <AuthLogin />
         },
-        {
-          path: 'register',
-          element: <AuthRegister />
-        },
-        {
-          path: 'forgot-password',
-          element: <AuthForgotPassword />
-        },
-        {
-          path: 'check-mail',
-          element: <AuthCheckMail />
-        },
-        {
-          path: 'reset-password',
-          element: <AuthResetPassword />
-        },
-        {
-          path: 'code-verification',
-          element: <AuthCodeVerification />
-        }
+        // {
+        //   path: 'register',
+        //   element: <AuthRegister />
+        // },
+        // {
+        //   path: 'forgot-password',
+        //   element: <AuthForgotPassword />
+        // },
+        // {
+        //   path: 'check-mail',
+        //   element: <AuthCheckMail />
+        // },
+        // {
+        //   path: 'reset-password',
+        //   element: <AuthResetPassword />
+        // },
+        // {
+        //   path: 'code-verification',
+        //   element: <AuthCodeVerification />
+        // }
       ]
     }
   ]
