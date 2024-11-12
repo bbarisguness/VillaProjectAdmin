@@ -48,7 +48,6 @@ export default function FormPriceTableUpdate({ closeModal, setIsEdit, apart = fa
         enableReinitialize: true,
         onSubmit: async (values, { setSubmitting }) => {
             try {
-
                 const id = selectedItem?.priceTableDetails?.find((itm) => itm.languageCode === selectedLanguage)?.id
 
                 const fd = new FormData()
@@ -57,6 +56,7 @@ export default function FormPriceTableUpdate({ closeModal, setIsEdit, apart = fa
 
                 const fdDetail = new FormData()
                 fdDetail.append('Price', values.price)
+                fdDetail.append('Id', selectedItem?.id)
 
                 if (id) {
                     fd.append('Id', id)
@@ -64,7 +64,7 @@ export default function FormPriceTableUpdate({ closeModal, setIsEdit, apart = fa
                         if (res?.statusCode === 200) {
                             openSnackbar({
                                 open: true,
-                                message: 'Mesafe Cetveli Düzenlendi',
+                                message: 'Fiyat Detayları Düzenlendi',
                                 anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
                                 variant: 'alert',
                                 alert: {
@@ -90,7 +90,7 @@ export default function FormPriceTableUpdate({ closeModal, setIsEdit, apart = fa
                         if (res?.statusCode === 200) {
                             openSnackbar({
                                 open: true,
-                                message: 'Mesafe cetveli detayları eklendi',
+                                message: 'Fiyat Detayları Eklendi',
                                 anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
                                 variant: 'alert',
                                 alert: {
