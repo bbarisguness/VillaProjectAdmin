@@ -29,19 +29,30 @@ import { VillaCreateDetail, VillaUpdateDetail } from 'services/villaServices';
 
 
 // CONSTANT
-const getInitialValues = (selectedItem, selectedLanguage) => {
+const getInitialValues = (selectedItem, selectedLanguage, newData) => {
     const data = selectedItem?.villaDetails?.find((itm) => itm.languageCode === selectedLanguage)
-    const newReservation = {
-        title: data?.name || '',
-        shortDescription: data?.descriptionShort || '',
-        longDescription: data?.descriptionLong || '',
-        featureTextBlue: data?.featureTextBlue || '',
-        featureTextRed: data?.featureTextRed || '',
-        featureTextWhite: data?.featureTextWhite || '',
-    };
+    if (data) {
+        const newReservation = {
+            title: newData.find(item => item.lang === selectedLanguage)?.title || data?.name || '',
+            shortDescription: newData.find(item => item.lang === selectedLanguage)?.shortDescription || data?.descriptionShort || '',
+            longDescription: newData.find(item => item.lang === selectedLanguage)?.longDescription || data?.descriptionLong || '',
+            featureTextBlue: newData.find(item => item.lang === selectedLanguage)?.featureTextBlue || data?.featureTextBlue || '',
+            featureTextRed: newData.find(item => item.lang === selectedLanguage)?.featureTextRed || data?.featureTextRed || '',
+            featureTextWhite: newData.find(item => item.lang === selectedLanguage)?.featureTextWhite || data?.featureTextWhite || '',
+        };
+        return newReservation;
+    } else {
+        const newReservation = {
+            title: newData.find(item => item.lang === selectedLanguage)?.title || '',
+            shortDescription: newData.find(item => item.lang === selectedLanguage)?.shortDescription || '',
+            longDescription: newData.find(item => item.lang === selectedLanguage)?.longDescription || '',
+            featureTextBlue: newData.find(item => item.lang === selectedLanguage)?.featureTextBlue || '',
+            featureTextRed: newData.find(item => item.lang === selectedLanguage)?.featureTextRed || '',
+            featureTextWhite: newData.find(item => item.lang === selectedLanguage)?.featureTextWhite || '',
+        };
+        return newReservation;
+    }
 
-
-    return newReservation;
 };
 
 // ==============================|| CUSTOMER ADD / EDIT - FORM ||============================== //
@@ -53,6 +64,27 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [value, setValue] = useState(0);
+    const [newData, setNewData] = useState([
+        {
+            title: '',
+            shortDescription: '',
+            longDescription: '',
+            featureTextBlue: '',
+            featureTextRed: '',
+            featureTextWhite: '',
+            lang: 'tr'
+        },
+        {
+            title: '',
+            shortDescription: '',
+            longDescription: '',
+            featureTextBlue: '',
+            featureTextRed: '',
+            featureTextWhite: '',
+            lang: 'en'
+        }
+    ])
+
     const [selectedLanguage, setSelectedLanguage] = useState(user?.config?.companyLanguages[0] || '')
 
     useEffect(() => {
@@ -72,7 +104,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
     };
 
     const formik = useFormik({
-        initialValues: getInitialValues(selectedItem, selectedLanguage),
+        initialValues: getInitialValues(selectedItem, selectedLanguage, newData),
         validationSchema: ReservationSchema,
         enableReinitialize: true,
         onSubmit: async (values, { setSubmitting }) => {
@@ -92,6 +124,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
                 fd.append('FeatureTextBlue', formik.values.featureTextBlue)
                 fd.append('FeatureTextRed', formik.values.featureTextRed)
                 fd.append('FeatureTextWhite', formik.values.featureTextWhite)
+                
 
                 if (id) {
                     fd.append('Id', id)
@@ -178,6 +211,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
 
     const handleChangeEditor = (value) => {
         setFieldValue('longDescription', value)
+        setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, longDescription: value } : item))
     };
 
     const handleChange = (event, newValue) => {
@@ -214,7 +248,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
                                             name="title"
                                             placeholder="Başlık"
                                             value={formik.values.title}
-                                            onChange={formik.handleChange}
+                                            onChange={(e) => { setFieldValue('title', e.target.value); setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, title: e.target.value } : item)); }}
                                             error={formik.touched.title && Boolean(formik.errors.title)}
                                             helperText={formik.touched.title && formik.errors.title}
                                         />
@@ -225,10 +259,12 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
                                     <TextField
                                         fullWidth
                                         id="shortDescription"
+                                        name="shortDescription"
                                         multiline
                                         rows={5}
                                         placeholder="Kısa Açıklama"
-                                        {...getFieldProps('shortDescription')}
+                                        value={formik.values.shortDescription}
+                                        onChange={(e) => { setFieldValue('shortDescription', e.target.value); setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, shortDescription: e.target.value } : item)); }}
                                         error={Boolean(touched.shortDescription && errors.shortDescription)}
                                         helperText={touched.shortDescription && errors.shortDescription}
                                     />
@@ -246,7 +282,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
                                             name="featureTextRed"
                                             placeholder="Kırmızı Etiket"
                                             value={formik.values.featureTextRed}
-                                            onChange={formik.handleChange}
+                                            onChange={(e) => { setFieldValue('featureTextRed', e.target.value); setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, featureTextRed: e.target.value } : item)); }}
                                             error={formik.touched.featureTextRed && Boolean(formik.errors.featureTextRed)}
                                             helperText={formik.touched.featureTextRed && formik.errors.featureTextRed}
                                         />
@@ -261,7 +297,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
                                             name="featureTextBlue"
                                             placeholder="Mavi Etiket"
                                             value={formik.values.featureTextBlue}
-                                            onChange={formik.handleChange}
+                                            onChange={(e) => { setFieldValue('featureTextBlue', e.target.value); setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, featureTextBlue: e.target.value } : item)); }}
                                             error={formik.touched.featureTextBlue && Boolean(formik.errors.featureTextBlue)}
                                             helperText={formik.touched.featureTextBlue && formik.errors.featureTextBlue}
                                         />
@@ -276,7 +312,7 @@ export default function FormVillaDetailUpdate({ closeModal, setIsAdded, selected
                                             name="featureTextWhite"
                                             placeholder="Beyaz Etiket"
                                             value={formik.values.featureTextWhite}
-                                            onChange={formik.handleChange}
+                                            onChange={(e) => { setFieldValue('featureTextWhite', e.target.value); setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, featureTextWhite: e.target.value } : item)); }}
                                             error={formik.touched.featureTextWhite && Boolean(formik.errors.featureTextWhite)}
                                             helperText={formik.touched.featureTextWhite && formik.errors.featureTextWhite}
                                         />

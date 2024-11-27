@@ -28,17 +28,24 @@ import useUser from 'hooks/useUser';
 
 
 // CONSTANT
-const getInitialValues = (selectedItem, selectedLanguage) => {
+const getInitialValues = (selectedItem, selectedLanguage, newData) => {
     const data = selectedItem?.categoryDetails?.find((itm) => itm.languageCode === selectedLanguage)
-    const newReservation = {
-        title: data?.name || '',
-        shortDescription: data?.descriptionShort || '',
-        longDescription: data?.descriptionLong || '',
-        icon: selectedItem?.icon || ''
-    };
+    if (data) {
+        const newReservation = {
+            title: newData.find(item => item.lang === selectedLanguage)?.title || data?.name || '',
+            shortDescription: newData.find(item => item.lang === selectedLanguage)?.shortDescription || data?.descriptionShort || '',
+            longDescription: newData.find(item => item.lang === selectedLanguage)?.longDescription || data?.descriptionLong || '',
+        };
+        return newReservation;
+    } else {
+        const newReservation = {
+            title: newData.find(item => item.lang === selectedLanguage)?.title || '',
+            shortDescription: newData.find(item => item.lang === selectedLanguage)?.shortDescription || '',
+            longDescription: newData.find(item => item.lang === selectedLanguage)?.longDescription || '',
+        };
+        return newReservation;
+    }
 
-
-    return newReservation;
 };
 
 // ==============================|| CUSTOMER ADD / EDIT - FORM ||============================== //
@@ -50,6 +57,20 @@ export default function FormCategoryUpdate({ closeModal, setIsAdded, selectedIte
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [value, setValue] = useState(0);
+    const [newData, setNewData] = useState([
+        {
+            title: '',
+            shortDescription: '',
+            longDescription: '',
+            lang: 'tr'
+        },
+        {
+            title: '',
+            shortDescription: '',
+            longDescription: '',
+            lang: 'en'
+        }
+    ])
     const [selectedLanguage, setSelectedLanguage] = useState(user?.config?.companyLanguages[0] || '')
 
     useEffect(() => {
@@ -69,7 +90,7 @@ export default function FormCategoryUpdate({ closeModal, setIsAdded, selectedIte
     };
 
     const formik = useFormik({
-        initialValues: getInitialValues(selectedItem, selectedLanguage),
+        initialValues: getInitialValues(selectedItem, selectedLanguage, newData),
         validationSchema: ReservationSchema,
         enableReinitialize: true,
         onSubmit: async (values, { setSubmitting }) => {
@@ -170,12 +191,13 @@ export default function FormCategoryUpdate({ closeModal, setIsAdded, selectedIte
 
     const handleChangeEditor = (value) => {
         setFieldValue('longDescription', value)
+        setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, longDescription: value } : item))
     };
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
         setSelectedLanguage(user?.config?.companyLanguages[newValue])
-    }; 
+    };
 
     return (
         <>
@@ -190,7 +212,7 @@ export default function FormCategoryUpdate({ closeModal, setIsAdded, selectedIte
                                     {
                                         user?.config?.companyLanguages.map((itm, i) => {
                                             return (
-                                                <Tab key={i} label={itm} style={{ color: selectedItem?.categoryDetails?.find((item) =>  item.languageCode === itm) ? '#107d4f' : '#d35a00' }} component={Typography} icon={<LanguageCircle />} iconPosition="start" />
+                                                <Tab key={i} label={itm} style={{ color: selectedItem?.categoryDetails?.find((item) => item.languageCode === itm) ? '#107d4f' : '#d35a00' }} component={Typography} icon={<LanguageCircle />} iconPosition="start" />
                                             )
                                         })
                                     }
@@ -206,7 +228,7 @@ export default function FormCategoryUpdate({ closeModal, setIsAdded, selectedIte
                                             name="title"
                                             placeholder="Başlık"
                                             value={formik.values.title}
-                                            onChange={formik.handleChange}
+                                            onChange={(e) => { setFieldValue('title', e.target.value); setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, title: e.target.value } : item)); }}
                                             error={formik.touched.title && Boolean(formik.errors.title)}
                                             helperText={formik.touched.title && formik.errors.title}
                                         />
@@ -220,7 +242,9 @@ export default function FormCategoryUpdate({ closeModal, setIsAdded, selectedIte
                                         multiline
                                         rows={5}
                                         placeholder="Kısa Açıklama"
-                                        {...getFieldProps('shortDescription')}
+                                        name='shortDescription'
+                                        value={formik.values.shortDescription}
+                                        onChange={(e) => { setFieldValue('shortDescription', e.target.value); setNewData(prevData => prevData.map(item => item.lang === selectedLanguage ? { ...item, shortDescription: e.target.value } : item)); }}
                                         error={Boolean(touched.shortDescription && errors.shortDescription)}
                                         helperText={touched.shortDescription && errors.shortDescription}
                                     />
