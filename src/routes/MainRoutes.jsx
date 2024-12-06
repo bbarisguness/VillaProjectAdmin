@@ -54,6 +54,7 @@ import RoomContent from 'pages/facilities/aparts/rooms/tabs/room-content';
 import VillaCommentSection from 'pages/facilities/tabs/villa-comments';
 import ApartComments from 'pages/facilities/aparts/tabs/apart-comments';
 import RegionPage from 'pages/website-management/region-page';
+import ActivityPage from 'pages/website-management/activity-page';
 
 
 const ErrorPage = Loadable(lazy(() => import('pages/error-pages/404')));
@@ -287,6 +288,10 @@ const MainRoutes = {
             {
               path: 'regions',
               element: <RegionPage />
+            },
+            {
+              path: 'activities',
+              element: <ActivityPage />
             },
             {
               path: 'static-contents',

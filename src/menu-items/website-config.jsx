@@ -36,6 +36,13 @@ const websiteConfig = {
       url: '/website-management/regions'
     },
     {
+      id: 'settings-activities-list',
+      title: <FormattedMessage id="settings-activities-list" />,
+      type: 'item',
+      icon: icons.maintenance,
+      url: '/website-management/activities'
+    },
+    {
       id: 'static-content-list',
       title: <FormattedMessage id="static-content-list" />,
       type: 'item',
